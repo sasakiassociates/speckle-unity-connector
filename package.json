@@ -1,6 +1,6 @@
 {
   "name": "com.speckle.connector",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "displayName": "Speckle Connector",
   "description": "Unity Connector for Speckle Core and Objects",
   "unity": "2020.3",
