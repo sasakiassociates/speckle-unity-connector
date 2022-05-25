@@ -1,0 +1,19 @@
+{
+    "name": "com.speckle.connector.editor",
+    "rootNamespace": "Speckle.ConnectorUnity",
+    "references": [
+        "com.speckle.connector",
+        "UniTask.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
