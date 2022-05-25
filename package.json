@@ -2,7 +2,7 @@
   "name": "com.speckle.connector",
   "version": "1.1.1",
   "displayName": "Speckle Connector",
-  "description": "An unofficial Speckle Connector for Unity",
+  "description": "An Unofficial Speckle Connector for Unity",
   "unity": "2021.3",
   "documentationUrl": "https://speckle.guide/user/unity.html",
   "changelogUrl": "https://speckle.notion.site/Public-Changelog-45cb90c7514642ffab2e72d0288e4071",
