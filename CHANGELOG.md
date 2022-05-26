@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/sasakiassociates/speckle-unity-connector/compare/v1.1.2...v1.1.3) (2022-05-26)
+
+
+### Bug Fixes
+
+* updated deps ([580041f](https://github.com/sasakiassociates/speckle-unity-connector/commit/580041f3ef402d1a5c2eef4adef01e07123d4a0f))
+
 ## [1.1.2](https://github.com/sasakiassociates/speckle-unity-connector/compare/v1.1.1...v1.1.2) (2022-05-25)
 
 
