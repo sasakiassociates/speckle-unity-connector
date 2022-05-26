@@ -1,0 +1,27 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="container">
+        <ui:VisualElement name="url-container"
+                          style="flex-direction: row; align-items: auto; justify-content: flex-start; flex-grow: 1; flex-shrink: 1; max-height: none; max-width: none;">
+            <ui:TextField picking-mode="Ignore" label="Stream URL" value="stream url"
+                          text="https://speckle.xyz/streams/1234567999999" name="stream-url" readonly="false"
+                          binding-path="originalInput"
+                          tooltip="Copy and paste in any public Speckle stream URL (something like this https://speckle.xyz/streams/1234567999999)"
+                          style="max-width: none; min-width: auto; flex-shrink: 1; flex-grow: 1;"/>
+            <ui:Button text="Search" display-tooltip-when-elided="true" name="search-url"
+                       style="align-items: auto; flex-shrink: 1; flex-grow: 0;"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="spacer" style="height: 16px;"/>
+        <ui:VisualElement name="speckle-stream-info-container">
+            <ui:Label text="Speckle Stream Info" display-tooltip-when-elided="true" focusable="false"
+                      style="align-items: center; -unity-text-align: upper-center;"/>
+            <ui:TextField picking-mode="Ignore" label="Stream" readonly="true" name="streamId" binding-path="streamId"
+                          focusable="false" style="visibility: visible; display: flex;"/>
+            <ui:TextField picking-mode="Ignore" label="Branch" readonly="true" name="branchName"
+                          binding-path="branchName" focusable="false"/>
+            <ui:TextField picking-mode="Ignore" label="Commit" readonly="true" name="commitId" binding-path="commitId"
+                          focusable="false"/>
+            <ui:TextField picking-mode="Ignore" label="Speckle Server" readonly="true" name="server"
+                          binding-path="serverUrl" focusable="false"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="preview-container" style="flex-shrink: 1;">
+        <ui:Toggle label="Show" name="display"
+                   style="flex-grow: 0; align-items: auto; flex-shrink: 1; margin-left: 3px; margin-right: 3px; margin-top: 3px; margin-bottom: 3px;"/>
+        <Speckle.ConnectorUnity.GUI.StreamPreview name="stream-preview"
+                                                  style="height: auto; background-image: none; -unity-background-scale-mode: scale-to-fit; background-color: rgba(255, 255, 255, 0.69); max-height: 250px; min-height: 180px;"/>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,5 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Template name="SpeckleConnector"
+                 src="project://database/Packages/systems.speckle.speckle-unity/GUI/SpeckleConnector.uxml?fileID=9197481963319205126&amp;guid=ad86a5d8ced225e4fb7f8f0e9c729de2&amp;type=3#SpeckleConnector"/>
+    <ui:Instance template="SpeckleConnector" name="SpeckleConnector" style="flex-grow: 0; flex-shrink: 0;"/>
+</ui:UXML>

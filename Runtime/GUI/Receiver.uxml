@@ -1,0 +1,32 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Template name="SearchUrl" src="project://database/Packages/systems.speckle.speckle-unity/GUI/SearchUrl.uxml?fileID=9197481963319205126&amp;guid=8ba0885c5d6c21247bfb47241a93a0c6&amp;type=3#SearchUrl" />
+    <ui:Template name="BranchCard" src="project://database/Packages/systems.speckle.speckle-unity/GUI/BranchCard.uxml?fileID=9197481963319205126&amp;guid=1dca78ead9ad07a47849fc3b2d79d371&amp;type=3#BranchCard" />
+    <ui:Template name="CommitCard" src="project://database/Packages/systems.speckle.speckle-unity/GUI/CommitCard.uxml?fileID=9197481963319205126&amp;guid=09a7ab98ee6bb5f4abe96b6c0dc21265&amp;type=3#CommitCard" />
+    <ui:Template name="ConverterSelectionCard" src="project://database/Packages/systems.speckle.speckle-unity/GUI/ConverterSelectionCard.uxml?fileID=9197481963319205126&amp;guid=a97966f562baf9f4d8ccc1728f9c4cf9&amp;type=3#ConverterSelectionCard" />
+    <Style src="project://database/Packages/systems.speckle.speckle-unity/GUI/USS/speckleStyles.uss?fileID=7433441132597879392&amp;guid=3e16578a712621347bc146e6de449517&amp;type=3#speckleStyles" />
+    <ui:Instance template="SearchUrl" name="url-container" />
+    <ui:VisualElement name="stream-container">
+        <ui:Instance template="BranchCard" name="branch-card" />
+        <ui:Instance template="CommitCard" name="commit-card" />
+    </ui:VisualElement>
+    <ui:VisualElement name="setup-container" style="flex-grow: 1; height: 243px; max-height: 250px; min-height: 100px;">
+        <ui:VisualElement name="operation-container" style="flex-direction: row; align-items: auto;">
+            <ui:Instance template="ConverterSelectionCard" name="ConverterSelectionCard" tooltip="The type of converter to use for converting Speckle to Unity" style="flex-grow: 1;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="preview-container" style="flex-direction: row; flex-grow: 1; align-items: flex-start;">
+            <ui:VisualElement name="background" style="flex-grow: 1; background-color: rgba(101, 101, 101, 0); flex-direction: row; align-items: flex-start; justify-content: flex-start; margin-top: 4px; margin-left: 0; margin-right: 4px;">
+                <ui:VisualElement name="show-preview-container" style="width: 25px; align-items: center; margin-right: 5px;">
+                    <ui:Toggle name="show-preview" binding-path="showPreview" tooltip="Display a thumbnail of the current commit" style="align-items: stretch; margin-top: 3px; width: auto; justify-content: space-around; flex-grow: 0; flex-shrink: 1;" />
+                    <ui:Toggle name="render-preview" tooltip="Load a preview of commit into your scene" binding-path="renderPreview" style="align-items: stretch; margin-top: 3px; width: auto; justify-content: space-around; flex-grow: 0; flex-shrink: 1;" />
+                </ui:VisualElement>
+                <Speckle.ConnectorUnity.GUI.StreamPreview name="preview" style="max-width: none; max-height: 100%; min-height: 75%; flex-grow: 1; flex-shrink: 1; background-color: rgb(166, 166, 166); margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; height: 100%; width: 100%; padding-left: 3px; padding-right: 3px; padding-top: 3px; padding-bottom: 3px;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="receive-container" style="flex-direction: column; align-items: center; flex-grow: 0; height: auto; width: auto;">
+        <ui:VisualElement name="container" style="padding-left: 1px; padding-right: 1px; padding-top: 1px; padding-bottom: 1px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; width: 100px; height: 25px; justify-content: center; flex-direction: row; align-items: auto;">
+            <ui:Button display-tooltip-when-elided="true" name="run" binding-path="run" style="background-image: url(&apos;project://database/Packages/systems.speckle.speckle-unity/GUI/Assets/Receiver.png?fileID=2800000&amp;guid=4e2d7537a68c1a74187c439e7cad5562&amp;type=3#Receiver&apos;); -unity-background-scale-mode: scale-to-fit; width: auto; height: auto; padding-top: 3px; padding-bottom: 3px; flex-grow: 1; justify-content: space-between; align-items: auto;" />
+        </ui:VisualElement>
+        <ui:ProgressBar title="0/100" name="progress" binding-path="progressAmount" class="fontSmallBold" style="flex-grow: 1; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; justify-content: space-around; align-items: stretch; width: 95%; -unity-font-style: bold; font-size: 8px; height: auto;" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,10 +1,10 @@
 {
-    "name": "com.speckle.connector",
+    "name": "Speckle.Connector",
     "rootNamespace": "Speckle.ConnectorUnity",
     "references": [
-        "com.speckle.core",
-        "com.speckle.objects",
-        "UniTask"
+        "UniTask",
+        "Speckle.Core",
+        "Speckle.Objects"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

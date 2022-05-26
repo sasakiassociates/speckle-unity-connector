@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Packages/systems.speckle.speckle-unity/GUI/USS/speckleStyles.uss?fileID=7433441132597879392&amp;guid=3e16578a712621347bc146e6de449517&amp;type=3#speckleStyles"/>
+    <ui:VisualElement name="stream-selection-container" class="font">
+        <ui:VisualElement name="stream-container" tooltip="all active streams for this server"
+                          style="flex-direction: row; background-image: none; margin-top: 2px; margin-bottom: 2px;">
+            <ui:VisualElement name="icon"
+                              style="background-image: url(&apos;project://database/Packages/systems.speckle.speckle-unity/GUI/Assets/folder-outline.png?fileID=2800000&amp;guid=9aa29e591bf406947ad1ddafca0dac7c&amp;type=3#folder-outline&apos;); width: 25px; height: auto; align-items: auto; max-width: none; min-width: auto; -unity-background-scale-mode: scale-to-fit; margin-left: 1px; margin-right: 1px; margin-top: 1px; margin-bottom: 1px;"/>
+            <ui:DropdownField index="-1" name="items" class="dropdown" style="flex-grow: 1; background-image: none;"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

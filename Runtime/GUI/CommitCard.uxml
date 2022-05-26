@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Packages/systems.speckle.speckle-unity/GUI/USS/speckleStyles.uss?fileID=7433441132597879392&amp;guid=3e16578a712621347bc146e6de449517&amp;type=3#speckleStyles" />
+    <ui:VisualElement name="commit-container" style="flex-direction: row; background-image: none; margin-top: 2px; margin-bottom: 2px;">
+        <ui:VisualElement name="icon" style="background-image: url(&apos;project://database/Packages/systems.speckle.speckle-unity/GUI/Assets/source-commit.png?fileID=2800000&amp;guid=f7a0c9f60f5ec2a4bb78678afebfec55&amp;type=3#source-commit&apos;); width: 24px; height: auto; align-items: center; max-width: none; min-width: auto; -unity-background-scale-mode: scale-to-fit; margin-left: 1px; margin-right: 1px; margin-top: 1px; margin-bottom: 1px; justify-content: space-around;" />
+        <ui:DropdownField index="-1" name="items" tooltip="All active commits from the selected branch" class="dropdown" style="flex-grow: 1; background-image: none;" />
+    </ui:VisualElement>
+</ui:UXML>

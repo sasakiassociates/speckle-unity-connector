@@ -1,0 +1,18 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Template name="BranchCard" src="project://database/Packages/systems.speckle.speckle-unity/GUI/BranchCard.uxml?fileID=9197481963319205126&amp;guid=1dca78ead9ad07a47849fc3b2d79d371&amp;type=3#BranchCard" />
+    <ui:Template name="ConverterSelectionCard" src="project://database/Packages/systems.speckle.speckle-unity/GUI/ConverterSelectionCard.uxml?fileID=9197481963319205126&amp;guid=a97966f562baf9f4d8ccc1728f9c4cf9&amp;type=3#ConverterSelectionCard" />
+    <Style src="project://database/Packages/systems.speckle.speckle-unity/GUI/USS/speckleStyles.uss?fileID=7433441132597879392&amp;guid=3e16578a712621347bc146e6de449517&amp;type=3#speckleStyles" />
+    <ui:VisualElement name="stream-container">
+        <ui:Instance template="BranchCard" name="branch-card" />
+        <ui:Instance template="ConverterSelectionCard" name="converter-card" tooltip="The type of converter to use for converting Speckle to Unity" style="flex-grow: 1;" />
+    </ui:VisualElement>
+    <ui:VisualElement name="setup-container" style="flex-grow: 0; height: auto; max-height: none; min-height: auto; flex-shrink: 0; align-items: auto;">
+        <ui:VisualElement name="operation-container" style="flex-direction: row; align-items: center; flex-grow: 1;">
+            <ui:TextField picking-mode="Ignore" value="commit message here" text="message (optional)" name="message" multiline="true" class="font" style="flex-grow: 1; height: 64px; align-items: stretch; justify-content: space-around; padding-left: 5px; padding-right: 5px; padding-top: 2px; padding-bottom: 2px;" />
+            <ui:Button display-tooltip-when-elided="true" name="run" binding-path="receive" style="background-image: url(&apos;project://database/Packages/systems.speckle.speckle-unity/GUI/Assets/Sender.png?fileID=2800000&amp;guid=79149dcffbb2f3e448e1043bb43bf9db&amp;type=3#Sender&apos;); -unity-background-scale-mode: scale-to-fit; width: auto; height: auto; padding-top: 3px; padding-bottom: 3px; flex-grow: 0; justify-content: space-around; align-items: stretch; max-height: none; min-height: auto; max-width: none; min-width: 60px; -unity-text-align: middle-center;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="progress-container" style="flex-direction: column; align-items: center; flex-grow: 0; height: auto; width: auto;">
+        <ui:ProgressBar title="0/100" name="progress" binding-path="progressAmount" class="fontSmallBold" style="flex-grow: 1; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; justify-content: space-around; align-items: stretch; width: 95%; -unity-font-style: bold; font-size: 8px; height: auto;" />
+    </ui:VisualElement>
+</ui:UXML>
