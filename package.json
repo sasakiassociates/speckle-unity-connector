@@ -23,7 +23,7 @@
     "url": "https://speckle.systems"
   },
   "dependencies": {
-    "com.speckle.core": "1.0.3",
-    "com.speckle.objects": "1.1.3"
+    "com.speckle.core": "1.0.4",
+    "com.speckle.objects": "1.1.5"
   }
 }
