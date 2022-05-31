@@ -3,6 +3,8 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine.UIElements;
 using Speckle.ConnectorUnity.GUI;
+using Speckle.ConnectorUnity.Ops;
+using UnityEditor.UIElements;
 
 namespace Speckle.ConnectorUnity
 {
@@ -14,9 +16,12 @@ namespace Speckle.ConnectorUnity
 		protected TClient obj;
 		protected ProgressBar progress;
 
-		protected VisualElement root;
+		protected TextField streamUrlField;
 
 		protected Button runButton;
+		protected Button searchButton;
+
+		protected VisualElement root;
 		protected VisualTreeAsset tree;
 
 		protected abstract string treePath { get; }
@@ -72,6 +77,8 @@ namespace Speckle.ConnectorUnity
 
 			root = new VisualElement();
 			tree.CloneTree(root);
+			
+			root.Add(new PropertyField(serializedObject.FindProperty("_root")));
 
 			branches = root.SetDropDown(
 				"branch",
@@ -84,6 +91,16 @@ namespace Speckle.ConnectorUnity
 				FindInt("converterIndex"),
 				obj.converters.Format(),
 				e => converters.DropDownChange(e, SetConverterChange));
+
+			streamUrlField = root.Q<TextField>("url");
+			streamUrlField.value = obj.StreamUrl;
+
+			searchButton = root.Q<Button>("search-button");
+			searchButton.clickable.clicked += () =>
+			{
+				if (SpeckleConnector.TryGetSpeckleStream(streamUrlField.value, out var speckleStream))
+					obj.SetStream(speckleStream);
+			};
 
 			runButton = root.Q<Button>("run");
 			runButton.clickable.clicked += OnRunClicked;

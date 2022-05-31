@@ -1,5 +1,6 @@
 using Speckle.ConnectorUnity;
 using Speckle.ConnectorUnity.GUI;
+using Speckle.ConnectorUnity.Ops;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
