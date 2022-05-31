@@ -11,7 +11,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 using Speckle.ConnectorUnity.Converter;
-
+using Speckle.ConnectorUnity.Ops;
 using Application = UnityEngine.Device.Application;
 #if UNITY_EDITOR
 using UnityEditor;
