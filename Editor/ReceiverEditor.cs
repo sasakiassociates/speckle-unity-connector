@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.GUI;
+using Speckle.ConnectorUnity.Ops;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -16,9 +17,7 @@ namespace Speckle.ConnectorUnity
 
 		private StreamPreview preview;
 
-		private Button searchButton;
 		private Toggle showPreview, renderPreview;
-		private TextField streamUrlField;
 
 		private int commitIndex => FindInt("commitIndex");
 
@@ -51,15 +50,8 @@ namespace Speckle.ConnectorUnity
 				obj.Commits.Format(),
 				e => commits.DropDownChange(e, i => { obj.SetCommit(i); }));
 
-			streamUrlField = root.Q<TextField>("url");
-			streamUrlField.value = obj.StreamUrl;
 
-			searchButton = root.Q<Button>("search-button");
-			searchButton.clickable.clicked += () =>
-			{
-				if (SpeckleConnector.TryGetSpeckleStream(streamUrlField.value, out var speckleStream))
-					obj.SetStream(speckleStream);
-			};
+		
 
 			preview = root.Q<StreamPreview>("preview");
 			preview.thumbnail.image = GetPreview();
