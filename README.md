@@ -28,8 +28,8 @@ speckle-unity-conector
 | 1.1.5 | Support for UI panels in runtime |
 | 1.1.6 | Support for Unity 2020 |
 | 1.1.7 | Bump packages to Speckle 2.6 |
-| 1.1.8 | Sample scene and how to docs |
-| 1.1.9 | Not really sure |
+| 1.1.8 | Buffer Previews for Display Meshes |
+| 1.1.9 | Sample scene with test stream and how to docs  |
 | 1.2.0 | Production ready! |
 
 
