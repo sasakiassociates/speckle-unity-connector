@@ -24,7 +24,7 @@ speckle-unity-conector
 | ~1.1.1~ | ~Package structure~|
 | ~1.1.2~ | ~Deconstruct code from main repo for Converter and Clients~|
 | ~1.1.3~ | ~UI Panel for Client objects in editor~|
-| ~1.1.4~ | ~UI Panel for manager in editor ~|
+| ~1.1.4~ | ~UI Panel for manager in editor~|
 | 1.1.5 | Support for UI panels in runtime |
 | 1.1.6 | Support for Unity 2020 |
 | 1.1.7 | Bump packages to Speckle 2.6 |
