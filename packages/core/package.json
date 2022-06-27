@@ -2,7 +2,7 @@
   "name": "com.speckle.core",
   "version": "1.0.6",
   "displayName": "Speckle Core",
-  "description": "Package for bringing Speckle Core and Objects into Unity",
+  "description": "Package for bringing Speckle Core and Objects into Unity from Sasaki",
   "unity": "2020.3",
   "repository": {
     "type": "git",

@@ -2,7 +2,7 @@
   "name": "com.speckle.objects",
   "version": "1.1.7",
   "displayName": "Speckle Objects",
-  "description": "A set of Speckle Objects converted to Unity Components",
+  "description": "A set of Speckle Objects converted to Unity Components from Sasaki",
   "unity": "2020.3",
   "repository": {
     "type": "git",

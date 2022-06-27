@@ -2,7 +2,7 @@
   "name": "com.speckle.connector",
   "version": "1.1.4",
   "displayName": "Speckle Connector",
-  "description": "An Unofficial Speckle Connector for Unity",
+  "description": "An Unofficial Speckle Connector for Unity from Sasaki",
   "unity": "2021.3",
   "repository": {
     "type": "git",
