@@ -1,4 +1,3 @@
-using Speckle.ConnectorUnity;
 using Speckle.ConnectorUnity.GUI;
 using Speckle.ConnectorUnity.Ops;
 using UnityEditor;
@@ -8,11 +7,13 @@ using UnityEngine.UIElements;
 [CustomEditor(typeof(SpeckleStream))]
 public class SpeckleStreamEditor : Editor
 {
-	private SpeckleStream obj;
-	private VisualElement root;
-	private VisualTreeAsset tree;
+	SpeckleStream obj;
 
-	private void OnEnable()
+	VisualElement root;
+
+	VisualTreeAsset tree;
+
+	void OnEnable()
 	{
 		tree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(GUIHelper.Dir + "SpeckleStream.uxml");
 		obj = (SpeckleStream)target;
@@ -28,13 +29,11 @@ public class SpeckleStreamEditor : Editor
 
 		var searchButton = root.Q<Button>("search-url");
 		if (searchButton != null)
-		{
 			searchButton.clickable.clicked += () =>
 			{
 				Debug.Log("Search button clicked");
 				obj.Init();
 			};
-		}
 
 		return root;
 	}

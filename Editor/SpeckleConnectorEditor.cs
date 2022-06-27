@@ -13,19 +13,25 @@ namespace Speckle.ConnectorUnity
 	public class SpeckleConnectorEditor : Editor
 	{
 
-		private DropdownField accounts;
-		private DropdownField converters;
+		DropdownField accounts;
 
-		private Image img;
-		private SpeckleConnector obj;
-		private Button refresh;
-		private VisualElement root;
+		DropdownField converters;
 
-		private VisualTreeAsset streamCard;
-		private ListView streamList;
-		private VisualTreeAsset tree;
+		Image img;
 
-		private void OnEnable()
+		SpeckleConnector obj;
+
+		Button refresh;
+
+		VisualElement root;
+
+		VisualTreeAsset streamCard;
+
+		ListView streamList;
+
+		VisualTreeAsset tree;
+
+		void OnEnable()
 		{
 			obj = (SpeckleConnector)target;
 			obj.onRepaint += RefreshAll;
@@ -34,13 +40,13 @@ namespace Speckle.ConnectorUnity
 			streamCard = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(GUIHelper.Dir + "Elements/StreamCard/StreamCard.uxml");
 		}
 
-		private void OnDisable()
+		void OnDisable()
 		{
 			obj.onRepaint -= RefreshAll;
 		}
 
 		// TODO: set a loading state for the gui 
-		private event Action onConnectorLoading;
+		event Action onConnectorLoading;
 
 		public override VisualElement CreateInspectorGUI()
 		{
@@ -64,7 +70,7 @@ namespace Speckle.ConnectorUnity
 			return root;
 		}
 
-		private void SetupList()
+		void SetupList()
 		{
 			VisualElement makeItem()
 			{
@@ -122,14 +128,14 @@ namespace Speckle.ConnectorUnity
 			streamList.onSelectedIndicesChange += i => obj.SetStream(i.FirstOrDefault());
 		}
 
-		private void SetAndRefreshList()
+		void SetAndRefreshList()
 		{
 			streamList.ClearSelection();
 			streamList.itemsSource = obj.Streams;
 			streamList.RefreshItems();
 		}
 
-		private async UniTask AccountChange(ChangeEvent<string> evt)
+		async UniTask AccountChange(ChangeEvent<string> evt)
 		{
 			var index = accounts.DropDownChange(evt);
 
@@ -140,19 +146,16 @@ namespace Speckle.ConnectorUnity
 			RefreshAll();
 		}
 
-		private int FindInt(string propName)
-		{
-			return serializedObject.FindProperty(propName).intValue;
-		}
+		int FindInt(string propName) => serializedObject.FindProperty(propName).intValue;
 
-		private void RefreshAll()
+		void RefreshAll()
 		{
 			Debug.Log("Refresh called on Connector");
 			Refresh(accounts, obj.Accounts.Format(), "accountIndex");
 			SetAndRefreshList();
 		}
 
-		private void Refresh(DropdownField dropdown, IEnumerable<string> items, string prop)
+		void Refresh(DropdownField dropdown, IEnumerable<string> items, string prop)
 		{
 			dropdown.choices = items?.ToList();
 			dropdown.index = FindInt(prop);

@@ -1,4 +1,4 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:Template name="AccountSelectCard"
                  src="project://database/Packages/com.speckle.connector/GUI/AccountSelectionCard.uxml?fileID=9197481963319205126&amp;guid=b2830fb645dd33942adca815c39831e9&amp;type=3#AccountSelectionCard"/>
     <ui:Template name="StreamListCard"

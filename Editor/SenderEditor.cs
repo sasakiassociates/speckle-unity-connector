@@ -10,11 +10,13 @@ namespace Speckle.ConnectorUnity
 	public class SenderEditor : SpeckleClientEditor<Sender>
 	{
 
-		private TextField message;
-		
-		protected override string treePath => GUIHelper.Dir + "Sender.uxml";
-		
-		
+		TextField message;
+
+		protected override string treePath
+		{
+			get => GUIHelper.Dir + "Sender.uxml";
+		}
+
 		protected override void OnRunClicked()
 		{
 			if (!obj.isWorking)

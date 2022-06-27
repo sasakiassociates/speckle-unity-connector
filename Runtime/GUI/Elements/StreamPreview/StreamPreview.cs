@@ -11,7 +11,7 @@ namespace Speckle.ConnectorUnity.GUI
 
 		public StreamPreview()
 		{
-			thumbnail = new Image()
+			thumbnail = new Image
 			{
 				style =
 				{

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.GUI;
@@ -13,15 +12,21 @@ namespace Speckle.ConnectorUnity
 	public class ReceiverEditor : SpeckleClientEditor<Receiver>
 	{
 
-		private DropdownField commits;
+		DropdownField commits;
 
-		private StreamPreview preview;
+		StreamPreview preview;
 
-		private Toggle showPreview, renderPreview;
+		Toggle showPreview, renderPreview;
 
-		private int commitIndex => FindInt("commitIndex");
+		int commitIndex
+		{
+			get => FindInt("commitIndex");
+		}
 
-		protected override string treePath => GUIHelper.Dir + "Receiver.uxml";
+		protected override string treePath
+		{
+			get => GUIHelper.Dir + "Receiver.uxml";
+		}
 
 		protected override void OnEnable()
 		{
@@ -50,9 +55,6 @@ namespace Speckle.ConnectorUnity
 				obj.Commits.Format(),
 				e => commits.DropDownChange(e, i => { obj.SetCommit(i); }));
 
-
-		
-
 			preview = root.Q<StreamPreview>("preview");
 			preview.thumbnail.image = GetPreview();
 
@@ -77,12 +79,9 @@ namespace Speckle.ConnectorUnity
 			Refresh(commits, obj.Commits.Format(), commitIndex);
 		}
 
-		private Texture GetPreview()
-		{
-			return obj.ShowPreview ? obj.Preview : null;
-		}
+		Texture GetPreview() => obj.ShowPreview ? obj.Preview : null;
 
-		private void SetPreview()
+		void SetPreview()
 		{
 			preview.thumbnail.image = obj.Preview;
 		}

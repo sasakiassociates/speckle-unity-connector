@@ -1,13 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class BufferRenderer : MonoBehaviour
 {
 
-	private static Material lineMaterial;
+	static Material lineMaterial;
+
 	public int lineCount = 100;
+
 	public float radius = 3.0f;
+
 	// Will be called after all regular rendering is done
 	public void OnRenderObject()
 	{
@@ -22,10 +24,10 @@ public class BufferRenderer : MonoBehaviour
 
 		// Draw lines
 		GL.Begin(GL.LINES);
-		for (int i = 0; i < lineCount; ++i)
+		for (var i = 0; i < lineCount; ++i)
 		{
-			float a = i / (float)lineCount;
-			float angle = a * Mathf.PI * 2;
+			var a = i / (float)lineCount;
+			var angle = a * Mathf.PI * 2;
 			// Vertex colors change from red to green
 			GL.Color(new Color(a, 1 - a, 0, 0.8F));
 			// One vertex at transform position
@@ -33,6 +35,7 @@ public class BufferRenderer : MonoBehaviour
 			// Another vertex at edge of circle
 			GL.Vertex3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0);
 		}
+
 		GL.End();
 		GL.PopMatrix();
 	}
@@ -43,14 +46,14 @@ public class BufferRenderer : MonoBehaviour
 		{
 			// Unity has a built-in shader that is useful for drawing
 			// simple colored things.
-			Shader shader = Shader.Find("Hidden/Internal-Colored");
+			var shader = Shader.Find("Hidden/Internal-Colored");
 			lineMaterial = new Material(shader);
 			lineMaterial.hideFlags = HideFlags.HideAndDontSave;
 			// Turn on alpha blending
-			lineMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-			lineMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+			lineMaterial.SetInt("_SrcBlend", (int)BlendMode.SrcAlpha);
+			lineMaterial.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
 			// Turn backface culling off
-			lineMaterial.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+			lineMaterial.SetInt("_Cull", (int)CullMode.Off);
 			// Turn off depth writes
 			lineMaterial.SetInt("_ZWrite", 0);
 		}

@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
-using UnityEngine.UIElements;
 using Speckle.ConnectorUnity.GUI;
 using Speckle.ConnectorUnity.Ops;
+using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine.UIElements;
 
 namespace Speckle.ConnectorUnity
 {
@@ -12,22 +12,33 @@ namespace Speckle.ConnectorUnity
 	{
 
 		protected DropdownField branches;
+
 		protected DropdownField converters;
+
 		protected TClient obj;
+
 		protected ProgressBar progress;
+
+		protected VisualElement root;
+
+		protected Button runButton;
+
+		protected Button searchButton;
 
 		protected TextField streamUrlField;
 
-		protected Button runButton;
-		protected Button searchButton;
-
-		protected VisualElement root;
 		protected VisualTreeAsset tree;
 
 		protected abstract string treePath { get; }
 
-		protected int branchIndex => FindInt("branchIndex");
-		protected int converterIndex => FindInt("converterIndex");
+		protected int branchIndex
+		{
+			get => FindInt("branchIndex");
+		}
+		protected int converterIndex
+		{
+			get => FindInt("converterIndex");
+		}
 
 		protected virtual void OnEnable()
 		{
@@ -44,10 +55,7 @@ namespace Speckle.ConnectorUnity
 
 		protected abstract void OnRunClicked();
 
-		protected int FindInt(string propName)
-		{
-			return serializedObject.FindProperty(propName).intValue;
-		}
+		protected int FindInt(string propName) => serializedObject.FindProperty(propName).intValue;
 
 		protected static void Refresh(DropdownField dropdown, IEnumerable<string> items, int index)
 		{
@@ -77,7 +85,7 @@ namespace Speckle.ConnectorUnity
 
 			root = new VisualElement();
 			tree.CloneTree(root);
-			
+
 			root.Add(new PropertyField(serializedObject.FindProperty("_root")));
 
 			branches = root.SetDropDown(

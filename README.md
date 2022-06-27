@@ -1,21 +1,24 @@
 # speckle-unity-core
 
-An unofficial speckle connection for unity that combines [speckle-unity-core](https://github.com/sasakiassociates/speckle-unity-core) and [speckle-unity-objects](https://github.com/sasakiassociates/speckle-unity-objects) into one main package. This project was started from the main [speckle-unity](https://github.com/specklesystems/speckle-unity) project, but has been moved into different repos for more modular package support with unity.  
+An unofficial speckle connection for unity that
+combines [speckle-unity-core](https://github.com/sasakiassociates/speckle-unity-core)
+and [speckle-unity-objects](https://github.com/sasakiassociates/speckle-unity-objects) into one main package. This
+project was started from the main [speckle-unity](https://github.com/specklesystems/speckle-unity) project, but has been
+moved into different repos for more modular package support with unity.
 
+This package features:
 
-
-This package features: 
 - `SpeckleConnector` - A manager object for accessing for easily accessing your speckle server from unity
 - Operating with Speckle from the Editor and Runtime
 - UI Toolkit packages for editor and runtime GUI
 
-This pacakge can be installed with [OpenUpm](https://github.com/openupm/openupm-cli#installation) 
+This pacakge can be installed with [OpenUpm](https://github.com/openupm/openupm-cli#installation)
 
 `openupm add com.speckle.connector`
 
-
 ## Roadmap
->These pacakges are in active development, please be aware of any breaking changes if you plan on using this pacakge.
+
+> These pacakges are in active development, please be aware of any breaking changes if you plan on using this pacakge.
 
 speckle-unity-conector
 

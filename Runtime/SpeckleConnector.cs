@@ -2,16 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-
+using Speckle.ConnectorUnity.Converter;
+using Speckle.ConnectorUnity.Ops;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
 using Speckle.Core.Kits;
 using Speckle.Core.Logging;
 using UnityEngine;
 using UnityEngine.UIElements;
-
-using Speckle.ConnectorUnity.Converter;
-using Speckle.ConnectorUnity.Ops;
 using Application = UnityEngine.Device.Application;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -27,17 +25,19 @@ namespace Speckle.ConnectorUnity
 
 		public const string HostApp = HostApplications.Unity.Name;
 
-		[SerializeField] private List<SpeckleStream> streams = new List<SpeckleStream>();
+		[SerializeField] List<SpeckleStream> streams = new();
 
-		[SerializeField] private List<Sender> senders = new List<Sender>();
-		[SerializeField] private List<Receiver> receivers = new List<Receiver>();
+		[SerializeField] List<Sender> senders = new();
 
-		[SerializeField] private List<ScriptableSpeckleConverter> converters = new List<ScriptableSpeckleConverter>();
+		[SerializeField] List<Receiver> receivers = new();
 
-		[SerializeField] private int accountIndex;
-		[SerializeField] private int streamIndex;
+		[SerializeField] List<ScriptableSpeckleConverter> converters = new();
 
-		private Client client;
+		[SerializeField] int accountIndex;
+
+		[SerializeField] int streamIndex;
+
+		Client client;
 
 		public List<Account> Accounts { get; private set; }
 
@@ -56,9 +56,12 @@ namespace Speckle.ConnectorUnity
 			get => streams.Valid(streamIndex) ? streams[streamIndex] : null;
 		}
 
-		public static string PackagePath => "Packages/com.speckle.connector/";
+		public static string PackagePath
+		{
+			get => "Packages/com.speckle.connector/";
+		}
 
-		private void OnEnable()
+		void OnEnable()
 		{
 			senders ??= new List<Sender>();
 			receivers ??= new List<Receiver>();
@@ -113,7 +116,6 @@ namespace Speckle.ConnectorUnity
 							onRepaint?.Invoke();
 						}
 					}
-
 				}
 			}
 			catch (SpeckleException e)
@@ -133,9 +135,10 @@ namespace Speckle.ConnectorUnity
 			var items = new List<T>();
 			foreach (var g in guids)
 			{
-				string path = AssetDatabase.GUIDToAssetPath(g);
+				var path = AssetDatabase.GUIDToAssetPath(g);
 				items.Add(AssetDatabase.LoadAssetAtPath<T>(path));
 			}
+
 			return items;
 		}
 
