@@ -26,6 +26,9 @@
 # Jetbains crap
 *.idea/
 
+# Node Modules
+/node_modules
+
 
 # Gradle cache directory
 .gradle/

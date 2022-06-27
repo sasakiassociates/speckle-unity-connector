@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e87d4b790b3740f78ff0a76263f44a9a, type: 3}
+  m_Name: UnityConverter
+  m_EditorClassIdentifier: 
+  description: Standard Speckle converter for Unity
+  author: Speckle
+  websiteOrEmail: systems.speckle
+  converters:
+  - {fileID: 11400000, guid: fd5badb03b0e55a43b3187acfe273fdd, type: 2}
+  - {fileID: 11400000, guid: c35cce7461270cb4aa2dc7297f3d4f29, type: 2}
+  - {fileID: 11400000, guid: 8c3277418997e5a4b8abe5b7fa0bee56, type: 2}
+  - {fileID: 11400000, guid: 0034a009b3964fb469c73dd9d79a14a0, type: 2}
+  - {fileID: 11400000, guid: dbf9b4585c504dd48b087249a99f7726, type: 2}
+  - {fileID: 11400000, guid: ede43ad32363fbf41bd50dd41ce8f032, type: 2}
+  defaultConverter: {fileID: 11400000, guid: dc35304f366ae0e419c518dbaabe2351, type: 2}

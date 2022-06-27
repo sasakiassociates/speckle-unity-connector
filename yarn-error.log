@@ -1,0 +1,72 @@
+Arguments: 
+  /home/haitheredavid/.nvm/versions/node/v18.4.0/bin/node /mnt/c/Users/morga/AppData/Roaming/npm/node_modules/yarn/bin/yarn.js install
+
+PATH: 
+  /home/haitheredavid/.nvm/versions/node/v18.4.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Python310/Scripts/:/mnt/c/Python310/:/mnt/c/Program Files/Oculus/Support/oculus-runtime:/mnt/c/Program Files (x86)/Common Files/Intel/Shared Libraries/redist/intel64/compiler:/mnt/c/Python39/Scripts/:/mnt/c/Python39/:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/dotnet/:/mnt/c/ProgramData/chocolatey/bin:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/Amazon/AWSCLIV2/:/mnt/c/Library/Developer/Toolchains/unknown-Asserts-development.xctoolchain/usr/bin:/mnt/c/Library/Swift-development/bin:/mnt/c/Library/icu-67/usr/bin:/mnt/c/Program Files/nodejs/:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/ProgramData/DockerDesktop/version-bin:/mnt/c/Users/morga/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/morga/.dotnet/tools:/mnt/c/Users/morga/AppData/Local/GitHubDesktop/bin:/mnt/c/Users/morga/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Program Files/Amazon/AWSCLI2/aws.exe:/mnt/c/Program Files (x86)/GitHub CLI/:/mnt/c/Users/morga/AppData/Roaming/npm:/mnt/c/Program Files/CMake/bin:/snap/bin
+
+Yarn version: 
+  1.22.17
+
+Node version: 
+  18.4.0
+
+Platform: 
+  linux x64
+
+Trace: 
+  SyntaxError: /mnt/d/Projects/Speckle/speckle-unity-connector/package.json: Unexpected string in JSON at position 875
+      at JSON.parse (<anonymous>)
+      at /mnt/c/Users/morga/AppData/Roaming/npm/node_modules/yarn/lib/cli.js:1625:59
+      at Generator.next (<anonymous>)
+      at step (/mnt/c/Users/morga/AppData/Roaming/npm/node_modules/yarn/lib/cli.js:310:30)
+      at /mnt/c/Users/morga/AppData/Roaming/npm/node_modules/yarn/lib/cli.js:321:13
+
+npm manifest: 
+  {
+    "name": "speckle-unity",
+    "description": "An Unofficial Speckle Connector for Unity",
+    "license": "Apache-2.0",
+    "author": { 
+      "name": "david morgan",
+      "email": "dmorgan@sasaki.com",
+      "url": "https://speckle.systems"
+    },
+    "version": "1.1.4",
+    "unity": "2021.3",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/sasakiassociates/speckle-unity-connector.git"
+    },
+    "workspaces": [
+      "packages/*"
+    ],
+    "keywords": [
+      "speckle",
+      "speckle-core",
+      "speckle-systems",
+      "speckle-unity",
+      "aec",
+      "version-control",
+      "interoperability"
+    ],
+    "scripts": {
+      "boot": "lerna bootstrap --force-local",
+      "build": "npm run build-packages",
+      "build-packages": "lerna run build",
+      "semantic-release": "lerna exec --no-private --concurrency 1 -- npx --no-install semantic-release -e semantic-release-monorepo"
+    }
+    "devDependencies": {
+      "@semantic-release/changelog": "^6.0.1",
+      "@semantic-release/git": "^10.0.1",
+      "semantic-release": "^19.0.3",
+      "semantic-release-monorepo": "^7.0.5",
+      "conventional-changelog-conventionalcommits": "^5.0.0",
+      "lerna": "^5.1.4"
+    },
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

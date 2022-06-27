@@ -1,0 +1,32 @@
+{
+  "name": "com.speckle.core",
+  "version": "1.0.6",
+  "displayName": "Speckle Core",
+  "description": "Package for bringing Speckle Core and Objects into Unity",
+  "unity": "2020.3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sasakiassociates/speckle-unity-connector.git",
+    "directory": "packages/core"
+  },
+  "documentationUrl": "https://speckle.guide/user/unity.html",
+  "changelogUrl": "https://speckle.notion.site/Public-Changelog-45cb90c7514642ffab2e72d0288e4071",
+  "license": "Apache-2.0",
+  "licensesUrl": "https://github.com/specklesystems/speckle-unity/blob/main/LICENSE",
+  "keywords": [
+    "speckle",
+    "speckle-core",
+    "speckle-systems",
+    "speckle-unity",
+    "aec",
+    "version-control",
+    "interoperability"
+  ],
+  "author": {
+    "name": "Speckle Systems",
+    "email": "hello@speckle.systems",
+    "url": "https://speckle.systems"
+  },
+  "dependencies": {
+  }
+}

@@ -1,0 +1,12 @@
+{
+    "useWorkspaces": true,
+    "command": {
+      "publish": {
+        "message": "chore(release): publish"
+      },
+      "bootstrap": {
+        "npmClientArgs": ["--no-lockfile", "--no-package-lock"]
+      }
+    },
+    "version": "independent"
+  }

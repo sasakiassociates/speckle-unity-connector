@@ -1,13 +1,19 @@
 {
-  "name": "com.speckle.connector",
-  "version": "1.1.4",
-  "displayName": "Speckle Connector",
+  "name": "speckle-unity",
   "description": "An Unofficial Speckle Connector for Unity",
-  "unity": "2021.3",
-  "documentationUrl": "https://speckle.guide/user/unity.html",
-  "changelogUrl": "https://speckle.notion.site/Public-Changelog-45cb90c7514642ffab2e72d0288e4071",
   "license": "Apache-2.0",
-  "licensesUrl": "https://github.com/specklesystems/speckle-unity/blob/main/LICENSE",
+  "author": { 
+    "name": "david morgan",
+    "email": "dmorgan@sasaki.com",
+    "url": "https://speckle.systems"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sasakiassociates/speckle-unity-connector.git"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
   "keywords": [
     "speckle",
     "speckle-core",
@@ -17,13 +23,18 @@
     "version-control",
     "interoperability"
   ],
-  "author": {
-    "name": "Speckle Systems",
-    "email": "hello@speckle.systems",
-    "url": "https://speckle.systems"
+  "scripts": {
+    "boot": "lerna bootstrap --force-local",
+    "build": "npm run build-packages",
+    "build-packages": "lerna run build",
+    "semantic-release": "lerna exec --no-private --concurrency 1 -- npx --no-install semantic-release -e semantic-release-monorepo"
   },
-  "dependencies": {
-    "com.speckle.core": "1.0.6",
-    "com.speckle.objects": "1.1.7"
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "semantic-release": "^19.0.3",
+    "semantic-release-monorepo": "^7.0.5",
+    "conventional-changelog-conventionalcommits": "^5.0.0",
+    "lerna": "^5.1.4"
   }
 }
