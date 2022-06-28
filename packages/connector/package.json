@@ -27,7 +27,7 @@
   },
   "hideInEditor": false,
   "dependencies": {
-    "com.speckle.core": "1.0.6",
-    "com.speckle.objects": "1.1.7"
+    "com.speckle.core": "1.0.0",
+    "com.speckle.objects": "1.0.0"
   }
 }
