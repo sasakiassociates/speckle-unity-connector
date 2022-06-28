@@ -1,3 +1,5 @@
+## com.speckle.connector-v1.0.0 (2022-06-28)
+
 ## [1.1.4](https://github.com/sasakiassociates/speckle-unity-connector/compare/v1.1.3...v1.1.4) (2022-05-31)
 
 ### Bug Fixes
