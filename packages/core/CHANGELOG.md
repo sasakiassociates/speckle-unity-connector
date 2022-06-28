@@ -1,3 +1,5 @@
+## com.speckle.core-v1.0.0 (2022-06-28)
+
 ## [1.0.6](https://github.com/sasakiassociates/speckle-unity-core/compare/v1.0.5...v1.0.6) (2022-05-31)
 
 ### Bug Fixes
