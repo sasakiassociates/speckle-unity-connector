@@ -4,6 +4,7 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
+using Speckle.Core.Logging;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -161,13 +162,16 @@ namespace Speckle.ConnectorUnity.Ops
 
 				foreach (var branch in stream.branches.items)
 				{
+					if (branch == null)
+						continue;
+
 					var b = new BranchWrapper(branch);
 					_branches.Add(b);
 				}
 			}
-			catch (Exception e)
+			catch (SpeckleException e)
 			{
-				SpeckleUnity.Console.Log(e.Message);
+				SpeckleUnity.Console.Log(e.Message + "-" + e.Source);
 			}
 
 			finally

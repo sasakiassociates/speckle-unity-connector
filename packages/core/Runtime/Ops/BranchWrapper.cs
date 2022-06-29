@@ -23,7 +23,9 @@ namespace Speckle.ConnectorUnity.Ops
 			name = branch.name;
 			description = branch.description;
 
-			commits = branch.commits.items.Select(x => new CommitWrapper(x)).ToList();
+			commits = branch.commits != null && branch.commits.items.Valid() ?
+				branch.commits.items.Select(x => new CommitWrapper(x)).ToList() :
+				new List<CommitWrapper>();
 		}
 	}
 }

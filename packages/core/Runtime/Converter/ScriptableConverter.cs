@@ -11,16 +11,15 @@ namespace Speckle.ConnectorUnity.Converter
 
 	public abstract class ScriptableSpeckleConverter : ScriptableObject, ISpeckleConverter
 	{
-		[Header("Speckle Converter Informations")] [SerializeField]
-		protected string description;
+		[SerializeField] protected string description;
 
 		[SerializeField] protected string author;
 
 		[SerializeField] protected string websiteOrEmail;
 
-		[Space] [SerializeField] protected List<ComponentConverter> converters;
+		[SerializeField] protected ReceiveMode receiveMode;
 
-		// protected Dictionary<string, ComponentConverter> compiled;
+		[SerializeField] protected List<ComponentConverter> converters;
 
 		public HashSet<Exception> ConversionErrors { get; } = new();
 
@@ -156,27 +155,14 @@ namespace Speckle.ConnectorUnity.Converter
 
 			return converter != default && comp != null;
 		}
-
-		// protected void CheckIfCompiled(bool toUnity, bool force = false)
-		// {
-		// 	if (force || !compiled.Valid())
-		// 	{
-		// 		compiled = new Dictionary<string, ComponentConverter>();
-		// 		var fields = this.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-		//
-		// 		foreach (var field in fields)
-		// 			if (field.FieldType.IsSubclassOf(typeof(ComponentConverter)) 
-		// 			    && CreateInstance(field.FieldType) is ComponentConverter c)
-		// 				compiled.Add(c.targetType(toUnity), c);
-		// 	}
-		// }
-
+		
 		public virtual bool CanConvertToSpeckle(Component @object)
 		{
 			return converters.Valid() && converters.Any(x => x.CanConvertToSpeckle(@object));
 		}
 
 		#region converter properties
+
 		public string Name
 		{
 			get => name;
@@ -196,6 +182,17 @@ namespace Speckle.ConnectorUnity.Converter
 		{
 			get => websiteOrEmail;
 		}
+		
+		public ReceiveMode ReceiveMode
+		{
+			get => receiveMode;
+			set
+			{
+				Debug.Log($"Changing Receive Mode from {receiveMode} to {value}");
+				receiveMode = value;
+			}
+		}
+
 		#endregion converter properties
 
 	}
