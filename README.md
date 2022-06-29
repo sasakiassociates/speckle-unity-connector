@@ -1,4 +1,4 @@
-# speckle-unity-connector
+# speckle-unity
 
 An unofficial speckle connection for unity that
 combines [speckle-unity-core](https://github.com/sasakiassociates/speckle-unity-core)
