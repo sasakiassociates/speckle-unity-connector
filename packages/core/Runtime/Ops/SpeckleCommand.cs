@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,21 +12,6 @@ namespace Speckle.ConnectorUnity.Ops
 {
 	public static class Commands
 	{
-		public static async UniTask<Base> GetCommitData(this ISpeckleInstance instance)
-		{
-			if (instance == null)
-			{
-				SpeckleUnity.Console.Log("Account is not valid");
-				return null;
-			}
-
-			var @base = await GetCommitData(instance.stream, instance.client, instance.token);
-
-			SpeckleUnity.Console.Log($"Data with {@base.totalChildrenCount}");
-
-			return @base;
-		}
-
 		public static async UniTaskVoid CommitReceived(this ISpeckleInstance instance, string message = null)
 		{
 			SpeckleUnity.Console.Log($"Posting a received commit: {instance.stream}");
@@ -38,7 +24,14 @@ namespace Speckle.ConnectorUnity.Ops
 			});
 		}
 
-		public static async UniTask<Base> GetCommitData(SpeckleStream stream, Client client, CancellationToken token)
+		public static async UniTask<Base> GetCommitData(
+			SpeckleStream stream,
+			Client client,
+			CancellationToken token,
+			Action<ConcurrentDictionary<string, int>> onProgressAction = null,
+			Action<string, Exception> onErrorAction = null,
+			Action<int> onTotalChildCountAction = null
+		)
 		{
 			if (stream == null || !stream.IsValid())
 			{

@@ -1,12 +1,19 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Speckle.Core.Api;
 using Speckle.Core.Api.SubscriptionModels;
 using Speckle.Core.Logging;
+using Speckle.Core.Models;
+using Speckle.Core.Transports;
 using UnityEngine;
 using UnityEngine.Events;
+using Debug = UnityEngine.Debug;
 
 namespace Speckle.ConnectorUnity.Ops
 {
@@ -57,8 +64,6 @@ namespace Speckle.ConnectorUnity.Ops
 		{
 			client?.CommitCreatedSubscription?.Dispose();
 		}
-
-		public event Action onPreviewSet;
 
 		public override void SetBranch(int i)
 		{
@@ -135,33 +140,27 @@ namespace Speckle.ConnectorUnity.Ops
 					return;
 				}
 
-				// get the reference object from the commit
-				var @base = await this.GetCommitData();
+				var @base = await GetCommitData();
 
 				if (@base == null)
 				{
-					SpeckleUnity.Console.Warn("The data pulled from stream was not recieved correctly");
-					await UniTask.Yield();
+					SpeckleUnity.Console.Warn("Data from Commit was not valid");
 					return;
 				}
+
+				SpeckleUnity.Console.Log($"Data with {@base.totalChildrenCount}");
 
 				// TODO: check if this getting the commit updates the instance
 				if (sendReceive)
 					this.CommitReceived().Forget();
 
-				// TODO: handle the process for update objects and not just force deleting
-				if (deleteOld && _root != null)
-					SpeckleUnity.SafeDestroy(_root.gameObject);
-
-				SpeckleUnity.Console.Log("Converting Started");
-
-				_root = new GameObject().AddComponent<SpeckleNode>();
+				CheckRoot();
 
 				await _root.DataToScene(@base, converter, token);
 
 				Debug.Log("Conversion complete");
 
-				onDataReceivedAction?.Invoke(_root.gameObject);
+				OnNodeComplete?.Invoke(_root);
 			}
 			catch (SpeckleException e)
 			{
@@ -174,6 +173,79 @@ namespace Speckle.ConnectorUnity.Ops
 
 				await UniTask.Yield();
 			}
+		}
+
+		async UniTask<Base> GetCommitData()
+		{
+			if (stream == null || !stream.IsValid())
+			{
+				SpeckleUnity.Console.Log("Stream is not valid");
+				return null;
+			}
+
+			if (client == null)
+			{
+				SpeckleUnity.Console.Log("Account is not valid");
+				return null;
+			}
+
+			Base @base = null;
+
+			var watch = Stopwatch.StartNew();
+
+			var transport = new ServerTransport(client.Account, stream.Id);
+
+			try
+			{
+				// only use Task with any client calls to speckle. Not worth the conversion 
+				await Task.Run(async () =>
+				{
+					SpeckleUnity.Console.Log($"Getting Commit\nstream id:{stream.Id} commit id:{stream.CommitId}");
+
+					var data = await client.CommitGet(token, stream.Id, stream.CommitId);
+
+					SpeckleUnity.Console.Log($"Commit Fetch:{data.referencedObject}\n{watch.Elapsed}");
+
+					SpeckleUnity.Console.Log($"Now Receiving...\n{watch.Elapsed}");
+
+					@base = await Operations.Receive(objectId: data.referencedObject,
+					                                 cancellationToken: token,
+					                                 remoteTransport: transport,
+					                                 onProgressAction: SetProgress,
+					                                 onErrorAction: SetError,
+					                                 onTotalChildrenCountKnown: SetChildCount);
+
+					SpeckleUnity.Console.Log($"Object Recieved:{@base}");
+
+					SpeckleUnity.Console.Log("Total time:" + watch.Elapsed);
+					
+				}, token);
+			}
+			catch (Exception e)
+			{
+				SpeckleUnity.Console.Warn(e.Message);
+			}
+			finally
+			{
+				// clean up 
+				transport.Dispose();
+
+				// report
+				watch.Stop();
+				SpeckleUnity.Console.Log($"Command Complete\n{watch.Elapsed}");
+			}
+
+			return @base;
+		}
+		void CheckRoot()
+		{
+			// TODO: handle the process for update objects and not just force deleting
+			if (_deleteOld && _root != null)
+				SpeckleUnity.SafeDestroy(_root.gameObject);
+
+			SpeckleUnity.Console.Log("Converting Started");
+
+			_root = new GameObject().AddComponent<SpeckleNode>();
 		}
 
 		// private async UniTask<ReadOnlyCollection<DisplayMesh>> BufferDisplayMesh(Base @base)
