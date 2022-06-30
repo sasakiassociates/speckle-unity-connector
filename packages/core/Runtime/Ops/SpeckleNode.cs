@@ -53,6 +53,11 @@ namespace Speckle.ConnectorUnity.Ops
 			get => childCount;
 		}
 
+		public List<GameObject> GetObjects()
+		{
+			return hierarchy.GetObjects(hierarchy.layers);
+		}
+
 		/// <summary>
 		///   Setup the hierarchy for the commit coming in
 		/// </summary>
