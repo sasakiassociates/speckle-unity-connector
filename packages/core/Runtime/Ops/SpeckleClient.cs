@@ -23,6 +23,13 @@ namespace Speckle.ConnectorUnity.Ops
 		public UniTask<bool> SetStream(SpeckleStream stream);
 	}
 
+	public interface ISpeckleProgress
+	{
+		public event Action<ConcurrentDictionary<string, int>> OnProgressAction;
+		public event Action<string, Exception> OnErrorAction;
+		public event UnityAction<int> OnTotalChildCountAction;
+	}
+
 	public interface ISpeckleStream
 	{
 		public SpeckleStream stream
@@ -142,9 +149,53 @@ namespace Speckle.ConnectorUnity.Ops
 			#endif
 
 			token = this.GetCancellationTokenOnDestroy();
-			onTotalChildrenCountKnown = i => totalChildCount = i;
+
+			SetDefaultActions();
 
 			SetStream(stream).Forget();
+		}
+		
+		protected void SetChildCount(int args)
+		{
+			// Necessary for calling to main thread
+			UniTask.Create(async () =>
+			{
+				await UniTask.Yield();
+				OnTotalChildCountAction?.Invoke(args);
+			});
+
+		}
+
+
+		protected void SetProgress(ConcurrentDictionary<string, int> args)
+		{
+			OnProgressAction?.Invoke(args);
+		}
+
+		protected void SetError(string message, Exception exception)
+		{
+			OnErrorAction?.Invoke(message, exception);
+		}
+
+		protected void SetDefaultActions()
+		{
+			OnTotalChildCountAction = i => totalChildCount = i;
+			OnErrorAction = (message, exception) => SpeckleUnity.Console.Log($"Error From Client:{message}\n{exception.Message}");
+			OnProgressAction = args =>
+			{
+				// from speckle gh connector
+				var msg = "";
+				var total = 0.0f;
+				foreach (var kvp in args)
+				{
+					msg += $"{kvp.Key}: {kvp.Value}";
+					//NOTE: progress set to indeterminate until the TotalChildrenCount is correct
+					total += kvp.Value;
+				}
+
+				progress = total / args.Keys.Count;
+				Debug.Log($"progress:{progress}\ntotal:{total}\n{msg}");
+			};
 		}
 
 		void OnDisable()
@@ -255,9 +306,9 @@ namespace Speckle.ConnectorUnity.Ops
 			Action<int> onTotalChildCountAction
 		)
 		{
-			onErrorReport = onErrorAction;
-			onProgressReport = onProgressAction;
-			onTotalChildrenCountKnown = onTotalChildCountAction;
+			this.OnErrorAction = onErrorAction;
+			this.OnProgressAction = onProgressAction;
+			this.OnTotalChildCountAction = res => onTotalChildCountAction?.Invoke(res);
 
 			return await SetStream(rootStream);
 		}
@@ -309,5 +360,6 @@ namespace Speckle.ConnectorUnity.Ops
 		{
 			client?.Dispose();
 		}
+
 	}
 }
