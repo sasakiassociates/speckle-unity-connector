@@ -65,8 +65,8 @@ namespace Speckle.ConnectorUnity.Ops
 					new List<ITransport>
 						{ transport },
 					true,
-					onProgressReport,
-					onErrorReport
+					SetProgress,
+					SetError
 				);
 
 				Debug.Log($"data sent! {objectId}");

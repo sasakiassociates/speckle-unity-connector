@@ -9,6 +9,7 @@ using Speckle.Core.Credentials;
 using Speckle.Core.Kits;
 using Speckle.Core.Logging;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UIElements;
 using Application = UnityEngine.Device.Application;
 #if UNITY_EDITOR
@@ -23,37 +24,37 @@ namespace Speckle.ConnectorUnity
 	public class SpeckleConnector : MonoBehaviour
 	{
 
-		public const string HostApp = HostApplications.Unity.Name;
+		[SerializeField] List<SpeckleStream> _streams = new();
 
-		[SerializeField] List<SpeckleStream> streams = new();
+		[SerializeField] List<Sender> _senders = new();
 
-		[SerializeField] List<Sender> senders = new();
+		[SerializeField] List<Receiver> _receivers = new();
 
-		[SerializeField] List<Receiver> receivers = new();
+		[SerializeField] List<ScriptableSpeckleConverter> _converters = new();
 
-		[SerializeField] List<ScriptableSpeckleConverter> converters = new();
+		[SerializeField] int _accountIndex;
 
-		[SerializeField] int accountIndex;
+		[SerializeField] int _streamIndex;
 
-		[SerializeField] int streamIndex;
+		[SerializeField] int _streamLimit = 20;
 
-		Client client;
+		Client _client;
 
 		public List<Account> Accounts { get; private set; }
 
 		public List<SpeckleStream> Streams
 		{
-			get => streams.Valid() ? streams : new List<SpeckleStream>();
+			get => _streams.Valid() ? _streams : new List<SpeckleStream>();
 		}
 
 		public Account activeAccount
 		{
-			get => Accounts.Valid(accountIndex) ? Accounts[accountIndex] : null;
+			get => Accounts.Valid(_accountIndex) ? Accounts[_accountIndex] : null;
 		}
 
 		public SpeckleStream activeStream
 		{
-			get => streams.Valid(streamIndex) ? streams[streamIndex] : null;
+			get => _streams.Valid(_streamIndex) ? _streams[_streamIndex] : null;
 		}
 
 		public static string PackagePath
@@ -63,23 +64,25 @@ namespace Speckle.ConnectorUnity
 
 		void OnEnable()
 		{
-			senders ??= new List<Sender>();
-			receivers ??= new List<Receiver>();
+			_senders ??= new List<Sender>();
+			_receivers ??= new List<Receiver>();
 
 			Refresh().Forget();
 		}
 
-		public event Action onRepaint;
+		public event UnityAction onRepaint;
+		public event UnityAction<Receiver> onReceiverCreated;
+		public event UnityAction<Sender> onSenderCreated;
 
 		public void SetStream(int index)
 		{
-			streamIndex = Streams.Check(index);
+			_streamIndex = Streams.Check(index);
 		}
 
 		public async UniTask Refresh()
 		{
 			Accounts = AccountManager.GetAccounts().ToList();
-			await SetAccount(accountIndex);
+			await SetAccount(_accountIndex);
 		}
 
 		public async UniTask SetAccount(int index)
@@ -92,27 +95,27 @@ namespace Speckle.ConnectorUnity
 					return;
 				}
 
-				streams = new List<SpeckleStream>();
+				_streams = new List<SpeckleStream>();
 
-				client = null;
-				streamIndex = 0;
+				_client = null;
+				_streamIndex = 0;
 
-				accountIndex = Accounts.Check(index);
+				_accountIndex = Accounts.Check(index);
 
 				if (activeAccount != null)
 				{
-					client = new Client(activeAccount);
+					_client = new Client(activeAccount);
 
-					var res = await client.StreamsGet();
-					streams = new List<SpeckleStream>();
+					var res = await _client.StreamsGet(_streamLimit);
+					_streams = new List<SpeckleStream>();
 
 					foreach (var s in res)
 					{
 						var wrapper = ScriptableObject.CreateInstance<SpeckleStream>();
 
-						if (await wrapper.TrySetNew(s.id, activeAccount.userInfo.id, client.ServerUrl))
+						if (await wrapper.TrySetNew(s.id, activeAccount.userInfo.id, _client.ServerUrl))
 						{
-							streams.Add(wrapper);
+							_streams.Add(wrapper);
 							onRepaint?.Invoke();
 						}
 					}
@@ -127,22 +130,6 @@ namespace Speckle.ConnectorUnity
 				onRepaint?.Invoke();
 			}
 		}
-
-		#if UNITY_EDITOR
-		public static List<T> GetAllInstances<T>() where T : ScriptableObject
-		{
-			var guids = AssetDatabase.FindAssets("t:" + typeof(T).Name);
-			var items = new List<T>();
-			foreach (var g in guids)
-			{
-				var path = AssetDatabase.GUIDToAssetPath(g);
-				items.Add(AssetDatabase.LoadAssetAtPath<T>(path));
-			}
-
-			return items;
-		}
-
-		#endif
 
 		public static bool TryGetSpeckleStream(string streamUrl, out SpeckleStream stream)
 		{
@@ -172,6 +159,11 @@ namespace Speckle.ConnectorUnity
 
 			UniTask.Create(async () =>
 			{
+				if (activeStream == null)
+				{
+					SpeckleUnity.Console.Log("No Active stream ready to be sent to Receiver");
+					return;
+				}
 				var mono = new GameObject().AddComponent<Sender>();
 
 				#if UNITY_EDITOR
@@ -179,9 +171,13 @@ namespace Speckle.ConnectorUnity
 				#endif
 
 				await mono.SetStream(activeStream);
+				
+				onSenderCreated?.Invoke(mono);
 			});
 		}
 
+
+		
 		public void CreateReceiver(EventBase obj)
 		{
 			if (activeStream == null)
@@ -199,6 +195,8 @@ namespace Speckle.ConnectorUnity
 				#endif
 
 				await mono.SetStream(activeStream);
+				
+				onReceiverCreated?.Invoke(mono);
 			});
 		}
 	}

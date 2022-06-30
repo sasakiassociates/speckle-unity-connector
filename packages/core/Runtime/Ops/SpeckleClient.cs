@@ -6,33 +6,61 @@ using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.Converter;
 using Speckle.Core.Api;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Speckle.ConnectorUnity.Ops
 {
 	public interface IveMadeProgress
 	{
-		public float progress { get; set; }
+		public float progress
+		{
+			get;
+		}
 	}
 
-	public interface ISpeckleInstance : ISpeckleStream, ISpeckleClient, IveMadeProgress
+	public interface ISpeckleInstance : ISpeckleStream, ISpeckleClient, IveMadeProgress, ISpeckleProgress
 	{
 		public UniTask<bool> SetStream(SpeckleStream stream);
 	}
 
 	public interface ISpeckleStream
 	{
-		public SpeckleStream stream { get; }
-		public Branch branch { get; }
-		public Commit commit { get; }
-		public List<Branch> branches { get; }
-		public List<Commit> commits { get; }
-		public string StreamUrl { get; }
+		public SpeckleStream stream
+		{
+			get;
+		}
+		public Branch branch
+		{
+			get;
+		}
+		public Commit commit
+		{
+			get;
+		}
+		public List<Branch> branches
+		{
+			get;
+		}
+		public List<Commit> commits
+		{
+			get;
+		}
+		public string StreamUrl
+		{
+			get;
+		}
 	}
 
 	public interface ISpeckleClient
 	{
-		public Client client { get; }
-		public CancellationToken token { get; }
+		public Client client
+		{
+			get;
+		}
+		public CancellationToken token
+		{
+			get;
+		}
 	}
 
 	// BUG: issue with refreshing object data to editor, probably something with serializing the branch or commit data  
@@ -45,17 +73,19 @@ namespace Speckle.ConnectorUnity.Ops
 
 		[SerializeField] protected List<ScriptableSpeckleConverter> _converters;
 
-		[SerializeField] float progressAmount;
+		[SerializeField] float _progressAmount;
 
-		public int branchIndex;
+		[SerializeField] int _branchIndex;
 
-		public int converterIndex;
+		[SerializeField] int _converterIndex;
 
 		List<Branch> _branches = new();
 
 		/// <summary>
-		///   a disposable speckle client that we use to access speckly things
+		///   a disposable speckle client that we use to access speckle things
 		/// </summary>
+		Client _client;
+
 		/// <summary>
 		///   an internal toggle to use with uni-task commands
 		/// </summary>
@@ -64,21 +94,29 @@ namespace Speckle.ConnectorUnity.Ops
 		/// <summary>
 		///   Event hooked in to Speckle API when calling to the client object
 		/// </summary>
-		public Action<string, Exception> onErrorReport;
+		public event Action<string, Exception> OnErrorAction;
 
 		/// <summary>
 		///   An unformatted progress report during send or receive calls
 		/// </summary>
-		public Action<ConcurrentDictionary<string, int>> onProgressReport;
+		public event Action<ConcurrentDictionary<string, int>> OnProgressAction;
 
 		/// <summary>
 		///   Event for knowing total child count when a stream is pulled in
 		/// </summary>
-		public Action<int> onTotalChildrenCountKnown;
+		public event UnityAction<int> OnTotalChildCountAction;
 
-		public int totalChildCount { get; protected set; }
+		public int totalChildCount
+		{
+			get;
+			protected set;
+		}
 
-		public bool isWorking { get; protected set; }
+		public bool isWorking
+		{
+			get;
+			protected set;
+		}
 
 		/// <summary>
 		///   A list of all converters available for this client object
@@ -93,7 +131,7 @@ namespace Speckle.ConnectorUnity.Ops
 		/// </summary>
 		protected ScriptableSpeckleConverter converter
 		{
-			get => _converters.Valid(converterIndex) ? _converters[converterIndex] : null;
+			get => _converters.Valid(_converterIndex) ? _converters[_converterIndex] : null;
 		}
 
 		protected virtual void OnEnable()
@@ -127,10 +165,14 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public Branch branch
 		{
-			get => branches.Valid(branchIndex) ? branches[branchIndex] : null;
+			get => branches.Valid(_branchIndex) ? branches[_branchIndex] : null;
 		}
 
-		public Commit commit { get; protected set; }
+		public Commit commit
+		{
+			get;
+			protected set;
+		}
 
 		public List<Branch> branches
 		{
@@ -138,7 +180,11 @@ namespace Speckle.ConnectorUnity.Ops
 			protected set => _branches = value;
 		}
 
-		public List<Commit> commits { get; protected set; }
+		public List<Commit> commits
+		{
+			get;
+			protected set;
+		}
 
 		public string StreamUrl
 		{
@@ -146,9 +192,17 @@ namespace Speckle.ConnectorUnity.Ops
 
 		}
 
-		public Client client { get; protected set; }
+		public Client client
+		{
+			get;
+			protected set;
+		}
 
-		public CancellationToken token { get; protected set; }
+		public CancellationToken token
+		{
+			get;
+			protected set;
+		}
 
 		/// <summary> Necessary setup for interacting with a speckle stream from unity </summary>
 		/// <param name="newStream">root stream object to use, will default to editor field</param>
@@ -173,20 +227,20 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public float progress
 		{
-			get => progressAmount;
-			set => progressAmount = value;
+			get => _progressAmount;
+			protected set => _progressAmount = value;
 		}
 
 		public event Action onRepaint;
 
 		public virtual void SetBranch(int i)
 		{
-			branchIndex = branches.Check(i);
+			_branchIndex = branches.Check(i);
 		}
 
 		public void SetConverter(int i)
 		{
-			converterIndex = _converters.Check(i);
+			_converterIndex = _converters.Check(i);
 		}
 
 		/// <summary> Necessary setup for interacting with a speckle stream from unity</summary>

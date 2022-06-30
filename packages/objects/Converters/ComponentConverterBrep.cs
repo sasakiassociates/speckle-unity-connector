@@ -18,7 +18,11 @@ namespace Speckle.ConnectorUnity.Converter
 
 		[SerializeField] Material _defaultMaterial;
 
-		public List<ApplicationPlaceholderObject> contextObjects { get; set; }
+		public List<ApplicationPlaceholderObject> contextObjects
+		{
+			get;
+			set;
+		}
 
 		public bool addMeshCollider
 		{

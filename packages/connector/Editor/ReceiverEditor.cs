@@ -17,12 +17,7 @@ namespace Speckle.ConnectorUnity
 		StreamPreview preview;
 
 		Toggle showPreview, renderPreview;
-
-		int commitIndex
-		{
-			get => FindInt("commitIndex");
-		}
-
+		
 		protected override string treePath
 		{
 			get => GUIHelper.Dir + "Receiver.uxml";
@@ -32,14 +27,14 @@ namespace Speckle.ConnectorUnity
 		{
 			base.OnEnable();
 
-			obj.onPreviewSet += SetPreview;
+			obj.OnPreviewSet += SetPreview;
 		}
 
 		protected override void OnDisable()
 		{
 			base.OnDisable();
 
-			obj.onPreviewSet -= SetPreview;
+			obj.OnPreviewSet -= SetPreview;
 		}
 
 		public override VisualElement CreateInspectorGUI()
@@ -51,7 +46,7 @@ namespace Speckle.ConnectorUnity
 
 			commits = root.SetDropDown(
 				"commit",
-				FindInt("commitIndex"),
+				commitIndex,
 				obj.Commits.Format(),
 				e => commits.DropDownChange(e, i => { obj.SetCommit(i); }));
 

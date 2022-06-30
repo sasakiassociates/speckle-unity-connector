@@ -18,14 +18,11 @@ namespace Speckle.ConnectorUnity.Ops
 	public class SpeckleNode : MonoBehaviour
 	{
 
-		[SerializeField] [HideInInspector]
-		string id;
+		[SerializeField] [HideInInspector] string id;
 
-		[SerializeField] [HideInInspector]
-		string appId;
+		[SerializeField] [HideInInspector] string appId;
 
-		[SerializeField] [HideInInspector]
-		long childCount;
+		[SerializeField] [HideInInspector] long childCount;
 
 		[SerializeField] SpeckleStructure hierarchy;
 

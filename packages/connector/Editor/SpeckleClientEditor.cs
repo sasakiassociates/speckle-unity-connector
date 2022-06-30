@@ -10,12 +10,11 @@ namespace Speckle.ConnectorUnity
 {
 	public abstract class SpeckleClientEditor<TClient> : Editor where TClient : SpeckleClient
 	{
+		protected TClient obj;
 
 		protected DropdownField branches;
 
 		protected DropdownField converters;
-
-		protected TClient obj;
 
 		protected ProgressBar progress;
 
@@ -29,15 +28,23 @@ namespace Speckle.ConnectorUnity
 
 		protected VisualTreeAsset tree;
 
+		protected(string converterIndex, string branchIndex, string commitIndex, string nodeRoot) _fields;
+
 		protected abstract string treePath { get; }
 
 		protected int branchIndex
 		{
-			get => FindInt("branchIndex");
+			get => FindInt(_fields.branchIndex);
 		}
+
 		protected int converterIndex
 		{
-			get => FindInt("converterIndex");
+			get => FindInt(_fields.converterIndex);
+		}
+
+		protected int commitIndex
+		{
+			get => FindInt(_fields.commitIndex);
 		}
 
 		protected virtual void OnEnable()
@@ -46,6 +53,11 @@ namespace Speckle.ConnectorUnity
 
 			obj = (TClient)target;
 			obj.onRepaint += RefreshAll;
+
+			_fields.converterIndex = "_converterIndex";
+			_fields.branchIndex = "_branchIndex";
+			_fields.commitIndex = "_commitIndex";
+			_fields.nodeRoot = "_root";
 		}
 
 		protected virtual void OnDisable()
@@ -86,17 +98,17 @@ namespace Speckle.ConnectorUnity
 			root = new VisualElement();
 			tree.CloneTree(root);
 
-			root.Add(new PropertyField(serializedObject.FindProperty("_root")));
+			root.Add(new PropertyField(serializedObject.FindProperty(_fields.nodeRoot)));
 
 			branches = root.SetDropDown(
 				"branch",
-				FindInt("branchIndex"),
+				branchIndex,
 				obj.branches.Format(),
 				e => branches.DropDownChange(e, SetBranchChange));
 
 			converters = root.SetDropDown(
 				"converter",
-				FindInt("converterIndex"),
+				converterIndex,
 				obj.converters.Format(),
 				e => converters.DropDownChange(e, SetConverterChange));
 
@@ -115,19 +127,10 @@ namespace Speckle.ConnectorUnity
 
 			progress = root.Q<ProgressBar>("progress");
 
-			obj.onTotalChildrenCountKnown += value =>
+			obj.OnTotalChildCountAction += value =>
 			{
 				progress.title = $"0/{value}";
 				progress.highValue = value;
-			};
-
-			obj.onProgressReport += values =>
-			{
-				// foreach (var v in values)
-				// {
-				// 	Debug.Log(v.Key + "-" + v.Value);
-				// }
-				// progress.value = values.Values.FirstOrDefault() / 100f;
 			};
 
 			return root;

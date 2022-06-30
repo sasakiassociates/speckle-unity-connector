@@ -39,7 +39,11 @@ namespace Speckle.ConnectorUnity.Converter
 				_defaultMaterial = new Material(Shader.Find("Standard"));
 		}
 
-		public List<ApplicationPlaceholderObject> contextObjects { get; set; }
+		public List<ApplicationPlaceholderObject> contextObjects
+		{
+			get;
+			set;
+		}
 
 		public bool addMeshCollider
 		{

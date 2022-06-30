@@ -13,6 +13,8 @@ namespace Speckle.ConnectorUnity
 	public class SpeckleConnectorEditor : Editor
 	{
 
+		(string accountIndex, string streamIndex)  _fields;
+		
 		DropdownField accounts;
 
 		DropdownField converters;
@@ -38,6 +40,9 @@ namespace Speckle.ConnectorUnity
 
 			tree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(GUIHelper.Dir + "SpeckleConnectorEditor.uxml");
 			streamCard = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(GUIHelper.Dir + "Elements/StreamCard/StreamCard.uxml");
+			
+			_fields.accountIndex = "_accountIndex";
+			_fields.streamIndex = "_streamIndex";
 		}
 
 		void OnDisable()
@@ -56,7 +61,7 @@ namespace Speckle.ConnectorUnity
 			root = new VisualElement();
 			tree.CloneTree(root);
 
-			accounts = root.SetDropDown("account", FindInt("accountIndex"), obj.Accounts.Format(), e => AccountChange(e).Forget());
+			accounts = root.SetDropDown("account", FindInt(_fields.accountIndex), obj.Accounts.Format(), e => AccountChange(e).Forget());
 
 			refresh = root.Q<Button>("refresh");
 			refresh.clickable.clicked += () =>
@@ -87,7 +92,7 @@ namespace Speckle.ConnectorUnity
 				e.Q<Label>("id").text = stream.Id;
 				e.Q<Label>("description").text = stream.Description;
 
-				var isActive = FindInt("streamIndex") == i;
+				var isActive = FindInt(_fields.streamIndex) == i;
 
 				e.style.backgroundColor = isActive ? new StyleColor(Color.white) : new StyleColor(Color.clear);
 
@@ -150,8 +155,7 @@ namespace Speckle.ConnectorUnity
 
 		void RefreshAll()
 		{
-			Debug.Log("Refresh called on Connector");
-			Refresh(accounts, obj.Accounts.Format(), "accountIndex");
+			Refresh(accounts, obj.Accounts.Format(), _fields.accountIndex);
 			SetAndRefreshList();
 		}
 

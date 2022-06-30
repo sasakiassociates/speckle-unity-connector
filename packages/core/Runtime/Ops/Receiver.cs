@@ -19,38 +19,40 @@ namespace Speckle.ConnectorUnity.Ops
 	[AddComponentMenu("Speckle/Receiver")]
 	public class Receiver : SpeckleClient
 	{
-		[SerializeField] bool autoReceive;
+		[SerializeField] bool _autoReceive;
 
-		[SerializeField] bool deleteOld = true;
+		[SerializeField] bool _deleteOld = true;
 
-		[SerializeField] Texture preview;
+		[SerializeField] Texture _preview;
 
-		[SerializeField] int commitIndex;
+		[SerializeField] int _commitIndex;
 
-		[SerializeField] bool showPreview = true;
+		[SerializeField] bool _showPreview = true;
 
-		[SerializeField] bool renderPreview = true;
-
-		public Action<GameObject> onDataReceivedAction;
+		[SerializeField] bool _renderPreview = true;
 
 		public Texture Preview
 		{
-			get => preview;
+			get => _preview;
 		}
 
-		public List<Commit> Commits { get; protected set; }
+		public List<Commit> Commits
+		{
+			get;
+			protected set;
+		}
 
 		public Commit activeCommit
 		{
-			get => Commits.Valid(commitIndex) ? Commits[commitIndex] : null;
+			get => Commits.Valid(_commitIndex) ? Commits[_commitIndex] : null;
 		}
 
 		public bool ShowPreview
 		{
-			get => showPreview;
-			set => showPreview = value;
+			get => _showPreview;
+			set => _showPreview = value;
 		}
-
+		
 		void OnDestroy()
 		{
 			client?.CommitCreatedSubscription?.Dispose();
@@ -67,7 +69,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public void SetCommit(int i)
 		{
-			commitIndex = Commits.Check(i);
+			_commitIndex = Commits.Check(i);
 
 			if (activeCommit != null)
 			{
@@ -84,16 +86,16 @@ namespace Speckle.ConnectorUnity.Ops
 			if (stream == null || !stream.IsValid())
 				await UniTask.Yield();
 
-			preview = await stream.GetPreview();
+			_preview = await stream.GetPreview();
 
-			onPreviewSet?.Invoke();
+			OnPreviewSet?.Invoke();
 
 			await UniTask.Yield();
 		}
 
 		protected override void SetSubscriptions()
 		{
-			if (client != null && autoReceive)
+			if (client != null && _autoReceive)
 			{
 				client.SubscribeCommitCreated(stream.Id);
 				client.OnCommitCreated += (_, c) => OnCommitCreated?.Invoke(c);
@@ -120,7 +122,8 @@ namespace Speckle.ConnectorUnity.Ops
 		{
 			progress = 0f;
 			isWorking = true;
-
+			token = this.GetCancellationTokenOnDestroy();
+			
 			try
 			{
 				SpeckleUnity.Console.Log("Receive Started");
@@ -185,13 +188,13 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public void RenderPreview(bool render)
 		{
-			renderPreview = render;
+			_renderPreview = render;
 			RenderPreview();
 		}
 
 		public void RenderPreview()
 		{
-			Debug.Log($"Render preview? {renderPreview}");
+			Debug.Log($"Render preview? {_renderPreview}");
 		}
 
 		public readonly struct DisplayMesh
@@ -209,9 +212,15 @@ namespace Speckle.ConnectorUnity.Ops
 		}
 
 		#region Subscriptions
-		public UnityAction<CommitInfo> OnCommitCreated;
 
-		public UnityAction<CommitInfo> OnCommitUpdated;
+		public event UnityAction<CommitInfo> OnCommitCreated;
+
+		public event UnityAction<CommitInfo> OnCommitUpdated;
+
+		public event UnityAction<SpeckleNode> OnNodeComplete;
+
+		public event UnityAction OnPreviewSet;
+
 		#endregion
 
 	}
