@@ -90,9 +90,25 @@ namespace Speckle.ConnectorUnity
 				if (item == null)
 					continue;
 
-				if (item.IsBase(out var @base))
+				if (item.IsBase(out var @base) && converter.CanConvertToNative(@base))
 				{
-					if (converter.CanConvertToNative(@base) && converter.ConvertToNative(@base) is GameObject o) layer.Add(o);
+					var obj = converter.ConvertToNative(@base);
+
+					switch (obj)
+					{
+						case GameObject o:
+							layer.Add(o);
+							break;
+						case MonoBehaviour o:
+							layer.Add(o.gameObject);
+							break;
+						case Component o:
+							layer.Add(o.gameObject);
+							break;
+						default:
+							SpeckleUnity.Console.Warn($"Object converted to unity from speckle is not supported {obj.GetType()}");
+							break;
+					}
 				}
 				else if (item.IsList())
 				{
