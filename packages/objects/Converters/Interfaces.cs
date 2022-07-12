@@ -35,5 +35,9 @@ namespace Speckle.ConnectorUnity.Converter
 		{
 			get;
 		}
+		public bool combineMeshes
+		{
+			get;
+		}
 	}
 }
