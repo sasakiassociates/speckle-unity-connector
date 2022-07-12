@@ -24,8 +24,14 @@ namespace Speckle.ConnectorUnity.Converter
 		public abstract GameObject ToNative(Base @base);
 		public abstract Base ToSpeckle(Component component);
 
-		public abstract Type unity_type { get; }
-		public abstract string speckle_type { get; }
+		public abstract Type unity_type
+		{
+			get;
+		}
+		public abstract string speckle_type
+		{
+			get;
+		}
 
 		[Serializable]
 		[HideInInspector]
@@ -41,12 +47,18 @@ namespace Speckle.ConnectorUnity.Converter
 				speckleTypeName = speckle;
 			}
 		}
+		
 	}
 
 	public abstract class ComponentConverter<TBase, TComponent> : ComponentConverter
 		where TComponent : Component
 		where TBase : Base
 	{
+
+		public static TComponent CreateObjectWithComponent(string objectName = null)
+		{
+			return new GameObject(string.IsNullOrEmpty(objectName) ? nameof(TBase) : objectName).AddComponent<TComponent>();
+		}
 
 		[SerializeField] protected ComponentInfo info;
 
@@ -117,7 +129,10 @@ namespace Speckle.ConnectorUnity.Converter
 
 		public override Base ToSpeckle(Component component) => CanConvertToSpeckle(component) ? ConvertComponent((TComponent)component) : null;
 
-		protected TComponent BuildGo(string goName = null) => new GameObject(string.IsNullOrEmpty(goName) ? speckle_type : goName).AddComponent<TComponent>();
+		protected TComponent NewObj(string goName = null)
+		{
+			return CreateObjectWithComponent(string.IsNullOrEmpty(goName) ? speckle_type : goName);
+		}
 	}
 
 }

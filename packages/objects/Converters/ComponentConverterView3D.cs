@@ -15,7 +15,7 @@ namespace Speckle.ConnectorUnity.Converter
 		/// <returns></returns>
 		protected override GameObject ConvertBase(View3D @base)
 		{
-			var comp = BuildGo(@base.name);
+			var comp = NewObj(@base.name);
 
 			comp.transform.position = ConverterUtils.VectorByCoordinates(
 				@base.origin.x, @base.origin.y, @base.origin.z, @base.origin.units);

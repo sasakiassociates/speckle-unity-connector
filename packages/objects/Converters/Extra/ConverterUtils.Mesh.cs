@@ -138,6 +138,10 @@ namespace Speckle.ConnectorUnity.Converter
 			nativeMesh.RecalculateBounds();
 			nativeMesh.RecalculateNormals();
 			nativeMesh.RecalculateTangents();
+			
+			Debug.Log($"Mesh Stats for Native"
+			          + $"\nVertexCount:{nativeMesh.vertexCount}"
+			          + $"\nSubMeshes:{nativeMesh.subMeshCount}");
 
 			var filter = obj.GetComponent<MeshFilter>();
 
@@ -158,64 +162,67 @@ namespace Speckle.ConnectorUnity.Converter
 			return obj;
 		}
 
-		public static void AddMesh(this MeshData data, Mesh speckleMesh)
+		public static void AddMesh(this MeshData data, Mesh subMesh)
 		{
-			speckleMesh.AlignVerticesWithTexCoordsByIndex();
-			speckleMesh.TriangulateMesh();
+			subMesh.AlignVerticesWithTexCoordsByIndex();
+			subMesh.TriangulateMesh();
 
 			var indexOffset = data.vertices.Count;
 
 			// Convert Vertices
-			data.vertices.AddRange(speckleMesh.vertices.ArrayToPoints(speckleMesh.units));
+			data.vertices.AddRange(subMesh.vertices.ArrayToVector3(subMesh.units));
 
 			// Convert texture coordinates
-			var hasValidUVs = speckleMesh.TextureCoordinatesCount == speckleMesh.VerticesCount;
-			if (speckleMesh.textureCoordinates.Count > 0 && !hasValidUVs)
+			var hasValidUVs = subMesh.TextureCoordinatesCount == subMesh.VerticesCount;
+			if (subMesh.textureCoordinates.Count > 0 && !hasValidUVs)
 				Debug.LogWarning(
-					$"Expected number of UV coordinates to equal vertices. Got {speckleMesh.TextureCoordinatesCount} expected {speckleMesh.VerticesCount}. \nID = {speckleMesh.id}");
+					$"Expected number of UV coordinates to equal vertices. Got {subMesh.TextureCoordinatesCount} expected {subMesh.VerticesCount}. \nID = {subMesh.id}");
 
 			if (hasValidUVs)
 			{
-				data.uvs.Capacity += speckleMesh.TextureCoordinatesCount;
-				for (var j = 0; j < speckleMesh.TextureCoordinatesCount; j++)
+				data.uvs.Capacity += subMesh.TextureCoordinatesCount;
+				for (var j = 0; j < subMesh.TextureCoordinatesCount; j++)
 				{
-					var (u, v) = speckleMesh.GetTextureCoordinate(j);
+					var (u, v) = subMesh.GetTextureCoordinate(j);
 					data.uvs.Add(new Vector2((float)u, (float)v));
 				}
 			}
-			else if (speckleMesh.bbox != null)
+			else if (subMesh.bbox != null)
 			{
 				//Attempt to generate some crude UV coordinates using bbox
 				////TODO this will be broken for submeshes
-				data.uvs.AddRange(speckleMesh.bbox.GenerateUV(data.vertices));
+				data.uvs.AddRange(subMesh.bbox.GenerateUV(data.vertices));
 			}
 
 			// Convert vertex colors
-			if (speckleMesh.colors != null)
+			if (subMesh.colors != null)
 			{
-				if (speckleMesh.colors.Count == speckleMesh.VerticesCount)
-					data.vertexColors.AddRange(speckleMesh.colors.Select(c => c.ToUnityColor()));
-				else if (speckleMesh.colors.Count != 0)
+				if (subMesh.colors.Count == subMesh.VerticesCount)
+					data.vertexColors.AddRange(subMesh.colors.Select(c => c.ToUnityColor()));
+				else if (subMesh.colors.Count != 0)
 					//TODO what if only some submeshes have colors?
 					Debug.LogWarning(
-						$"{typeof(Mesh)} {speckleMesh.id} has invalid number of vertex {nameof(Mesh.colors)}. Expected 0 or {speckleMesh.VerticesCount}, got {speckleMesh.colors.Count}");
+						$"{typeof(Mesh)} {subMesh.id} has invalid number of vertex {nameof(Mesh.colors)}. Expected 0 or {subMesh.VerticesCount}, got {subMesh.colors.Count}");
 			}
 
 			var tris = new List<int>();
 
 			// Convert faces
-			tris.Capacity += (int)(speckleMesh.faces.Count / 4f) * 3;
+			tris.Capacity += (int)(subMesh.faces.Count / 4f) * 3;
 
-			for (var i = 0; i < speckleMesh.faces.Count; i += 4)
+
+			// skip the 0 index and then only grab every 3 
+			for (var i = 0; i < subMesh.faces.Count; i += 4)
 			{
 				//We can safely assume all faces are triangles since we called TriangulateMesh
-				tris.Add(speckleMesh.faces[i + 1] + indexOffset);
-				tris.Add(speckleMesh.faces[i + 3] + indexOffset);
-				tris.Add(speckleMesh.faces[i + 2] + indexOffset);
+				tris.Add(subMesh.faces[i + 1] + indexOffset);
+				tris.Add(subMesh.faces[i + 3] + indexOffset);
+				tris.Add(subMesh.faces[i + 2] + indexOffset);
 			}
 
 			data.subMeshes.Add(tris);
 		}
+
 		public static IEnumerable<Vector2> GenerateUV(this Box bbox, IReadOnlyList<Vector3> verts)
 		{
 			var uv = new Vector2[verts.Count];

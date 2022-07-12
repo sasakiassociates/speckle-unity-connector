@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using Objects.Geometry;
+using Unity.Collections;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Speckle.ConnectorUnity.Converter
@@ -17,8 +20,15 @@ namespace Speckle.ConnectorUnity.Converter
 		/// <param name="z"></param>
 		/// <param name="units"></param>
 		/// <returns></returns>
-		public static Vector3 VectorByCoordinates(double x, double y, double z, string units) =>
-			new((float)ScaleToNative(x, units), (float)ScaleToNative(z, units), (float)ScaleToNative(y, units));
+		public static Vector3 VectorByCoordinates(double x, double y, double z, string units)
+		{
+			return new((float)ScaleToNative(x, units), (float)ScaleToNative(z, units), (float)ScaleToNative(y, units));
+		}
+
+		public static float3 Float3ByCoordinates(double x, double y, double z, string units)
+		{
+			return new((float)ScaleToNative(x, units), (float)ScaleToNative(z, units), (float)ScaleToNative(y, units));
+		}
 
 		public static Vector ToSpeckle(this Vector3 pos, bool flipYZ = true) => flipYZ ? new Vector(pos.x, pos.z, pos.y) : new Vector(pos.x, pos.y, pos.z);
 
@@ -44,7 +54,47 @@ namespace Speckle.ConnectorUnity.Converter
 
 		public static Point ToPoint(this Vector3 pos, bool flipYZ = true) => flipYZ ? new Point(pos.x, pos.z, pos.y) : new Point(pos.x, pos.y, pos.z);
 
-		public static IEnumerable<Vector3> ArrayToPoints(this IEnumerable<double> arr, string units)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="verts"></param>
+		/// <param name="units"></param>
+		/// <returns></returns>
+		public static UniTask<IEnumerable<Vector3>> ArrayToVector3Task(this IEnumerable<double> verts, string units)
+		{
+			var src = new UniTaskCompletionSource<IEnumerable<Vector3>>();
+			src.TrySetResult(verts.ArrayToVector3(units));
+			return src.Task;
+		}
+
+		public static NativeArray<float3> ArrayToNativeArray(this IEnumerable<double> verts, string units)
+		{
+			if (!verts.FormatCorrect())
+			{
+				throw new Exception("point array is not valid ");
+			}
+
+			var asArray = verts.ToArray();
+			var points = new NativeArray<float3>(asArray.Count() / 3, Allocator.Temp);
+
+			for (int i = 2, k = 0; i < asArray.Count(); i += 3)
+				points[k++] = Float3ByCoordinates(asArray[i - 2], asArray[i - 1], asArray[i], units);
+
+			return points;
+		}
+
+		static bool FormatCorrect(this IEnumerable<double> verts)
+		{
+			if (verts == null || verts.Count() % 3 != 0)
+			{
+				SpeckleUnity.Console.Warn("point array is not valid ");
+				return false;
+			}
+
+			return true;
+		}
+
+		public static IEnumerable<Vector3> ArrayToVector3(this IEnumerable<double> arr, string units)
 		{
 			if (arr == null)
 				throw new Exception("point array is not valid ");
@@ -60,7 +110,7 @@ namespace Speckle.ConnectorUnity.Converter
 			return points;
 		}
 
-		public static Vector3[] ArrayToPoints(this IEnumerable<Point> arr, string units)
+		public static Vector3[] ArrayToVector3(this IEnumerable<Point> arr, string units)
 		{
 			if (arr == null)
 				throw new Exception("point array is not valid ");
@@ -73,6 +123,7 @@ namespace Speckle.ConnectorUnity.Converter
 
 			return points;
 		}
+
 		/// <summary>
 		/// </summary>
 		/// <param name="x"></param>

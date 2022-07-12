@@ -1,4 +1,5 @@
-﻿using Objects.Geometry;
+﻿using System.Linq;
+using Objects.Geometry;
 using Speckle.Core.Models;
 using UnityEngine;
 
@@ -16,9 +17,9 @@ namespace Speckle.ConnectorUnity.Converter
 		/// <returns></returns>
 		protected override GameObject ConvertBase(Polyline @base)
 		{
-			var line = BuildGo(@base.speckle_type);
+			var line = NewObj(@base.speckle_type);
 
-			line.SetupLineRenderer(@base.GetPoints().ArrayToPoints(@base.units), diameter);
+			line.SetupLineRenderer(@base.GetPoints().ArrayToVector3(@base.units).ToArray(), diameter);
 
 			return line.gameObject;
 		}
