@@ -59,7 +59,7 @@ namespace Speckle.ConnectorUnity.Ops
 			get => _showPreview;
 			set => _showPreview = value;
 		}
-		
+
 		void OnDestroy()
 		{
 			client?.CommitCreatedSubscription?.Dispose();
@@ -120,15 +120,16 @@ namespace Speckle.ConnectorUnity.Ops
 		}
 
 		/// <summary>
-		///   Gets and converts the data of the last commit on the Stream
+		///  Gets and converts the data of the last commit on the Stream
 		/// </summary>
 		/// <returns></returns>
 		public async UniTask Receive(bool sendReceive = false)
 		{
 			progress = 0f;
 			isWorking = true;
+
 			token = this.GetCancellationTokenOnDestroy();
-			
+
 			try
 			{
 				SpeckleUnity.Console.Log("Receive Started");
@@ -148,7 +149,7 @@ namespace Speckle.ConnectorUnity.Ops
 					return;
 				}
 
-				SpeckleUnity.Console.Log($"Data with {@base.totalChildrenCount}");
+				SpeckleUnity.Console.Log($"Data with {totalChildCount}");
 
 				// TODO: check if this getting the commit updates the instance
 				if (sendReceive)
@@ -175,8 +176,14 @@ namespace Speckle.ConnectorUnity.Ops
 			}
 		}
 
-		async UniTask<Base> GetCommitData()
+		/// <summary>
+		/// Pulls down a commit from a speckle stream without converting 
+		/// </summary>
+		/// <returns></returns>
+		public async UniTask<Base> GetCommitData(CancellationTokenSource cancellationToken = null)
 		{
+			token = cancellationToken?.Token ?? this.GetCancellationTokenOnDestroy();
+
 			if (stream == null || !stream.IsValid())
 			{
 				SpeckleUnity.Console.Log("Stream is not valid");
@@ -206,7 +213,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 					SpeckleUnity.Console.Log($"Commit Fetch:{data.referencedObject}\n{watch.Elapsed}");
 
-					SpeckleUnity.Console.Log($"Now Receiving...\n{watch.Elapsed}");
+					SpeckleUnity.Console.Log($"Now Receiving\n{watch.Elapsed}");
 
 					@base = await Operations.Receive(objectId: data.referencedObject,
 					                                 cancellationToken: token,
@@ -215,10 +222,7 @@ namespace Speckle.ConnectorUnity.Ops
 					                                 onErrorAction: SetError,
 					                                 onTotalChildrenCountKnown: SetChildCount);
 
-					SpeckleUnity.Console.Log($"Object Recieved:{@base}");
-
-					SpeckleUnity.Console.Log("Total time:" + watch.Elapsed);
-					
+					SpeckleUnity.Console.Log($"Object Recieved:{@base}\nTotal time:{watch.Elapsed}");
 				}, token);
 			}
 			catch (Exception e)

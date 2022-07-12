@@ -194,7 +194,6 @@ namespace Speckle.ConnectorUnity.Ops
 				}
 
 				progress = total / args.Keys.Count;
-				Debug.Log($"progress:{progress}\ntotal:{total}\n{msg}");
 			};
 		}
 

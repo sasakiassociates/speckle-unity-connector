@@ -19,7 +19,7 @@ namespace Speckle.ConnectorUnity.Converter
 			if (!converters.Valid())
 				converters = new List<ComponentConverter>
 				{
-					CreateInstance<ComponentConverterMesh>(),
+					CreateInstance<MeshConverter>(),
 					CreateInstance<ComponentConverterPolyline>(),
 					CreateInstance<ComponentConverterPoint>(),
 					CreateInstance<ComponentConverterPointCloud>(),

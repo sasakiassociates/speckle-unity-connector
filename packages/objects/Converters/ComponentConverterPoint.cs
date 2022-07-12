@@ -10,7 +10,7 @@ namespace Speckle.ConnectorUnity.Converter
 
 		protected override GameObject ConvertBase(Point @base)
 		{
-			var ptn = BuildGo(@base.speckle_type);
+			var ptn = NewObj(@base.speckle_type);
 			ptn.pos = @base.ToVector3();
 			return ptn.gameObject;
 		}
