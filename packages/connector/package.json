@@ -26,5 +26,6 @@
     "url": "https://speckle.systems"
   },
   "hideInEditor": false,
-  "dependencies": {}
+  "dependencies": {
+  }
 }
