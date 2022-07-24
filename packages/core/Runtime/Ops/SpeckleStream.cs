@@ -1,257 +1,99 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Cysharp.Threading.Tasks;
 using Speckle.Core.Api;
-using Speckle.Core.Credentials;
-using Speckle.Core.Logging;
-using UnityEngine;
-using UnityEngine.Networking;
 
 namespace Speckle.ConnectorUnity.Ops
 {
 	[Serializable]
-	public struct MetaData
+	public class SpeckleStream
 	{
-		public readonly string branchName;
+		public string id;
+		public string name;
+		public string description;
+		public string role;
+		public string createdAt;
+		public string updatedAt;
+		public string favoritedDate;
+		public bool isPublic;
 
-		public readonly string commitId;
-
-		public readonly string description;
-
-		public readonly string id;
-
-		public readonly string objectId;
-
-		public readonly string serverUrl;
-
-		public readonly string streamName;
-
-		public MetaData(SpeckleStream obj)
+		public Stream source
 		{
-			description = obj.Description;
-			streamName = obj.Name;
-			serverUrl = obj.ServerUrl;
-			id = obj.Id;
-			branchName = obj.BranchName;
-			commitId = obj.CommitId;
-			objectId = obj.ObjectId;
-		}
-	}
-
-	[CreateAssetMenu(menuName = "Speckle/Create Speckle Stream Object", fileName = "SpeckleStream", order = 0)]
-	public class SpeckleStream : ScriptableObject
-	{
-
-		[SerializeField] string description;
-
-		[SerializeField] string streamName;
-
-		[SerializeField] string serverUrl;
-
-		[SerializeField] string id;
-
-		[SerializeField] string branchName;
-
-		[SerializeField] string commitId;
-
-		[SerializeField] string objectId;
-
-		[SerializeField] string originalInput;
-
-		[SerializeField] List<BranchWrapper> _branches;
-
-		[SerializeField] List<CommitWrapper> _commits;
-
-		StreamWrapper _wrapper;
-
-		public StreamWrapper Wrapper
-		{
-			get { return _wrapper ??= new StreamWrapper(originalInput); }
+			get
+			{
+				return new Stream
+				{
+					id = this.id,
+					name = this.name,
+					description = this.description,
+					role = this.role,
+					createdAt = this.createdAt,
+					updatedAt = this.updatedAt,
+					favoritedDate = this.favoritedDate,
+					isPublic = this.isPublic
+				};
+			}
 		}
 
-		public string Name
+		public void Load(Stream input)
 		{
-			get => streamName;
-		}
+			if (input == null) return;
 
-		public string Description
-		{
-			get => description;
-		}
+			Clear();
 
-		public string ServerUrl
-		{
-			get => serverUrl;
+			id = input.id;
+			name = input.name;
+			description = input.description;
+			role = input.role;
+			createdAt = input.createdAt;
+			updatedAt = input.updatedAt;
+			favoritedDate = input.favoritedDate;
+			isPublic = input.isPublic;
 		}
-
-		public string Id
-		{
-			get => id;
-		}
-
-		public string CommitId
-		{
-			get => commitId;
-		}
-
-		public string BranchName
-		{
-			get => branchName;
-		}
-
-		public string ObjectId
-		{
-			get => objectId;
-		}
-
-		public string OriginalInput
-		{
-			get => originalInput;
-		}
-
-		public StreamWrapperType Type
-		{
-			get => Wrapper.Type;
-		}
-
-		public MetaData getMetaData() => new(this);
 
 		/// <summary>
-		///   Initialize a simple stream object that connects the stream wrapper data to the editor
+		/// Loads a new speckle stream by fetching the stream with a valid url
 		/// </summary>
-		/// <param name="streamUrlOrId">If set to null will use the editor data</param>
-		/// <returns></returns>
-		public bool Init(string streamUrlOrId = null)
+		/// <param name="url"></param>
+		public async UniTask Load(string url) => Load(await SpeckleUnity.GetStreamByUrlAsync(url));
+
+		void Clear()
 		{
-			if (!string.IsNullOrEmpty(streamUrlOrId))
-				originalInput = streamUrlOrId;
+			id = string.Empty;
+			name = string.Empty;
+			description = string.Empty;
+			role = string.Empty;
+			createdAt = string.Empty;
+			updatedAt = string.Empty;
+			favoritedDate = string.Empty;
+			isPublic = false;
 
-			_wrapper = new StreamWrapper(originalInput);
-
-			return Setup();
+			branches = null;
+			commits = null;
+			activity = null;
+			@object = null;
 		}
 
-		public async UniTask<bool> TrySetNew(string streamId, string user, string server)
-		{
-			_wrapper = new StreamWrapper(streamId, user, server);
+		public Activity activity { get; set; }
 
-			if (!Setup())
-			{
-				Debug.Log("Setup was not done correctly");
-				return false;
-			}
+		public SpeckleObject @object { get; set; }
 
-			var client = new Client(await _wrapper.GetAccount());
+		public List<Branch> branches { get; set; }
 
-			try
-			{
-				var stream = await client.StreamGet(_wrapper.StreamId);
+		/// <summary>
+		/// Set only in the case that you've requested this through <see cref="M:Speckle.Core.Api.Client.BranchGet(System.Threading.CancellationToken,System.String,System.String,System.Int32)" />.
+		/// </summary>
+		public Branch branch { get; set; }
 
-				if (stream == null)
-					return false;
+		/// <summary>
+		/// Set only in the case that you've requested this through <see cref="M:Speckle.Core.Api.Client.CommitGet(System.Threading.CancellationToken,System.String,System.String)" />.
+		/// </summary>
+		public Commit commit { get; set; }
 
-				streamName = stream.name;
-				description = stream.description;
+		/// <summary>
+		/// Set only in the case that you've requested this through <see cref="M:Speckle.Core.Api.Client.StreamGetCommits(System.Threading.CancellationToken,System.String,System.Int32)" />
+		/// </summary>
+		public List<Commit> commits { get; set; }
 
-				// TODO: probably a better way to set the most active branch... or just main
-				if (!branchName.Valid())
-					branchName = stream.branches.items.FirstOrDefault().name;
-
-				_branches = new List<BranchWrapper>();
-
-				foreach (var branch in stream.branches.items)
-				{
-					if (branch == null)
-						continue;
-
-					var b = new BranchWrapper(branch);
-					_branches.Add(b);
-				}
-			}
-			catch (SpeckleException e)
-			{
-				SpeckleUnity.Console.Log(e.Message + "-" + e.Source);
-			}
-
-			finally
-			{
-				client.Dispose();
-			}
-
-			return _wrapper.IsValid;
-		}
-
-		bool Setup()
-		{
-			if (_wrapper?.IsValid == false)
-			{
-				SpeckleUnity.Console.Log("Invalid input for stream");
-				return false;
-			}
-
-			id = _wrapper.StreamId;
-			commitId = _wrapper.CommitId;
-			objectId = _wrapper.ObjectId;
-			serverUrl = _wrapper.ServerUrl;
-			branchName = _wrapper.BranchName;
-			originalInput = _wrapper.OriginalInput;
-
-			return true;
-		}
-
-		public async UniTask<Account> GetAccount() => await Wrapper.GetAccount();
-
-		public bool IsValid() => Wrapper.IsValid;
-
-		public override string ToString() => Wrapper.ToString();
-
-		public string GetUrl(bool isPreview)
-		{
-			string url;
-			var path = isPreview ? "preview" : "streams";
-			switch (Type)
-			{
-				case StreamWrapperType.Undefined:
-					SpeckleUnity.Console.Warn($"{name} is not a valid stream, bailing on the preview thing");
-					url = null;
-					break;
-				case StreamWrapperType.Stream:
-					url = $"{Wrapper.ServerUrl}/{path}/{Wrapper.StreamId}";
-					break;
-				case StreamWrapperType.Commit:
-					url = $"{Wrapper.ServerUrl}/{path}/{Wrapper.StreamId}/commits/{Wrapper.CommitId}";
-					break;
-				case StreamWrapperType.Branch:
-					url = $"{Wrapper.ServerUrl}/{path}/{Wrapper.StreamId}/branches/{Wrapper.BranchName}";
-					break;
-				case StreamWrapperType.Object:
-					url = $"{Wrapper.ServerUrl}/{path}/{Wrapper.StreamId}/objects/{Wrapper.ObjectId}";
-					break;
-				default:
-					url = null;
-					break;
-			}
-
-			return url;
-		}
-
-		public async UniTask<Texture2D> GetPreview()
-		{
-			var url = GetUrl(true);
-
-			if (!url.Valid())
-				return null;
-
-			var www = await UnityWebRequestTexture.GetTexture(url).SendWebRequest();
-
-			if (www.result != UnityWebRequest.Result.Success)
-			{
-				SpeckleUnity.Console.Warn(www.error);
-				return null;
-			}
-
-			return DownloadHandlerTexture.GetContent(www);
-		}
 	}
 }

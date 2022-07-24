@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Speckle.Core.Api;
+using Speckle.Core.Credentials;
 using Speckle.Core.Logging;
 using Speckle.Core.Models;
 using Speckle.Core.Transports;
@@ -26,59 +26,6 @@ namespace Speckle.ConnectorUnity.Ops
 		public UnityAction<string> onDataSent;
 
 		ServerTransport transport;
-
-		/// <summary>
-		/// A Unity friendly wrapper to send a Base object to the active stream of this client
-		/// </summary>
-		/// <param name="data">Top level object to send</param>
-		/// <param name="message">Commit Message</param>
-		/// <param name="tokenSource">Cancellation token</param>
-		/// <returns></returns>
-		public async UniTask<string> Send(Base data, string message = null, CancellationTokenSource tokenSource = null)
-		{
-			var objectId = "";
-			token = tokenSource?.Token ?? this.GetCancellationTokenOnDestroy();
-
-			try
-			{
-				SpeckleUnity.Console.Log("Sending data");
-
-				transport = new ServerTransport(client.Account, stream.Id);
-
-				objectId = await Operations.Send(data, token, new List<ITransport> { transport }, true, SetProgress, SetError);
-
-				Debug.Log($"Commit sent to {branch.name}! ({objectId})");
-
-				var commitId = await client.CommitCreate(
-					token,
-					new CommitCreateInput
-					{
-						objectId = objectId,
-						streamId = stream.Id,
-						branchName = branch.name,
-						message = message.Valid() ? message : commitMessage.Valid() ? commitMessage : $"Objects from Unity {data.totalChildrenCount}",
-						sourceApplication = SpeckleUnity.HostApp,
-						totalChildrenCount = (int)data.GetTotalChildrenCount()
-					});
-
-				//TODO: point to new commit 
-				Debug.Log($"commit created! {commitId}");
-
-				onDataSent?.Invoke(objectId);
-
-				await UniTask.Yield();
-			}
-			catch (SpeckleException e)
-			{
-				SpeckleUnity.Console.Exception(e);
-			}
-			finally
-			{
-				transport?.Dispose();
-			}
-
-			return objectId;
-		}
 
 		/// <summary>
 		/// Converts and sends the speckle node to the active stream of this client
@@ -122,17 +69,65 @@ namespace Speckle.ConnectorUnity.Ops
 			return await Send(data, message);
 		}
 
+		/// <summary>
+		/// A Unity friendly wrapper to send a Base object to the active stream of this client
+		/// </summary>
+		/// <param name="data">Top level object to send</param>
+		/// <param name="message">Commit Message</param>
+		/// <param name="tokenSource">Cancellation token</param>
+		/// <returns></returns>
+		public async UniTask<string> Send(Base data, string message = null, CancellationTokenSource tokenSource = null)
+		{
+			var objectId = "";
+			token = tokenSource?.Token ?? this.GetCancellationTokenOnDestroy();
+			const string temp_stream_id = "9b692137ca";
+			const string temp_branch_name = "viewstudy/all-targets";
+			try
+			{
+				SpeckleUnity.Console.Log("Sending data");
+
+				transport = new ServerTransport(client.Account, temp_stream_id);
+
+				objectId = await Operations.Send(data, token, new List<ITransport> { transport }, true, SetProgress, SetError);
+
+				Debug.Log($"Commit sent to {branch}! ({objectId})");
+
+				var commitId = await client.CommitCreate(
+					token,
+					new CommitCreateInput
+					{
+						objectId = objectId,
+						streamId = temp_stream_id,
+						branchName = temp_branch_name,
+						message = message.Valid() ? message : commitMessage.Valid() ? commitMessage : $"Objects from Unity {data.totalChildrenCount}",
+						sourceApplication = SpeckleUnity.HostApp,
+						totalChildrenCount = (int)data.GetTotalChildrenCount()
+					});
+
+				//TODO: point to new commit 
+				Debug.Log($"commit created! {commitId}");
+
+				onDataSent?.Invoke(objectId);
+
+				await UniTask.Yield();
+			}
+			catch (SpeckleException e)
+			{
+				SpeckleUnity.Console.Exception(e);
+			}
+			finally
+			{
+				transport?.Dispose();
+			}
+
+			return objectId;
+		}
+
 		protected override void CleanUp()
 		{
 			base.CleanUp();
 			transport?.Dispose();
 		}
 
-		protected override async UniTask LoadStream()
-		{
-			await base.LoadStream();
-
-			name = nameof(Sender) + $"-{stream.Id}";
-		}
 	}
 }

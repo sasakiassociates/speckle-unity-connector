@@ -4,10 +4,10 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[CustomEditor(typeof(SpeckleStream))]
+[CustomEditor(typeof(SpeckleStreamObject))]
 public class SpeckleStreamEditor : Editor
 {
-	SpeckleStream obj;
+	SpeckleStreamObject obj;
 
 	VisualElement root;
 
@@ -16,7 +16,7 @@ public class SpeckleStreamEditor : Editor
 	void OnEnable()
 	{
 		tree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(GUIHelper.Dir + "SpeckleStream.uxml");
-		obj = (SpeckleStream)target;
+		obj = (SpeckleStreamObject)target;
 	}
 
 	public override VisualElement CreateInspectorGUI()

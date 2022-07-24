@@ -24,7 +24,7 @@ namespace Speckle.ConnectorUnity
 	public class SpeckleConnector : MonoBehaviour
 	{
 
-		[SerializeField] List<SpeckleStream> _streams = new();
+		[SerializeField] List<SpeckleStreamObject> _streams = new();
 
 		[SerializeField] List<Sender> _senders = new();
 
@@ -42,9 +42,9 @@ namespace Speckle.ConnectorUnity
 
 		public List<Account> Accounts { get; private set; }
 
-		public List<SpeckleStream> Streams
+		public List<SpeckleStreamObject> Streams
 		{
-			get => _streams.Valid() ? _streams : new List<SpeckleStream>();
+			get => _streams.Valid() ? _streams : new List<SpeckleStreamObject>();
 		}
 
 		public Account activeAccount
@@ -52,7 +52,7 @@ namespace Speckle.ConnectorUnity
 			get => Accounts.Valid(_accountIndex) ? Accounts[_accountIndex] : null;
 		}
 
-		public SpeckleStream activeStream
+		public SpeckleStreamObject activeStream
 		{
 			get => _streams.Valid(_streamIndex) ? _streams[_streamIndex] : null;
 		}
@@ -71,11 +71,14 @@ namespace Speckle.ConnectorUnity
 		}
 
 		public event UnityAction onRepaint;
-		public event UnityAction<Receiver> onReceiverCreated;
-		public event UnityAction<Sender> onSenderCreated;
+
+		public event UnityAction<Receiver> OnReceiverCreated;
+
+		public event UnityAction<Sender> OnSenderCreated;
 
 		public void SetStream(int index)
 		{
+			Debug.Log($"Setting Stream index to{index} from {_streamIndex}");
 			_streamIndex = Streams.Check(index);
 		}
 
@@ -95,7 +98,7 @@ namespace Speckle.ConnectorUnity
 					return;
 				}
 
-				_streams = new List<SpeckleStream>();
+				_streams = new List<SpeckleStreamObject>();
 
 				_client = null;
 				_streamIndex = 0;
@@ -107,11 +110,11 @@ namespace Speckle.ConnectorUnity
 					_client = new Client(activeAccount);
 
 					var res = await _client.StreamsGet(_streamLimit);
-					_streams = new List<SpeckleStream>();
+					_streams = new List<SpeckleStreamObject>();
 
 					foreach (var s in res)
 					{
-						var wrapper = ScriptableObject.CreateInstance<SpeckleStream>();
+						var wrapper = ScriptableObject.CreateInstance<SpeckleStreamObject>();
 
 						if (await wrapper.TrySetNew(s.id, activeAccount.userInfo.id, _client.ServerUrl))
 						{
@@ -131,9 +134,9 @@ namespace Speckle.ConnectorUnity
 			}
 		}
 
-		public static bool TryGetSpeckleStream(string streamUrl, out SpeckleStream stream)
+		public static bool TryGetSpeckleStream(string streamUrl, out SpeckleStreamObject stream)
 		{
-			stream = ScriptableObject.CreateInstance<SpeckleStream>();
+			stream = ScriptableObject.CreateInstance<SpeckleStreamObject>();
 			stream.Init(streamUrl);
 			return stream.IsValid();
 		}
@@ -164,6 +167,7 @@ namespace Speckle.ConnectorUnity
 					SpeckleUnity.Console.Log("No Active stream ready to be sent to Receiver");
 					return;
 				}
+
 				var mono = new GameObject().AddComponent<Sender>();
 
 				#if UNITY_EDITOR
@@ -171,13 +175,11 @@ namespace Speckle.ConnectorUnity
 				#endif
 
 				await mono.SetStream(activeStream);
-				
-				onSenderCreated?.Invoke(mono);
+
+				OnSenderCreated?.Invoke(mono);
 			});
 		}
 
-
-		
 		public void CreateReceiver(EventBase obj)
 		{
 			if (activeStream == null)
@@ -195,8 +197,8 @@ namespace Speckle.ConnectorUnity
 				#endif
 
 				await mono.SetStream(activeStream);
-				
-				onReceiverCreated?.Invoke(mono);
+
+				OnReceiverCreated?.Invoke(mono);
 			});
 		}
 	}

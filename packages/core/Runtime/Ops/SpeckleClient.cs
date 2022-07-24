@@ -12,62 +12,47 @@ namespace Speckle.ConnectorUnity.Ops
 {
 	public interface IveMadeProgress
 	{
-		public float progress
-		{
-			get;
-		}
+		public float progress { get; }
 	}
 
 	public interface ISpeckleInstance : ISpeckleStream, ISpeckleClient, IveMadeProgress, ISpeckleProgress
 	{
-		public UniTask<bool> SetStream(SpeckleStream stream);
+		public UniTask<bool> SetStream(SpeckleStreamObject stream);
 	}
 
 	public interface ISpeckleProgress
 	{
 		public event Action<ConcurrentDictionary<string, int>> OnProgressAction;
+
 		public event Action<string, Exception> OnErrorAction;
+
 		public event UnityAction<int> OnTotalChildCountAction;
 	}
 
 	public interface ISpeckleStream
 	{
-		public SpeckleStream stream
-		{
-			get;
-		}
-		public Branch branch
-		{
-			get;
-		}
-		public Commit commit
-		{
-			get;
-		}
-		public List<Branch> branches
-		{
-			get;
-		}
-		public List<Commit> commits
-		{
-			get;
-		}
-		public string StreamUrl
-		{
-			get;
-		}
+		public SpeckleStreamObject stream { get; }
+
+		public Branch branch { get; }
+
+		public Commit commit { get; }
+
+		public List<Branch> branches { get; }
+
+		public List<Commit> commits { get; }
+
+		public string StreamUrl { get; }
+
+		public SpeckleStreamObject CopyStream(bool onlyIfValid = true);
 	}
+	
+	
 
 	public interface ISpeckleClient
 	{
-		public Client client
-		{
-			get;
-		}
-		public CancellationToken token
-		{
-			get;
-		}
+		public Client client { get; }
+
+		public CancellationToken token { get; }
 	}
 
 	// BUG: issue with refreshing object data to editor, probably something with serializing the branch or commit data  
@@ -76,7 +61,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 		[SerializeField] protected SpeckleNode _root;
 
-		[SerializeField] protected SpeckleStream _stream;
+		[SerializeField] protected SpeckleStreamObject _stream;
 
 		[SerializeField] protected List<ScriptableSpeckleConverter> _converters;
 
@@ -85,8 +70,6 @@ namespace Speckle.ConnectorUnity.Ops
 		[SerializeField] int _branchIndex;
 
 		[SerializeField] int _converterIndex;
-
-		List<Branch> _branches = new();
 
 		/// <summary>
 		///   a disposable speckle client that we use to access speckle things
@@ -113,17 +96,9 @@ namespace Speckle.ConnectorUnity.Ops
 		/// </summary>
 		public event UnityAction<int> OnTotalChildCountAction;
 
-		public int totalChildCount
-		{
-			get;
-			protected set;
-		}
+		public int totalChildCount { get; protected set; }
 
-		public bool isWorking
-		{
-			get;
-			protected set;
-		}
+		public bool isWorking { get; protected set; }
 
 		/// <summary>
 		///   A list of all converters available for this client object
@@ -154,7 +129,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 			SetStream(stream).Forget();
 		}
-		
+
 		protected void SetChildCount(int args)
 		{
 			// Necessary for calling to main thread
@@ -163,9 +138,7 @@ namespace Speckle.ConnectorUnity.Ops
 				await UniTask.Yield();
 				OnTotalChildCountAction?.Invoke(args);
 			});
-
 		}
-
 
 		protected void SetProgress(ConcurrentDictionary<string, int> args)
 		{
@@ -207,73 +180,44 @@ namespace Speckle.ConnectorUnity.Ops
 			CleanUp();
 		}
 
-		public SpeckleStream stream
+		public SpeckleStreamObject stream
 		{
 			get => _stream;
-			protected set => _stream = value;
+			private set => _stream = value;
 		}
 
 		public Branch branch
 		{
-			get => branches.Valid(_branchIndex) ? branches[_branchIndex] : null;
+			get => stream.GetBranch(_branchIndex);
 		}
 
-		public Commit commit
-		{
-			get;
-			protected set;
-		}
+		public Commit commit { get; protected set; }
 
 		public List<Branch> branches
 		{
-			get => _branches.Valid() ? _branches : new List<Branch>();
-			protected set => _branches = value;
+			get => stream.branches;
 		}
 
-		public List<Commit> commits
-		{
-			get;
-			protected set;
-		}
+		public List<Commit> commits { get; protected set; }
 
 		public string StreamUrl
 		{
 			get => stream == null || !stream.IsValid() ? "no stream" : stream.GetUrl(false);
-
 		}
 
-		public Client client
+		public SpeckleStreamObject CopyStream(bool onlyIfValid = true)
 		{
-			get;
-			protected set;
+			if (stream != null && stream.IsValid() || !onlyIfValid)
+				return stream;
+
+			SpeckleUnity.Console.Warn($"Stream is not valid for copying. Check stream information before copying");
+
+			return null;
 		}
 
-		public CancellationToken token
-		{
-			get;
-			protected set;
-		}
+		public Client client { get; protected set; }
 
-		/// <summary> Necessary setup for interacting with a speckle stream from unity </summary>
-		/// <param name="newStream">root stream object to use, will default to editor field</param>
-		/// <returns></returns>
-		public async UniTask<bool> SetStream(SpeckleStream newStream)
-		{
-			stream = newStream;
-			if (stream == null || !stream.IsValid())
-			{
-				SpeckleUnity.Console.Log("Speckle stream object is not setup correctly");
-				return false;
-			}
-
-			await LoadStream();
-
-			SetSubscriptions();
-
-			onRepaint?.Invoke();
-
-			return client != null;
-		}
+		public CancellationToken token { get; protected set; }
 
 		public float progress
 		{
@@ -283,14 +227,72 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public event Action onRepaint;
 
-		public virtual void SetBranch(int i)
+		public event UnityAction<SpeckleStreamObject> OnStreamUpdated;
+
+		public virtual void SetBranch(int input)
 		{
-			_branchIndex = branches.Check(i);
+			if (stream.TrySetBranch(input))
+				_branchIndex = input;
 		}
 
-		public void SetConverter(int i)
+		public virtual void SetBranch(string input)
 		{
-			_converterIndex = _converters.Check(i);
+			if (!branches.Valid())
+			{
+				SpeckleUnity.Console.Log($"No Branches set for {name}. Converters should be loaded during {nameof(OnEnable)}");
+				return;
+			}
+
+			for (int i = 0; i < branches.Count; i++)
+				if (branches[i].name.Equals(input))
+				{
+					SetBranch(i);
+					break;
+				}
+		}
+
+		public void SetConverter(int input)
+		{
+			_converterIndex = converters.Check(input);
+		}
+
+		public void SetConverter(string input)
+		{
+			if (!converters.Valid())
+			{
+				SpeckleUnity.Console.Log($"No Converters set for {name}. Converters should be loaded during {nameof(OnEnable)}");
+				return;
+			}
+
+			for (int i = 0; i < converters.Count; i++)
+				if (converters[i].Name.ToUpper().Equals(input.ToUpper()))
+				{
+					SetConverter(i);
+					break;
+				}
+		}
+
+		/// <summary> Necessary setup for interacting with a speckle stream from unity </summary>
+		/// <param name="newStream">root stream object to use, will default to editor field</param>
+		/// <returns></returns>
+		public async UniTask<bool> SetStream(SpeckleStreamObject newStream)
+		{
+			if (newStream == null || !newStream.IsValid())
+			{
+				SpeckleUnity.Console.Log("Speckle stream object is not setup correctly");
+				return false;
+			}
+
+			stream = newStream;
+
+			// TODO: No need to set stream every time a new stream is loaded
+			await LoadStream();
+
+			SetSubscriptions();
+
+			onRepaint?.Invoke();
+
+			return client != null;
 		}
 
 		/// <summary> Necessary setup for interacting with a speckle stream from unity</summary>
@@ -299,7 +301,7 @@ namespace Speckle.ConnectorUnity.Ops
 		/// <param name="onErrorAction">Action to run on error</param>
 		/// <param name="onTotalChildCountAction">Report for total child count</param>
 		public async UniTask<bool> SetStream(
-			SpeckleStream rootStream,
+			SpeckleStreamObject rootStream,
 			Action<ConcurrentDictionary<string, int>> onProgressAction,
 			Action<string, Exception> onErrorAction,
 			Action<int> onTotalChildCountAction
@@ -312,13 +314,32 @@ namespace Speckle.ConnectorUnity.Ops
 			return await SetStream(rootStream);
 		}
 
-		protected virtual async UniTask LoadStream()
+		/// <summary>
+		/// Method called after a new stream is loaded into the speckle client
+		/// </summary>
+		protected virtual void PostLoadStream()
+		{ }
+
+		protected async UniTask LoadStream()
 		{
+			name = nameof(this.GetType) + $"-{stream.Id}";
+
 			var account = await stream.GetAccount();
 
 			client = new Client(account);
 
-			branches = await client.StreamGetBranches(this.GetCancellationTokenOnDestroy(), stream.Id);
+			// branches = await client.StreamGetBranches(this.GetCancellationTokenOnDestroy(), stream.Id);
+
+			// SetBranch(stream.BranchName);
+
+			PostLoadStream();
+
+			TriggerSetStream();
+		}
+
+		protected void TriggerSetStream()
+		{
+			OnStreamUpdated?.Invoke(stream);
 		}
 
 		/// <summary>

@@ -25,7 +25,7 @@ namespace Speckle.ConnectorUnity.Ops
 		}
 
 		public static async UniTask<Base> GetCommitData(
-			SpeckleStream stream,
+			SpeckleStreamObject stream,
 			Client client,
 			CancellationToken token,
 			Action<ConcurrentDictionary<string, int>> onProgressAction = null,

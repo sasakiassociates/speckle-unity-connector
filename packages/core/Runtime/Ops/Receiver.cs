@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -43,11 +42,7 @@ namespace Speckle.ConnectorUnity.Ops
 			get => _preview;
 		}
 
-		public List<Commit> Commits
-		{
-			get;
-			protected set;
-		}
+		public List<Commit> Commits { get; protected set; }
 
 		public Commit activeCommit
 		{
@@ -65,11 +60,15 @@ namespace Speckle.ConnectorUnity.Ops
 			client?.CommitCreatedSubscription?.Dispose();
 		}
 
-		public override void SetBranch(int i)
+		public override void SetBranch(int input)
 		{
-			base.SetBranch(i);
+			base.SetBranch(input);
+
 			Commits = branch != null ? branch.commits.items : new List<Commit>();
+
 			SetCommit(0);
+
+			TriggerSetStream();
 		}
 
 		public void SetCommit(int i)
@@ -84,6 +83,8 @@ namespace Speckle.ConnectorUnity.Ops
 
 				UpdatePreview().Forget();
 			}
+
+			TriggerSetStream();
 		}
 
 		async UniTask UpdatePreview()
@@ -109,14 +110,10 @@ namespace Speckle.ConnectorUnity.Ops
 			}
 		}
 
-		protected override async UniTask LoadStream()
+		protected override void PostLoadStream()
 		{
-			await base.LoadStream();
-
 			if (branches != null)
 				Commits = branches.FirstOrDefault().commits.items;
-
-			name = nameof(Receiver) + $"-{stream.Id}";
 		}
 
 		/// <summary>
@@ -241,6 +238,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 			return @base;
 		}
+
 		void CheckRoot()
 		{
 			// TODO: handle the process for update objects and not just force deleting
@@ -287,13 +285,17 @@ namespace Speckle.ConnectorUnity.Ops
 
 		}
 
+		#region Events
+
+		public event UnityAction<SpeckleNode> OnNodeComplete;
+
+		#endregion
+
 		#region Subscriptions
 
 		public event UnityAction<CommitInfo> OnCommitCreated;
 
 		public event UnityAction<CommitInfo> OnCommitUpdated;
-
-		public event UnityAction<SpeckleNode> OnNodeComplete;
 
 		public event UnityAction OnPreviewSet;
 

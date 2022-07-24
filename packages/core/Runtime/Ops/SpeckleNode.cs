@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Speckle.Core.Kits;
 using Speckle.Core.Logging;
@@ -18,7 +17,6 @@ namespace Speckle.ConnectorUnity.Ops
 	[AddComponentMenu("Speckle/Node")]
 	public class SpeckleNode : MonoBehaviour
 	{
-
 		[SerializeField] [HideInInspector] string id;
 
 		[SerializeField] [HideInInspector] string appId;
@@ -26,7 +24,7 @@ namespace Speckle.ConnectorUnity.Ops
 		[SerializeField] [HideInInspector] long childCount;
 
 		[SerializeField] SpeckleStructure hierarchy;
-
+		
 		/// <summary>
 		///   Reference object id
 		/// </summary>
@@ -54,6 +52,11 @@ namespace Speckle.ConnectorUnity.Ops
 		public List<GameObject> GetObjects()
 		{
 			return hierarchy.GetObjects(hierarchy.layers);
+		}
+
+		public void AddLayer(SpeckleLayer layer)
+		{
+			hierarchy.Add(layer);
 		}
 
 		/// <summary>
@@ -96,6 +99,22 @@ namespace Speckle.ConnectorUnity.Ops
 			return UniTask.CompletedTask;
 		}
 
+		public Base SceneToData(ISpeckleConverter converter, CancellationToken token)
+		{
+			var data = new Base();
+
+			foreach (var layer in hierarchy.layers)
+			{
+				if (token.IsCancellationRequested)
+					return data;
+
+				data[layer.LayerName] = LayerToBase(layer, converter, token);
+			}
+
+			childCount = data.GetTotalChildrenCount();
+			return data;
+		}
+
 		void DeconstructObject(Base data, SpeckleLayer defaultLayer, ISpeckleConverter converter, CancellationToken token)
 		{
 			if (token.IsCancellationRequested)
@@ -134,20 +153,9 @@ namespace Speckle.ConnectorUnity.Ops
 				}
 		}
 
-		public Base SceneToData(ISpeckleConverter converter, CancellationToken token)
+		void Awake()
 		{
-			var data = new Base();
-
-			foreach (var layer in hierarchy.layers)
-			{
-				if (token.IsCancellationRequested)
-					return data;
-
-				data[layer.LayerName] = LayerToBase(layer, converter, token);
-			}
-
-			childCount = data.GetTotalChildrenCount();
-			return data;
+			hierarchy ??= new SpeckleStructure();
 		}
 
 		static Base LayerToBase(SpeckleLayer layer, ISpeckleConverter converter, CancellationToken token)
@@ -229,5 +237,6 @@ namespace Speckle.ConnectorUnity.Ops
 
 			return objs.Any();
 		}
+
 	}
 }
