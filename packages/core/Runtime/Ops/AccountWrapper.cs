@@ -53,9 +53,11 @@ namespace Speckle.ConnectorUnity.Ops
 		public override Account Get()
 		{
 			_source = SpeckleUnity.GetAccountByUserInfo(userInfo);
+			
 			if (source != null)
 				return _source;
 
+			// TODO: handle other ways of looking for accounts
 			return null;
 		}
 
@@ -67,6 +69,12 @@ namespace Speckle.ConnectorUnity.Ops
 				id = user_id,
 				name = user_name,
 				company = user_company
+			};
+
+		ServerInfo serverInfo =>
+			new ServerInfo()
+			{
+				company = server_company, name = server_name, url = server_url
 			};
 
 		void Clear()

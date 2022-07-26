@@ -20,7 +20,7 @@ namespace Speckle.ConnectorUnity.Ops
 		public void Reset();
 
 		public void SetSource(Account obj);
-		
+
 	}
 
 	[Serializable]
@@ -31,7 +31,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public Account account
 		{
-			get => _accountWrapper?.UnRapObject();
+			get => _accountWrapper?.source;
 		}
 
 		public CancellationToken token { get; private set; }
@@ -43,7 +43,7 @@ namespace Speckle.ConnectorUnity.Ops
 		public event Action<string, Exception> OnErrorAction;
 
 		public event UnityAction<int> OnTotalChildCountAction;
-		
+
 		public SpeckleUnityClient(Account obj)
 		{
 			this.SetSource(obj);
@@ -52,7 +52,7 @@ namespace Speckle.ConnectorUnity.Ops
 		public void SetSource(Account obj)
 		{
 			_accountWrapper ??= new AccountWrapper();
-			_accountWrapper.RapObject(obj);
+			_accountWrapper.source = obj;
 			Reset();
 		}
 
@@ -71,4 +71,5 @@ namespace Speckle.ConnectorUnity.Ops
 		}
 
 	}
+
 }

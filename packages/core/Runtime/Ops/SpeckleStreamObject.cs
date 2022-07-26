@@ -106,12 +106,13 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public List<Branch> branches
 		{
-			get => _branches.Valid() ? _branches.Select(x => x.Cast()).ToList() : new List<Branch>();
+			get => new List<Branch>();
 		}
 
 		public Branch GetBranch(int input)
 		{
-			return _branches.Valid(input) ? _branches[input].Cast() : null;
+			return null;
+			// return _branches.Valid(input) ? _branches[input].Cast() : null;
 		}
 
 		public bool TrySetBranch(int input)
