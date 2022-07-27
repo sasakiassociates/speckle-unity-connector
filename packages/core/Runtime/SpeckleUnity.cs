@@ -109,27 +109,7 @@ namespace Speckle.ConnectorUnity
 			return res;
 		}
 
-		public static async UniTask<Stream> GetStreamByUrlAsync(string input)
-		{
-			Stream res = null;
-			Client c = null;
-			try
-			{
-				var s = new StreamWrapper(input);
-				
-				var account = await s.GetAccount();
-				c = new Client(account);
-				res = await c.StreamGet(s.StreamId);
-			}
 
-			catch (SpeckleException e)
-			{
-				Co.Warn(e.Message);
-				c?.Dispose();
-			}
-
-			return res;
-		}
 
 		public static async UniTask<Account> GetAccountByStreamAsync(string input)
 		{

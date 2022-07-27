@@ -17,7 +17,7 @@ namespace Speckle.ConnectorUnity.Ops
 			SpeckleUnity.Console.Log($"Posting a received commit: {instance.stream}");
 			await instance.client.CommitReceived(instance.token, new CommitReceivedInput
 			{
-				streamId = instance.stream.Id,
+				streamId = instance.stream.id,
 				commitId = instance.commit.id,
 				message = message.Valid() ? message : $"received commit from {SpeckleUnity.HostApp} ",
 				sourceApplication = SpeckleUnity.HostApp
@@ -51,16 +51,16 @@ namespace Speckle.ConnectorUnity.Ops
 
 			var watch = Stopwatch.StartNew();
 
-			var transport = new ServerTransport(client.Account, stream.Id);
+			var transport = new ServerTransport(client.Account, stream.id);
 
 			try
 			{
 				// only use Task with any client calls to speckle. Not worth the conversion 
 				await Task.Run(async () =>
 				{
-					SpeckleUnity.Console.Log($"Getting Commit\nstream id:{stream.Id} commit id:{stream.CommitId}");
+					SpeckleUnity.Console.Log($"Getting Commit\nstream id:{stream.id} commit id:{stream.CommitId}");
 
-					var commit = await client.CommitGet(token, stream.Id, stream.CommitId);
+					var commit = await client.CommitGet(token, stream.id, stream.CommitId);
 
 					SpeckleUnity.Console.Log($"Commit Fetch:{commit.referencedObject}\n{watch.Elapsed}");
 

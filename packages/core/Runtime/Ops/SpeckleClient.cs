@@ -196,6 +196,7 @@ namespace Speckle.ConnectorUnity.Ops
 		public List<Branch> branches
 		{
 			get => stream.branches;
+			set => stream.branches = value;
 		}
 
 		public List<Commit> commits { get; protected set; }
@@ -322,15 +323,15 @@ namespace Speckle.ConnectorUnity.Ops
 
 		protected async UniTask LoadStream()
 		{
-			name = nameof(this.GetType) + $"-{stream.Id}";
+			name = nameof(this.GetType) + $"-{stream.id}";
 
 			var account = await stream.GetAccount();
 
 			client = new Client(account);
 
-			// branches = await client.StreamGetBranches(this.GetCancellationTokenOnDestroy(), stream.Id);
+			branches = await client.StreamGetBranches(this.GetCancellationTokenOnDestroy(), stream.id);
 
-			// SetBranch(stream.BranchName);
+			SetBranch(stream.BranchName);
 
 			PostLoadStream();
 

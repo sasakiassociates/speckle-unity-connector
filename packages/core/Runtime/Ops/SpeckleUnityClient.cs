@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using Cysharp.Threading.Tasks;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
+using Speckle.Core.Logging;
 using UnityEngine.Events;
 
 namespace Speckle.ConnectorUnity.Ops
@@ -16,15 +18,11 @@ namespace Speckle.ConnectorUnity.Ops
 		public Client client { get; }
 
 		public CancellationToken token { get; }
-
-		public void Reset();
-
-		public void SetSource(Account obj);
-
+		
 	}
 
 	[Serializable]
-	public class SpeckleUnityClient : ISpeckleUnityClient
+	public class SpeckleUnityClient : ISpeckleUnityClient, IDisposable
 	{
 
 		AccountWrapper _accountWrapper;
@@ -46,30 +44,47 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public SpeckleUnityClient(Account obj)
 		{
-			this.SetSource(obj);
+			_accountWrapper = new AccountWrapper(obj);
+			client = new Client(account);
 		}
 
-		public void SetSource(Account obj)
-		{
-			_accountWrapper ??= new AccountWrapper();
-			_accountWrapper.source = obj;
-			Reset();
-		}
 
-		public void Destroy()
+		public void Dispose()
 		{
 			client?.Dispose();
-			// unsubscribe to all events
 		}
+		
 
-		public void Reset()
+		/// <summary>
+		/// Loads a new speckle stream by fetching the stream with a valid url
+		/// </summary>
+		/// <param name="url"></param>
+		public static async UniTask<SpeckleStream> LoadStreamByUrl(string url)
 		{
-			Destroy();
+			SpeckleStream res = null;
+			SpeckleUnityClient c = null;
+			
+			try
+			{
+				var s = new StreamWrapper(url);
 
-			if (account != null)
-				client = new Client(account);
+				if (s.IsValid)
+				{
+					c = new SpeckleUnityClient(await s.GetAccount());
+					var task = await c.StreamGet(url);
+					if (task != null)
+						res = task;
+				}
+			}
+
+			catch (SpeckleException e)
+			{
+				SpeckleUnity.Console.Warn(e.Message);
+				c?.Dispose();
+			}
+
+			return res;
 		}
-
 	}
 
 }
