@@ -77,7 +77,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 			if (activeCommit != null)
 			{
-				stream.Init($"{client.ServerUrl}/streams/{stream.Id}/commits/{activeCommit.id}");
+				stream.Init($"{client.ServerUrl}/streams/{stream.id}/commits/{activeCommit.id}");
 
 				SpeckleUnity.Console.Log("Active commit loaded! " + activeCommit);
 
@@ -103,17 +103,19 @@ namespace Speckle.ConnectorUnity.Ops
 		{
 			if (client != null && _autoReceive)
 			{
-				client.SubscribeCommitCreated(stream.Id);
+				client.SubscribeCommitCreated(stream.id);
 				client.OnCommitCreated += (_, c) => OnCommitCreated?.Invoke(c);
-				client.SubscribeCommitUpdated(stream.Id);
+				client.SubscribeCommitUpdated(stream.id);
 				client.OnCommitUpdated += (_, c) => OnCommitUpdated?.Invoke(c);
 			}
 		}
 
 		protected override void PostLoadStream()
 		{
-			if (branches != null)
-				Commits = branches.FirstOrDefault().commits.items;
+			if (branch?.commits != null && branch.commits.items.Valid())
+			{
+				Commits = branch.commits.items;
+			}
 		}
 
 		/// <summary>
@@ -197,16 +199,16 @@ namespace Speckle.ConnectorUnity.Ops
 
 			var watch = Stopwatch.StartNew();
 
-			var transport = new ServerTransport(client.Account, stream.Id);
+			var transport = new ServerTransport(client.Account, stream.id);
 
 			try
 			{
 				// only use Task with any client calls to speckle. Not worth the conversion 
 				await Task.Run(async () =>
 				{
-					SpeckleUnity.Console.Log($"Getting Commit\nstream id:{stream.Id} commit id:{stream.CommitId}");
+					SpeckleUnity.Console.Log($"Getting Commit\nstream id:{stream.id} commit id:{stream.CommitId}");
 
-					var data = await client.CommitGet(token, stream.Id, stream.CommitId);
+					var data = await client.CommitGet(token, stream.id, stream.CommitId);
 
 					SpeckleUnity.Console.Log($"Commit Fetch:{data.referencedObject}\n{watch.Elapsed}");
 

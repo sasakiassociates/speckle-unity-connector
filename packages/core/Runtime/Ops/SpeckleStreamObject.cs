@@ -1,67 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Cysharp.Threading.Tasks;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
-using Speckle.Core.Logging;
 using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Speckle.ConnectorUnity.Ops
 {
-	[Serializable]
-	public struct MetaData
-	{
-		public readonly string branchName;
-
-		public readonly string commitId;
-
-		public readonly string description;
-
-		public readonly string id;
-
-		public readonly string objectId;
-
-		public readonly string serverUrl;
-
-		public readonly string streamName;
-
-		public MetaData(SpeckleStreamObject obj)
-		{
-			description = obj.Description;
-			streamName = obj.Name;
-			serverUrl = obj.ServerUrl;
-			id = obj.Id;
-			branchName = obj.BranchName;
-			commitId = obj.CommitId;
-			objectId = obj.ObjectId;
-		}
-	}
 
 	[CreateAssetMenu(menuName = "Speckle/Speckle Stream", fileName = "SpeckleStream", order = 0)]
 	public class SpeckleStreamObject : ScriptableObject
 	{
 
-		[SerializeField] string _description;
-
-		[SerializeField] string _streamName;
-
-		[SerializeField] string _serverUrl;
-
-		[SerializeField] string _id;
-
-		[SerializeField] string _branchName;
-
-		[SerializeField] string _commitId;
-
-		[SerializeField] string _objectId;
-
 		[SerializeField] string _originalInput;
 
-		[SerializeField] List<BranchWrapper> _branches;
-
-		[SerializeField] List<CommitWrapper> _commits;
+		[SerializeField, HideInInspector] SpeckleStream _stream;
 
 		[SerializeField, HideInInspector] int _branchIndex;
 
@@ -69,44 +23,36 @@ namespace Speckle.ConnectorUnity.Ops
 
 		StreamWrapper _wrapper;
 
-		public StreamWrapper Wrapper
+		/// <summary>
+		/// The name of the stream
+		/// </summary>
+		public string streamName
 		{
-			get { return _wrapper ??= new StreamWrapper(_originalInput); }
+			get => _stream.name;
+			set => _stream.name = value;
 		}
 
-		public string Name
+		public string description
 		{
-			get => _streamName;
+			get => _stream.description;
+			set => _stream.description = value;
 		}
 
-		public string Description
+		public string id
 		{
-			get => _description;
+			get => _stream.id;
+			set => _stream.id = value;
 		}
 
-		public string ServerUrl
+		public void Load(SpeckleStream stream)
 		{
-			get => _serverUrl;
-		}
-
-		public string Id
-		{
-			get => _id;
-		}
-
-		public string CommitId
-		{
-			get => _commitId;
-		}
-
-		public string BranchName
-		{
-			get => _branchName;
+			_stream = stream;
 		}
 
 		public List<Branch> branches
 		{
-			get => new List<Branch>();
+			get => _stream.branches;
+			set => _stream.branches = value;
 		}
 
 		public Branch GetBranch(int input)
@@ -146,36 +92,26 @@ namespace Speckle.ConnectorUnity.Ops
 			return true;
 		}
 
-		public string ObjectId
-		{
-			get => _objectId;
-		}
-
-		public string OriginalInput
-		{
-			get => _originalInput;
-		}
-
-		public StreamWrapperType Type
-		{
-			get => Wrapper.Type;
-		}
-
-		public MetaData getMetaData() => new(this);
-
 		/// <summary>
 		///   Initialize a simple stream object that connects the stream wrapper data to the editor
 		/// </summary>
 		/// <param name="streamUrlOrId">If set to null will use the editor data</param>
 		/// <returns></returns>
-		public bool Init(string streamUrlOrId = null)
+		public async UniTask Init(string streamUrlOrId = null)
 		{
-			if (!string.IsNullOrEmpty(streamUrlOrId))
-				_originalInput = streamUrlOrId;
-
-			_wrapper = new StreamWrapper(_originalInput);
-
-			return Setup();
+			try
+			{
+				if (!streamUrlOrId.Valid())
+				{
+					var s = await SpeckleUnityClient.LoadStreamByUrl(streamUrlOrId);
+					if (s != null)
+						Load(s);
+				}
+			}
+			catch (Exception e)
+			{
+				SpeckleUnity.Console.Warn(e.Message);
+			}
 		}
 
 		public async UniTask<bool> TryLoadBranches()
@@ -259,63 +195,17 @@ namespace Speckle.ConnectorUnity.Ops
 			return _wrapper.IsValid;
 		}
 
-		bool Setup()
-		{
-			if (_wrapper?.IsValid == false)
-			{
-				SpeckleUnity.Console.Log("Invalid input for stream");
-				return false;
-			}
-
-			_id = _wrapper.StreamId;
-			_commitId = _wrapper.CommitId;
-			_objectId = _wrapper.ObjectId;
-			_serverUrl = _wrapper.ServerUrl;
-			_branchName = _wrapper.BranchName;
-			_originalInput = _wrapper.OriginalInput;
-
-			return true;
-		}
-
 		public async UniTask<Account> GetAccount() => await Wrapper.GetAccount();
 
 		public bool IsValid() => Wrapper.IsValid;
 
 		public override string ToString() => Wrapper.ToString();
 
-		public string GetUrl(bool isPreview)
-		{
-			string url;
-			var path = isPreview ? "preview" : "streams";
-			switch (Type)
-			{
-				case StreamWrapperType.Undefined:
-					SpeckleUnity.Console.Warn($"{name} is not a valid stream, bailing on the preview thing");
-					url = null;
-					break;
-				case StreamWrapperType.Stream:
-					url = $"{Wrapper.ServerUrl}/{path}/{Wrapper.StreamId}";
-					break;
-				case StreamWrapperType.Commit:
-					url = $"{Wrapper.ServerUrl}/{path}/{Wrapper.StreamId}/commits/{Wrapper.CommitId}";
-					break;
-				case StreamWrapperType.Branch:
-					url = $"{Wrapper.ServerUrl}/{path}/{Wrapper.StreamId}/branches/{Wrapper.BranchName}";
-					break;
-				case StreamWrapperType.Object:
-					url = $"{Wrapper.ServerUrl}/{path}/{Wrapper.StreamId}/objects/{Wrapper.ObjectId}";
-					break;
-				default:
-					url = null;
-					break;
-			}
-
-			return url;
-		}
+		
 
 		public async UniTask<Texture2D> GetPreview()
 		{
-			var url = GetUrl(true);
+			var url = Speckle(true);}
 
 			if (!url.Valid())
 				return null;
