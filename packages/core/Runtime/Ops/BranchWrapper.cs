@@ -6,26 +6,43 @@ using Speckle.Core.Api;
 namespace Speckle.ConnectorUnity.Ops
 {
 	[Serializable]
-	public class BranchWrapper
+	public sealed class BranchWrapper : GenericWrapper<Branch>
 	{
 
-		public readonly List<CommitWrapper> commits;
+		public string name;
+		public string id;
+		public string description;
+		public string commitCursor;
+		public int commitTotalCount;
+		public List<CommitWrapper> commits;
 
-		public readonly string description;
-
-		public readonly string id;
-
-		public readonly string name;
-
-		public BranchWrapper(Branch branch)
+		public BranchWrapper(Branch value) : base(value)
 		{
-			id = branch.id;
-			name = branch.name;
-			description = branch.description;
+			id = value.id;
+			name = value.name;
+			description = value.description;
+			commitCursor = value.commits.cursor;
+			commitTotalCount = value.commits.totalCount;
 
-			commits = branch.commits != null && branch.commits.items.Valid() ?
-				branch.commits.items.Select(x => new CommitWrapper(x)).ToList() :
-				new List<CommitWrapper>();
+			commits = value.commits != null && value.commits.items.Valid() ?
+				value.commits.items.Select(x => new CommitWrapper(x)).ToList() : new List<CommitWrapper>();
 		}
+
+		// These wrappers should only be used for ui bits.
+
+		protected override Branch Get() => new Branch()
+		{
+			name = this.name,
+			id = this.id,
+			description = this.description,
+			commits = new Commits
+			{
+				items = commits.Select(x => x.source).ToList(),
+				cursor = commitCursor,
+				totalCount = commitTotalCount,
+			}
+		};
+
+		public override string ToString() => source.ToString();
 	}
 }

@@ -3,90 +3,57 @@ using Speckle.Core.Credentials;
 
 namespace Speckle.ConnectorUnity.Ops
 {
-	public abstract class GenericWrapper<TObj>
-	{
-		protected TObj _source;
-
-		public virtual TObj source
-		{
-			get => _source ?? Get();
-			set
-			{
-				if (value != null) Set(value);
-			}
-		}
-
-		public abstract void Set(TObj value);
-
-		public abstract TObj Get();
-
-	}
 
 	[Serializable]
 	public sealed class AccountWrapper : GenericWrapper<Account>
 	{
 
-		public string server_url, server_name, server_company;
-		public string user_id, user_name, user_email, user_avatar, user_company;
+		public string serverUrl, serverName, serverCompany;
+		public string userId, userName, userEmail, userAvatar, userCompany;
 
 		public string id, token, refreshToken;
 		public bool isDefault;
 
-		public override void Set(Account value)
+		public AccountWrapper(Account value) : base(value)
 		{
 			id = value.id;
 			isDefault = value.isDefault;
 			token = value.token;
 			refreshToken = value.refreshToken;
 
-			server_url = value.serverInfo.url;
-			server_name = value.serverInfo.name;
-			server_company = value.serverInfo.company;
+			serverUrl = value.serverInfo.url;
+			serverName = value.serverInfo.name;
+			serverCompany = value.serverInfo.company;
 
-			user_name = value.userInfo.name;
-			user_email = value.userInfo.email;
-			user_id = value.userInfo.id;
-			user_avatar = value.userInfo.avatar;
-			user_company = value.userInfo.company;
+			userName = value.userInfo.name;
+			userEmail = value.userInfo.email;
+			userId = value.userInfo.id;
+			userAvatar = value.userInfo.avatar;
+			userCompany = value.userInfo.company;
 		}
 
-		public override Account Get()
-		{
-			_source = SpeckleUnity.GetAccountByUserInfo(userInfo);
-			
-			if (source != null)
-				return _source;
 
+		protected override Account Get()
+		{
 			// TODO: handle other ways of looking for accounts
-			return null;
+			return source ??= SpeckleUnity.GetAccountByUserInfo(userInfo);
 		}
 
 		UserInfo userInfo =>
 			new UserInfo()
 			{
-				email = user_email,
-				avatar = user_avatar,
-				id = user_id,
-				name = user_name,
-				company = user_company
+				email = userEmail,
+				avatar = userAvatar,
+				id = userId,
+				name = userName,
+				company = userCompany
 			};
 
 		ServerInfo serverInfo =>
 			new ServerInfo()
 			{
-				company = server_company, name = server_name, url = server_url
+				company = serverCompany, name = serverName, url = serverUrl
 			};
-
-		void Clear()
-		{
-			user_id = string.Empty;
-			user_name = string.Empty;
-			user_email = string.Empty;
-
-			server_url = string.Empty;
-			server_company = string.Empty;
-			server_name = string.Empty;
-		}
 
 	}
 }

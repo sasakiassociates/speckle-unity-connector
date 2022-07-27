@@ -7,8 +7,7 @@ namespace Speckle.ConnectorUnity.Ops
 {
 	public static class ClientCommands
 	{
-		public static bool IsValid(this ISpeckleUnityClient source) => source != null && source.account != null && source.client != null;
-
+		public static bool IsValid(this ISpeckleUnityClient source) => source?.account != null && source.client != null;
 
 		public static async UniTask<bool> LoadBranches(this SpeckleStream stream, ISpeckleUnityClient client, int branchLimit = 10, int commitLimit = 5)
 		{
@@ -123,8 +122,7 @@ namespace Speckle.ConnectorUnity.Ops
 					Stream stream = await source.client.StreamGet(source.token, input, branchLimit);
 					if (stream != null)
 					{
-						res = new SpeckleStream();
-						res.Load(stream);
+						res = new SpeckleStream(stream);
 					}
 				}
 			}
