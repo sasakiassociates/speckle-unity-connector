@@ -15,11 +15,12 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public Account account { get; }
 
-		public Client client { get; }
+		public Client source { get; }
 
 		public CancellationToken token { get; }
-		
+
 	}
+	
 
 	[Serializable]
 	public class SpeckleUnityClient : ISpeckleUnityClient, IDisposable
@@ -34,7 +35,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public CancellationToken token { get; private set; }
 
-		public Client client { get; private set; }
+		public Client source { get; private set; }
 
 		public event Action<ConcurrentDictionary<string, int>> OnProgressAction;
 
@@ -44,26 +45,26 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public SpeckleUnityClient(Account obj)
 		{
-			_accountWrapper = new AccountWrapper(obj);
-			client = new Client(account);
-		}
+			if (obj == null) return;
 
+			_accountWrapper = new AccountWrapper(obj);
+			source = new Client(account);
+		}
 
 		public void Dispose()
 		{
-			client?.Dispose();
+			source?.Dispose();
 		}
-		
 
 		/// <summary>
 		/// Loads a new speckle stream by fetching the stream with a valid url
 		/// </summary>
 		/// <param name="url"></param>
-		public static async UniTask<SpeckleStream> LoadStreamByUrl(string url)
+		public static async UniTask<Stream> LoadStreamByUrl(string url)
 		{
-			SpeckleStream res = null;
+			Stream res = null;
 			SpeckleUnityClient c = null;
-			
+
 			try
 			{
 				var s = new StreamWrapper(url);
@@ -71,9 +72,7 @@ namespace Speckle.ConnectorUnity.Ops
 				if (s.IsValid)
 				{
 					c = new SpeckleUnityClient(await s.GetAccount());
-					var task = await c.StreamGet(url);
-					if (task != null)
-						res = task;
+					res = await c.StreamGet(url);
 				}
 			}
 

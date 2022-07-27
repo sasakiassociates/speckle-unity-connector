@@ -5,9 +5,9 @@
 
 		TObj _source;
 
-		public GenericWrapper(TObj obj)
+		public GenericWrapper(TObj value)
 		{
-			_source = obj;
+			_source = value;
 		}
 
 		public virtual TObj source

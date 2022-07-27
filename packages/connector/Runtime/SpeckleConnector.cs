@@ -138,7 +138,8 @@ namespace Speckle.ConnectorUnity
 		{
 			stream = ScriptableObject.CreateInstance<SpeckleStreamObject>();
 			stream.Init(streamUrl);
-			return stream.IsValid();
+			return false;
+			// return stream.IsValid();
 		}
 
 		public void OpenStreamInBrowser(EventBase obj)
@@ -148,7 +149,7 @@ namespace Speckle.ConnectorUnity
 				// copied from desktop ui
 				await UniTask.Delay(100);
 
-				Application.OpenURL(activeStream.GetUrl(false));
+				// Application.OpenURL(activeStream.GetUrl(false));
 			});
 		}
 

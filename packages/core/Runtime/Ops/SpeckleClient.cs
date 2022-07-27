@@ -45,8 +45,6 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public SpeckleStreamObject CopyStream(bool onlyIfValid = true);
 	}
-	
-	
 
 	public interface ISpeckleClient
 	{
@@ -203,15 +201,16 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public string StreamUrl
 		{
-			get => stream == null || !stream.IsValid() ? "no stream" : stream.GetUrl(false);
+			get => "";
+			// get => stream == null || !stream.IsValid() ? "no stream" : stream.GetUrl(false);
 		}
 
 		public SpeckleStreamObject CopyStream(bool onlyIfValid = true)
 		{
-			if (stream != null && stream.IsValid() || !onlyIfValid)
-				return stream;
-
-			SpeckleUnity.Console.Warn($"Stream is not valid for copying. Check stream information before copying");
+			// if (stream != null && stream.IsValid() || !onlyIfValid)
+			// 	return stream;
+			//
+			// SpeckleUnity.Console.Warn($"Stream is not valid for copying. Check stream information before copying");
 
 			return null;
 		}
@@ -278,11 +277,12 @@ namespace Speckle.ConnectorUnity.Ops
 		/// <returns></returns>
 		public async UniTask<bool> SetStream(SpeckleStreamObject newStream)
 		{
-			if (newStream == null || !newStream.IsValid())
-			{
-				SpeckleUnity.Console.Log("Speckle stream object is not setup correctly");
-				return false;
-			}
+			return false;
+			// if (newStream == null || !newStream.IsValid())
+			// {
+				// SpeckleUnity.Console.Log("Speckle stream object is not setup correctly");
+				// return false;
+			// }
 
 			stream = newStream;
 
@@ -331,7 +331,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 			branches = await client.StreamGetBranches(this.GetCancellationTokenOnDestroy(), stream.id);
 
-			SetBranch(stream.BranchName);
+			// SetBranch(stream.BranchName);
 
 			PostLoadStream();
 
@@ -359,11 +359,11 @@ namespace Speckle.ConnectorUnity.Ops
 		{
 			var res = true;
 
-			if (stream == null || !stream.IsValid())
-			{
-				SpeckleUnity.Console.Log($"No active stream ready for {name} to use");
-				res = false;
-			}
+			// if (stream == null || !stream.IsValid())
+			// {
+			// 	SpeckleUnity.Console.Log($"No active stream ready for {name} to use");
+			// 	res = false;
+			// }
 
 			if (client == null)
 			{

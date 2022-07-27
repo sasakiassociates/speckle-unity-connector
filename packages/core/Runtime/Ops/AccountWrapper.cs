@@ -16,6 +16,8 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public AccountWrapper(Account value) : base(value)
 		{
+			if (value == null) return;
+
 			id = value.id;
 			isDefault = value.isDefault;
 			token = value.token;
@@ -32,11 +34,10 @@ namespace Speckle.ConnectorUnity.Ops
 			userCompany = value.userInfo.company;
 		}
 
-
 		protected override Account Get()
 		{
 			// TODO: handle other ways of looking for accounts
-			return source ??= SpeckleUnity.GetAccountByUserInfo(userInfo);
+			return SpeckleUnity.GetAccountByUserInfo(userInfo);
 		}
 
 		UserInfo userInfo =>

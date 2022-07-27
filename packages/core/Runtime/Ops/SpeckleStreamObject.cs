@@ -44,17 +44,18 @@ namespace Speckle.ConnectorUnity.Ops
 			set => _stream.id = value;
 		}
 
-		public void Load(SpeckleStream stream)
-		{
-			_stream = stream;
-		}
-
 		public List<Branch> branches
 		{
 			get => _stream.branches;
 			set => _stream.branches = value;
 		}
 
+		
+		public void Load(Stream stream) => Load(new SpeckleStream(stream));
+
+		public void Load(SpeckleStream stream) => _stream = stream;
+
+		
 		public Branch GetBranch(int input)
 		{
 			return null;
@@ -69,25 +70,25 @@ namespace Speckle.ConnectorUnity.Ops
 				return false;
 
 			// TODO: fix issue with the branch name not being set correctly from the branch 
-			_branchName = b.name;
+			// _branchName = b.name;
 			SpeckleUnity.Console.Log($"Setting Active branch to {b}");
 			return true;
 		}
 
 		public virtual bool TrySetBranch(string input)
 		{
-			if (!_branches.Valid())
-			{
-				SpeckleUnity.Console.Log($"No Branches set for {name}");
-				return false;
-			}
-
-			for (int i = 0; i < _branches.Count; i++)
-				if (_branches[i].name.Equals(input))
-				{
-					TrySetBranch(i);
-					break;
-				}
+			// if (!_branches.Valid())
+			// {
+			// 	SpeckleUnity.Console.Log($"No Branches set for {name}");
+			// 	return false;
+			// }
+			//
+			// for (int i = 0; i < _branches.Count; i++)
+			// 	if (_branches[i].name.Equals(input))
+			// 	{
+			// 		TrySetBranch(i);
+			// 		break;
+			// 	}
 
 			return true;
 		}
@@ -116,109 +117,108 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public async UniTask<bool> TryLoadBranches()
 		{
-			Client client = null;
-
-			try
-			{
-				client = new Client(await _wrapper.GetAccount());
-
-				var b = await client.StreamGetBranches(_wrapper.StreamId);
-
-				if (!b.Valid())
-					return false;
-
-				_branches = new List<BranchWrapper>();
-				foreach (var br in b)
-				{
-					_branches.Add(new BranchWrapper(br));
-				}
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e);
-				throw;
-			}
-			finally
-			{
-				client?.Dispose();
-			}
+			// Client client = null;
+			//
+			// try
+			// {
+			// 	client = new Client(await _wrapper.GetAccount());
+			//
+			// 	var b = await client.StreamGetBranches(_wrapper.StreamId);
+			//
+			// 	if (!b.Valid())
+			// 		return false;
+			//
+			// 	_branches = new List<BranchWrapper>();
+			// 	foreach (var br in b)
+			// 	{
+			// 		_branches.Add(new BranchWrapper(br));
+			// 	}
+			// }
+			// catch (Exception e)
+			// {
+			// 	Console.WriteLine(e);
+			// 	throw;
+			// }
+			// finally
+			// {
+			// 	client?.Dispose();
+			// }
 
 			return true;
 		}
 
 		public async UniTask<bool> TryLoadStream()
 		{
-			Client client = null;
-
-			try
-			{
-				client = new Client(await _wrapper.GetAccount());
-				var stream = await client.StreamGet(_wrapper.StreamId);
-
-				if (stream == null)
-					return false;
-
-				var o = stream.@object;
-				_streamName = stream.name;
-				_description = stream.description;
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e);
-				return false;
-			}
-			finally
-			{
-				client?.Dispose();
-			}
+			// Client client = null;
+			//
+			// try
+			// {
+			// 	client = new Client(await _wrapper.GetAccount());
+			// 	var stream = await client.StreamGet(_wrapper.StreamId);
+			//
+			// 	if (stream == null)
+			// 		return false;
+			//
+			// 	var o = stream.@object;
+			// 	_streamName = stream.name;
+			// 	_description = stream.description;
+			// }
+			// catch (Exception e)
+			// {
+			// 	Console.WriteLine(e);
+			// 	return false;
+			// }
+			// finally
+			// {
+			// 	client?.Dispose();
+			// }
 
 			return true;
 		}
 
 		public async UniTask<bool> TrySetNew(string streamId, string user, string server)
 		{
-			_wrapper = new StreamWrapper(streamId, user, server);
+			// _wrapper = new StreamWrapper(streamId, user, server);
+			//
+			// if (!Setup())
+			// {
+			// 	Debug.Log("Setup was not done correctly");
+			// 	return false;
+			// }
+			//
+			// if (await TryLoadStream() && await TryLoadBranches())
+			// {
+			// 	// TODO: probably a better way to set the most active branch... or just main
+			// 	if (!_branchName.Valid())
+			// 		_branchName = _branches.FirstOrDefault().name;
+			// }
 
-			if (!Setup())
-			{
-				Debug.Log("Setup was not done correctly");
-				return false;
-			}
-
-			if (await TryLoadStream() && await TryLoadBranches())
-			{
-				// TODO: probably a better way to set the most active branch... or just main
-				if (!_branchName.Valid())
-					_branchName = _branches.FirstOrDefault().name;
-			}
-
-			return _wrapper.IsValid;
+			return true;
 		}
 
-		public async UniTask<Account> GetAccount() => await Wrapper.GetAccount();
+		public async UniTask<Account> GetAccount() => AccountManager.GetDefaultAccount();
 
-		public bool IsValid() => Wrapper.IsValid;
-
-		public override string ToString() => Wrapper.ToString();
-
-		
+		// public bool IsValid() => Wrapper.IsValid;
+		//
+		// public override string ToString() => Wrapper.ToString();
 
 		public async UniTask<Texture2D> GetPreview()
 		{
-			var url = Speckle(true);}
-
-			if (!url.Valid())
-				return null;
-
-			var www = await UnityWebRequestTexture.GetTexture(url).SendWebRequest();
-
-			if (www.result != UnityWebRequest.Result.Success)
-			{
-				SpeckleUnity.Console.Warn(www.error);
-				return null;
-			}
-
-			return DownloadHandlerTexture.GetContent(www);
+			return null;
+			// var url = Speckle(true);}
+			//
+			// if (!url.Valid())
+			// 	return null;
+			//
+			// var www = await UnityWebRequestTexture.GetTexture(url).SendWebRequest();
+			//
+			// if (www.result != UnityWebRequest.Result.Success)
+			// {
+			// 	SpeckleUnity.Console.Warn(www.error);
+			// 	return null;
+			// }
+			//
+			// return DownloadHandlerTexture.GetContent(www);
 		}
 	}
 }

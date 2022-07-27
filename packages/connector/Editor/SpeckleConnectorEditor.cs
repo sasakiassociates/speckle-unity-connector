@@ -88,9 +88,9 @@ namespace Speckle.ConnectorUnity
 			{
 				var stream = obj.Streams[i];
 
-				e.Q<Label>("title").text = stream.Name;
-				e.Q<Label>("id").text = stream.Id;
-				e.Q<Label>("description").text = stream.Description;
+				// e.Q<Label>("title").text = stream.Name;
+				// e.Q<Label>("id").text = stream.Id;
+				// e.Q<Label>("description").text = stream.Description;
 
 				var isActive = FindInt(_fields.streamIndex) == i;
 

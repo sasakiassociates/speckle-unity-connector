@@ -89,12 +89,12 @@ namespace Speckle.ConnectorUnity.Ops
 
 		async UniTask UpdatePreview()
 		{
-			if (stream == null || !stream.IsValid())
-				await UniTask.Yield();
-
-			_preview = await stream.GetPreview();
-
-			OnPreviewSet?.Invoke();
+			// if (stream == null || !stream.IsValid())
+			// 	await UniTask.Yield();
+			//
+			// _preview = await stream.GetPreview();
+			//
+			// OnPreviewSet?.Invoke();
 
 			await UniTask.Yield();
 		}
@@ -183,11 +183,11 @@ namespace Speckle.ConnectorUnity.Ops
 		{
 			token = cancellationToken?.Token ?? this.GetCancellationTokenOnDestroy();
 
-			if (stream == null || !stream.IsValid())
-			{
-				SpeckleUnity.Console.Log("Stream is not valid");
-				return null;
-			}
+			// if (stream == null || !stream.IsValid())
+			// {
+			// 	SpeckleUnity.Console.Log("Stream is not valid");
+			// 	return null;
+			// }
 
 			if (client == null)
 			{
@@ -199,44 +199,44 @@ namespace Speckle.ConnectorUnity.Ops
 
 			var watch = Stopwatch.StartNew();
 
-			var transport = new ServerTransport(client.Account, stream.id);
-
-			try
-			{
-				// only use Task with any client calls to speckle. Not worth the conversion 
-				await Task.Run(async () =>
-				{
-					SpeckleUnity.Console.Log($"Getting Commit\nstream id:{stream.id} commit id:{stream.CommitId}");
-
-					var data = await client.CommitGet(token, stream.id, stream.CommitId);
-
-					SpeckleUnity.Console.Log($"Commit Fetch:{data.referencedObject}\n{watch.Elapsed}");
-
-					SpeckleUnity.Console.Log($"Now Receiving\n{watch.Elapsed}");
-
-					@base = await Operations.Receive(objectId: data.referencedObject,
-					                                 cancellationToken: token,
-					                                 remoteTransport: transport,
-					                                 onProgressAction: SetProgress,
-					                                 onErrorAction: SetError,
-					                                 onTotalChildrenCountKnown: SetChildCount);
-
-					SpeckleUnity.Console.Log($"Object Recieved:{@base}\nTotal time:{watch.Elapsed}");
-				}, token);
-			}
-			catch (Exception e)
-			{
-				SpeckleUnity.Console.Warn(e.Message);
-			}
-			finally
-			{
-				// clean up 
-				transport.Dispose();
-
-				// report
-				watch.Stop();
-				SpeckleUnity.Console.Log($"Command Complete\n{watch.Elapsed}");
-			}
+			// var transport = new ServerTransport(client.Account, stream.id);
+			//
+			// try
+			// {
+			// 	// only use Task with any client calls to speckle. Not worth the conversion 
+			// 	await Task.Run(async () =>
+			// 	{
+			// 		SpeckleUnity.Console.Log($"Getting Commit\nstream id:{stream.id} commit id:{stream.CommitId}");
+			//
+			// 		var data = await client.CommitGet(token, stream.id, stream.CommitId);
+			//
+			// 		SpeckleUnity.Console.Log($"Commit Fetch:{data.referencedObject}\n{watch.Elapsed}");
+			//
+			// 		SpeckleUnity.Console.Log($"Now Receiving\n{watch.Elapsed}");
+			//
+			// 		@base = await Operations.Receive(objectId: data.referencedObject,
+			// 		                                 cancellationToken: token,
+			// 		                                 remoteTransport: transport,
+			// 		                                 onProgressAction: SetProgress,
+			// 		                                 onErrorAction: SetError,
+			// 		                                 onTotalChildrenCountKnown: SetChildCount);
+			//
+			// 		SpeckleUnity.Console.Log($"Object Recieved:{@base}\nTotal time:{watch.Elapsed}");
+			// 	}, token);
+			// }
+			// catch (Exception e)
+			// {
+			// 	SpeckleUnity.Console.Warn(e.Message);
+			// }
+			// finally
+			// {
+			// 	// clean up 
+			// 	transport.Dispose();
+			//
+			// 	// report
+			// 	watch.Stop();
+			// 	SpeckleUnity.Console.Log($"Command Complete\n{watch.Elapsed}");
+			// }
 
 			return @base;
 		}

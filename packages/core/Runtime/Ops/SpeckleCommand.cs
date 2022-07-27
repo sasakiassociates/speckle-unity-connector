@@ -33,11 +33,11 @@ namespace Speckle.ConnectorUnity.Ops
 			Action<int> onTotalChildCountAction = null
 		)
 		{
-			if (stream == null || !stream.IsValid())
-			{
-				SpeckleUnity.Console.Log("Stream is not valid");
-				return null;
-			}
+			// if (stream == null || !stream.IsValid())
+			// {
+			// 	SpeckleUnity.Console.Log("Stream is not valid");
+			// 	return null;
+			// }
 
 			if (client == null)
 			{
@@ -51,43 +51,43 @@ namespace Speckle.ConnectorUnity.Ops
 
 			var watch = Stopwatch.StartNew();
 
-			var transport = new ServerTransport(client.Account, stream.id);
-
-			try
-			{
-				// only use Task with any client calls to speckle. Not worth the conversion 
-				await Task.Run(async () =>
-				{
-					SpeckleUnity.Console.Log($"Getting Commit\nstream id:{stream.id} commit id:{stream.CommitId}");
-
-					var commit = await client.CommitGet(token, stream.id, stream.CommitId);
-
-					SpeckleUnity.Console.Log($"Commit Fetch:{commit.referencedObject}\n{watch.Elapsed}");
-
-					SpeckleUnity.Console.Log($"Now Receiving...\n{watch.Elapsed}");
-
-					@base = await Operations.Receive(commit.referencedObject, token, transport);
-
-					SpeckleUnity.Console.Log($"Object Recieved:{@base}");
-
-					SpeckleUnity.Console.Log("Total time:" + watch.Elapsed);
-
-					return @base;
-				}, token);
-			}
-			catch (Exception e)
-			{
-				SpeckleUnity.Console.Log(e.Message);
-			}
-			finally
-			{
-				// clean up 
-				transport.Dispose();
-
-				// report
-				watch.Stop();
-				SpeckleUnity.Console.Log($"Command Complete\n{watch.Elapsed}");
-			}
+			// var transport = new ServerTransport(client.Account, stream.id);
+			//
+			// try
+			// {
+			// 	// only use Task with any client calls to speckle. Not worth the conversion 
+			// 	await Task.Run(async () =>
+			// 	{
+			// 		SpeckleUnity.Console.Log($"Getting Commit\nstream id:{stream.id} commit id:{stream.CommitId}");
+			//
+			// 		var commit = await client.CommitGet(token, stream.id, stream.CommitId);
+			//
+			// 		SpeckleUnity.Console.Log($"Commit Fetch:{commit.referencedObject}\n{watch.Elapsed}");
+			//
+			// 		SpeckleUnity.Console.Log($"Now Receiving...\n{watch.Elapsed}");
+			//
+			// 		@base = await Operations.Receive(commit.referencedObject, token, transport);
+			//
+			// 		SpeckleUnity.Console.Log($"Object Recieved:{@base}");
+			//
+			// 		SpeckleUnity.Console.Log("Total time:" + watch.Elapsed);
+			//
+			// 		return @base;
+			// 	}, token);
+			// }
+			// catch (Exception e)
+			// {
+			// 	SpeckleUnity.Console.Log(e.Message);
+			// }
+			// finally
+			// {
+			// 	// clean up 
+			// 	transport.Dispose();
+			//
+			// 	// report
+			// 	watch.Stop();
+			// 	SpeckleUnity.Console.Log($"Command Complete\n{watch.Elapsed}");
+			// }
 
 			return @base;
 		}

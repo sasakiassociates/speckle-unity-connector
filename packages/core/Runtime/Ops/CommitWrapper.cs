@@ -41,6 +41,8 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public CommitWrapper(Commit value) : base(value)
 		{
+			if (value == null) return;
+
 			authorId = value.authorId;
 			authorName = value.authorName;
 			authorAvatar = value.authorAvatar;

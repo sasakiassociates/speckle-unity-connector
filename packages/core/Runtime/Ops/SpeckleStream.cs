@@ -41,25 +41,26 @@ namespace Speckle.ConnectorUnity.Ops
 			isPublic = this.isPublic
 		};
 
-		public SpeckleStream(Stream obj) : base(obj)
+		public SpeckleStream(Stream value) : base(value)
 		{
-			if (obj == null) return;
+			if (value == null) return;
 
-			id = obj.id;
-			name = obj.name;
-			description = obj.description;
-			role = obj.role;
-			createdAt = obj.createdAt;
-			updatedAt = obj.updatedAt;
-			favoritedDate = obj.favoritedDate;
-			isPublic = obj.isPublic;
+			id = value.id;
+			name = value.name;
+			description = value.description;
+			role = value.role;
+			createdAt = value.createdAt;
+			updatedAt = value.updatedAt;
+			favoritedDate = value.favoritedDate;
+			isPublic = value.isPublic;
+			activity = value.activity;
 
-			@object = obj.@object;
-			branch = obj.branch;
-			commit = obj.commit;
-			branches = obj.branches?.items;
-			commits = obj.commits?.items;
-			activity = obj.activity;
+			@object = value.@object;
+			branch = value.branch;
+			commit = value.commit;
+
+			branches = value.branches?.items;
+			commits = value.commits?.items;
 		}
 
 		void Clear()
@@ -83,8 +84,13 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public SpeckleObject @object
 		{
-			get => _speckleObject.source;
-			set => _speckleObject = new SpeckleObjectWrapper(value);
+			get => _speckleObject?.source;
+			set
+			{
+				if (value == null) return;
+
+				_speckleObject = new SpeckleObjectWrapper(value);
+			}
 		}
 
 		/// <summary>
@@ -93,7 +99,15 @@ namespace Speckle.ConnectorUnity.Ops
 		public Branch branch
 		{
 			get => _branch?.source;
-			set => _branch = new BranchWrapper(value);
+			set
+			{
+				if (value == null)
+					return;
+
+				_branch = new BranchWrapper(value);
+				SpeckleUnity.Console.Log($"Setting Active {typeof(Branch)} to {_branch.source}");
+				OnBranchSet?.Invoke(_branch.source);
+			}
 		}
 
 		/// <summary>
@@ -102,13 +116,27 @@ namespace Speckle.ConnectorUnity.Ops
 		public Commit commit
 		{
 			get => _commit?.source;
-			set => _commit = new CommitWrapper(value);
+			set
+			{
+				if (value == null)
+					return;
+
+				_commit = new CommitWrapper(value);
+				SpeckleUnity.Console.Log($"Setting Active {typeof(Commit)} to {_commit.source}");
+				OnCommitSet?.Invoke(_commit.source);
+			}
 		}
 
 		public List<Branch> branches
 		{
-			get => _branches.Select(x => x.source).ToList();
-			set => _branches = value.Select(x => new BranchWrapper(x)).ToList();
+			get => _branches.Valid() ? _branches.Select(x => x.source).ToList() : new List<Branch>();
+			set
+			{
+				if (value == null || !value.Valid())
+					return;
+
+				_branches = value.Select(x => new BranchWrapper(x)).ToList();
+			}
 		}
 
 		/// <summary>
@@ -116,10 +144,42 @@ namespace Speckle.ConnectorUnity.Ops
 		/// </summary>
 		public List<Commit> commits
 		{
-			get => _commits.Select(x => x.source).ToList();
-			set => _commits = value.Select(x => new CommitWrapper(x)).ToList();
+			get => _commits.Valid() ? _commits.Select(x => x.source).ToList() : new List<Commit>();
+			set
+			{
+				if (value == null || !value.Valid())
+					return;
+
+				_commits = value.Select(x => new CommitWrapper(x)).ToList();
+			}
 		}
-		
+
+		public Branch BranchGet(int input) => _branches.Valid(input) ? _branches[input].source : null;
+
+		public Branch BranchGet(string input)
+		{
+			Branch res = null;
+
+			if (_branches.Valid() && input.Valid())
+				foreach (var b in _branches)
+					if (b.name.Valid() && b.name.Equals(input))
+						res = b.source;
+
+			return res;
+		}
+
+		public bool BranchSet(int input)
+		{
+			branch = BranchGet(input);
+			return branch != null;
+		}
+
+		public bool BranchSet(string input)
+		{
+			branch = BranchGet(input);
+			return branch != null;
+		}
+
 		public static string GetUrl(bool isPreview, string serverUrl, string streamId) => $"{serverUrl}/{(isPreview ? "preview" : "streams")}/{streamId}";
 
 		public static string GetUrl(bool isPreview, string serverUrl, string streamId, StreamWrapperType type, string value)
@@ -147,6 +207,14 @@ namespace Speckle.ConnectorUnity.Ops
 
 			return url;
 		}
+
+		public bool Equals(SpeckleStream obj) => Equals(obj.source);
+
+		public bool Equals(Stream obj) => source != null && obj != null && id.Equals(obj.id) && name.Equals(obj.name);
+
+		public event Action<Branch> OnBranchSet;
+
+		public event Action<Commit> OnCommitSet;
 
 	}
 }

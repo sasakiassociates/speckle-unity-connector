@@ -109,8 +109,37 @@ namespace Speckle.ConnectorUnity
 			return res;
 		}
 
+				
+		public static string GetUrl(bool isPreview, string serverUrl, string streamId) => $"{serverUrl}/{(isPreview ? "preview" : "streams")}/{streamId}";
 
+		public static string GetUrl(bool isPreview, string serverUrl, string streamId, StreamWrapperType type, string value)
+		{
+			string url = $"{serverUrl}/{(isPreview ? "preview" : "streams")}/{streamId}";
+			
+			switch (type)
+			{
+				case StreamWrapperType.Stream:
+					return url;
+				case StreamWrapperType.Commit:
+					url += $"/commits/{value}";
+					break;
+				case StreamWrapperType.Branch:
+					url += $"/branches/{value}";
+					break;
+				case StreamWrapperType.Object:
+					url += $"objects/{value}";
+					break;
+				case StreamWrapperType.Undefined:
+				default:
+					Console.Warn($"{streamId} is not a valid stream for server {serverUrl}, bailing on the preview thing");
+					url = null;
+					break;
+			}
 
+			return url;
+		}
+
+		
 		public static async UniTask<Account> GetAccountByStreamAsync(string input)
 		{
 			Account res = null;

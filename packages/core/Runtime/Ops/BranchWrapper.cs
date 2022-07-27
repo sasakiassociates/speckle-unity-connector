@@ -18,6 +18,8 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public BranchWrapper(Branch value) : base(value)
 		{
+			if (value == null) return;
+
 			id = value.id;
 			name = value.name;
 			description = value.description;
@@ -30,7 +32,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 		// These wrappers should only be used for ui bits.
 
-		protected override Branch Get() => new Branch()
+		protected override Branch Get() => new Branch
 		{
 			name = this.name,
 			id = this.id,

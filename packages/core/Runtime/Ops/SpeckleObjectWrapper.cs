@@ -16,13 +16,15 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public string createdAt;
 
-		public SpeckleObjectWrapper(SpeckleObject obj) : base(obj)
+		public SpeckleObjectWrapper(SpeckleObject value) : base(value)
 		{
-			id = obj.id;
-			speckleType = obj.speckleType;
-			applicationId = obj.applicationId;
-			totalChildrenCount = obj.totalChildrenCount;
-			createdAt = obj.createdAt;
+			if (value == null) return;
+
+			id = value.id;
+			speckleType = value.speckleType;
+			applicationId = value.applicationId;
+			totalChildrenCount = value.totalChildrenCount;
+			createdAt = value.createdAt;
 		}
 
 		protected override SpeckleObject Get() => new SpeckleObject
