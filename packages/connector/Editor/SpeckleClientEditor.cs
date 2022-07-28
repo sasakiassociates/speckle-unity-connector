@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 
 namespace Speckle.ConnectorUnity
 {
-	public abstract class SpeckleClientEditor<TClient> : Editor where TClient : SpeckleClient
+	public abstract class SpeckleClientEditor<TClient> : Editor where TClient : SpeckleTempClient
 	{
 		protected TClient obj;
 

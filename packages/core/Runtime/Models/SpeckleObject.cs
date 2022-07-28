@@ -4,17 +4,13 @@ using Speckle.Core.Api;
 namespace Speckle.ConnectorUnity.Ops
 {
 	[Serializable]
-	public class SpeckleObjectWrapper : GenericWrapper<SpeckleObject>
+	public sealed class SpeckleObjectWrapper : GenericWrapper<SpeckleObject>
 	{
 		public string id;
-
-		public string speckleType;
-
-		public string applicationId;
-
-		public int totalChildrenCount;
-
 		public string createdAt;
+		public string speckleType;
+		public string applicationId;
+		public int totalChildrenCount;
 
 		public SpeckleObjectWrapper(SpeckleObject value) : base(value)
 		{

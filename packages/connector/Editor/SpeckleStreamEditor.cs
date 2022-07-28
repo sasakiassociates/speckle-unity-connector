@@ -4,10 +4,10 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[CustomEditor(typeof(SpeckleStreamObject))]
+[CustomEditor(typeof(ScriptableSpeckleStream))]
 public class SpeckleStreamEditor : Editor
 {
-	SpeckleStreamObject obj;
+	ScriptableSpeckleStream obj;
 
 	VisualElement root;
 
@@ -16,7 +16,7 @@ public class SpeckleStreamEditor : Editor
 	void OnEnable()
 	{
 		tree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(GUIHelper.Dir + "SpeckleStream.uxml");
-		obj = (SpeckleStreamObject)target;
+		obj = (ScriptableSpeckleStream)target;
 	}
 
 	public override VisualElement CreateInspectorGUI()
@@ -32,7 +32,7 @@ public class SpeckleStreamEditor : Editor
 			searchButton.clickable.clicked += () =>
 			{
 				Debug.Log("Search button clicked");
-				obj.Init();
+				// obj.Init();
 			};
 
 		return root;

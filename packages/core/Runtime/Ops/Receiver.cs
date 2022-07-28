@@ -23,7 +23,7 @@ namespace Speckle.ConnectorUnity.Ops
 	/// </summary>
 	[ExecuteAlways]
 	[AddComponentMenu("Speckle/Receiver")]
-	public class Receiver : SpeckleClient
+	public class Receiver : SpeckleTempClient
 	{
 		[SerializeField] bool _autoReceive;
 
@@ -77,7 +77,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 			if (activeCommit != null)
 			{
-				stream.Init($"{client.ServerUrl}/streams/{stream.id}/commits/{activeCommit.id}");
+				// stream.Init($"{client.ServerUrl}/streams/{stream.id}/commits/{activeCommit.id}");
 
 				SpeckleUnity.Console.Log("Active commit loaded! " + activeCommit);
 

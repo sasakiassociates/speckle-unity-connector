@@ -5,7 +5,7 @@ using Speckle.Core.Api;
 namespace Speckle.ConnectorUnity.Ops
 {
 	[Serializable]
-	public class CommitWrapper : GenericWrapper<Commit>
+	public sealed class CommitWrapper : GenericWrapper<Commit>
 	{
 		public string id;
 		public string message;

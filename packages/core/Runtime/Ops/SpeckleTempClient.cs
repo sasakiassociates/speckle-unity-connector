@@ -10,17 +10,14 @@ using UnityEngine.Events;
 
 namespace Speckle.ConnectorUnity.Ops
 {
-	public interface IveMadeProgress
+
+	public interface ISpeckleInstance : ISpeckleStream, ISpeckleClient, IHaveProgress, ISpeckleOperationEvents
 	{
-		public float progress { get; }
+		public UniTask<bool> SetStream(ScriptableSpeckleStream stream);
 	}
 
-	public interface ISpeckleInstance : ISpeckleStream, ISpeckleClient, IveMadeProgress, ISpeckleProgress
-	{
-		public UniTask<bool> SetStream(SpeckleStreamObject stream);
-	}
 
-	public interface ISpeckleProgress
+	public interface ISpeckleOperationEvents
 	{
 		public event Action<ConcurrentDictionary<string, int>> OnProgressAction;
 
@@ -31,7 +28,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 	public interface ISpeckleStream
 	{
-		public SpeckleStreamObject stream { get; }
+		public ScriptableSpeckleStream stream { get; }
 
 		public Branch branch { get; }
 
@@ -43,7 +40,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public string StreamUrl { get; }
 
-		public SpeckleStreamObject CopyStream(bool onlyIfValid = true);
+		public ScriptableSpeckleStream CopyStream(bool onlyIfValid = true);
 	}
 
 	public interface ISpeckleClient
@@ -54,12 +51,12 @@ namespace Speckle.ConnectorUnity.Ops
 	}
 
 	// BUG: issue with refreshing object data to editor, probably something with serializing the branch or commit data  
-	public abstract class SpeckleClient : MonoBehaviour, ISpeckleInstance, IveMadeProgress
+	public abstract class SpeckleTempClient : MonoBehaviour, ISpeckleInstance, IHaveProgress
 	{
 
 		[SerializeField] protected SpeckleNode _root;
 
-		[SerializeField] protected SpeckleStreamObject _stream;
+		[SerializeField] protected ScriptableSpeckleStream _stream;
 
 		[SerializeField] protected List<ScriptableSpeckleConverter> _converters;
 
@@ -178,7 +175,7 @@ namespace Speckle.ConnectorUnity.Ops
 			CleanUp();
 		}
 
-		public SpeckleStreamObject stream
+		public ScriptableSpeckleStream stream
 		{
 			get => _stream;
 			private set => _stream = value;
@@ -186,7 +183,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public Branch branch
 		{
-			get => stream.GetBranch(_branchIndex);
+			get => null;
 		}
 
 		public Commit commit { get; protected set; }
@@ -194,7 +191,7 @@ namespace Speckle.ConnectorUnity.Ops
 		public List<Branch> branches
 		{
 			get => stream.branches;
-			set => stream.branches = value;
+			set => new List<Branch>();
 		}
 
 		public List<Commit> commits { get; protected set; }
@@ -205,7 +202,7 @@ namespace Speckle.ConnectorUnity.Ops
 			// get => stream == null || !stream.IsValid() ? "no stream" : stream.GetUrl(false);
 		}
 
-		public SpeckleStreamObject CopyStream(bool onlyIfValid = true)
+		public ScriptableSpeckleStream CopyStream(bool onlyIfValid = true)
 		{
 			// if (stream != null && stream.IsValid() || !onlyIfValid)
 			// 	return stream;
@@ -227,12 +224,12 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public event Action onRepaint;
 
-		public event UnityAction<SpeckleStreamObject> OnStreamUpdated;
+		public event UnityAction<ScriptableSpeckleStream> OnStreamUpdated;
 
 		public virtual void SetBranch(int input)
 		{
-			if (stream.TrySetBranch(input))
-				_branchIndex = input;
+			// if (stream.TrySetBranch(input))
+			// 	_branchIndex = input;
 		}
 
 		public virtual void SetBranch(string input)
@@ -275,13 +272,13 @@ namespace Speckle.ConnectorUnity.Ops
 		/// <summary> Necessary setup for interacting with a speckle stream from unity </summary>
 		/// <param name="newStream">root stream object to use, will default to editor field</param>
 		/// <returns></returns>
-		public async UniTask<bool> SetStream(SpeckleStreamObject newStream)
+		public async UniTask<bool> SetStream(ScriptableSpeckleStream newStream)
 		{
 			return false;
 			// if (newStream == null || !newStream.IsValid())
 			// {
-				// SpeckleUnity.Console.Log("Speckle stream object is not setup correctly");
-				// return false;
+			// SpeckleUnity.Console.Log("Speckle stream object is not setup correctly");
+			// return false;
 			// }
 
 			stream = newStream;
@@ -302,7 +299,7 @@ namespace Speckle.ConnectorUnity.Ops
 		/// <param name="onErrorAction">Action to run on error</param>
 		/// <param name="onTotalChildCountAction">Report for total child count</param>
 		public async UniTask<bool> SetStream(
-			SpeckleStreamObject rootStream,
+			ScriptableSpeckleStream rootStream,
 			Action<ConcurrentDictionary<string, int>> onProgressAction,
 			Action<string, Exception> onErrorAction,
 			Action<int> onTotalChildCountAction
@@ -325,9 +322,9 @@ namespace Speckle.ConnectorUnity.Ops
 		{
 			name = nameof(this.GetType) + $"-{stream.id}";
 
-			var account = await stream.GetAccount();
+			// var account = await stream.GetAccount();
 
-			client = new Client(account);
+			// client = new Client(account);
 
 			branches = await client.StreamGetBranches(this.GetCancellationTokenOnDestroy(), stream.id);
 

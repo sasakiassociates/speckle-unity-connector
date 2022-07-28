@@ -18,7 +18,7 @@ namespace Speckle.ConnectorUnity.Ops
 	/// </summary>
 	[AddComponentMenu("Speckle/Sender")]
 	[ExecuteAlways]
-	public class Sender : SpeckleClient
+	public class Sender : SpeckleTempClient
 	{
 
 		[SerializeField] string commitMessage;
