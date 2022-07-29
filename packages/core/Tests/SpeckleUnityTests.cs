@@ -8,6 +8,7 @@ using Speckle.ConnectorUnity.Ops;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
 using Speckle.Core.Models;
+using UnityEngine;
 using UnityEngine.TestTools;
 
 internal struct StreamRef
@@ -206,7 +207,7 @@ public class Units
 		Assert.IsTrue(stream.id.Equals(SpT.BCHP.streamId));
 
 		// test for wrapper
-		var wrapper = new SpeckleStream(stream);
+		var wrapper = new StreamAdapter(stream);
 		Assert.IsTrue(wrapper.Equals(stream));
 		Assert.IsTrue(wrapper.branches.Valid());
 
@@ -258,7 +259,7 @@ public class Units
 	public IEnumerator Stream_LoadObject() => UniTask.ToCoroutine(async () =>
 	{
 		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
-		var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
+		var wrapper = new StreamAdapter(await client.StreamGet(SpT.BCHP.streamId));
 
 		Assert.IsNotNull(wrapper);
 		Assert.IsTrue(wrapper.id.Equals(SpT.BCHP.streamId));
@@ -271,7 +272,7 @@ public class Units
 	public IEnumerator Stream_LoadCommit() => UniTask.ToCoroutine(async () =>
 	{
 		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
-		var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
+		var wrapper = new StreamAdapter(await client.StreamGet(SpT.BCHP.streamId));
 
 		Assert.IsNotNull(wrapper);
 		Assert.IsTrue(await wrapper.LoadCommit(client, SpT.BCHP.commitId));
@@ -283,7 +284,7 @@ public class Units
 	public IEnumerator Stream_LoadCommits() => UniTask.ToCoroutine(async () =>
 	{
 		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
-		var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
+		var wrapper = new StreamAdapter(await client.StreamGet(SpT.BCHP.streamId));
 
 		Assert.IsNotNull(wrapper);
 		Assert.IsTrue(await wrapper.LoadCommits(client));
@@ -295,7 +296,7 @@ public class Units
 	public IEnumerator Stream_LoadBranch() => UniTask.ToCoroutine(async () =>
 	{
 		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
-		var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
+		var wrapper = new StreamAdapter(await client.StreamGet(SpT.BCHP.streamId));
 
 		Assert.IsNotNull(wrapper);
 		Assert.IsTrue(await wrapper.LoadBranch(client, SpT.BCHP.branchName));
@@ -309,7 +310,7 @@ public class Units
 	public IEnumerator Stream_LoadBranches() => UniTask.ToCoroutine(async () =>
 	{
 		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
-		var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
+		var wrapper = new StreamAdapter(await client.StreamGet(SpT.BCHP.streamId));
 
 		Assert.IsNotNull(wrapper);
 		Assert.IsTrue(wrapper.id.Equals(SpT.BCHP.streamId));
@@ -326,7 +327,7 @@ public class Units
 	public IEnumerator Stream_LoadActivity() => UniTask.ToCoroutine(async () =>
 	{
 		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
-		var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
+		var wrapper = new StreamAdapter(await client.StreamGet(SpT.BCHP.streamId));
 
 		Assert.IsNotNull(wrapper);
 		Assert.IsNull(wrapper.activity);
@@ -340,7 +341,7 @@ public class Units
 	public IEnumerator Stream_LoadTypes() => UniTask.ToCoroutine(async () =>
 	{
 		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
-		var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
+		var wrapper = new StreamAdapter(await client.StreamGet(SpT.BCHP.streamId));
 
 		Assert.IsNotNull(wrapper);
 		Assert.IsTrue(wrapper.type == StreamWrapperType.Stream);
@@ -350,5 +351,24 @@ public class Units
 
 		Assert.IsTrue(await wrapper.LoadCommit(client, SpT.BCHP.commitId));
 		Assert.IsTrue(wrapper.type == StreamWrapperType.Commit);
+	});
+
+	[UnityTest, Category(SpT.C_CLIENT)]
+	public IEnumerator Receiver_Init() => UniTask.ToCoroutine(async () =>
+	{
+		var client = new GameObject().AddComponent<Receiver>();
+		
+		await UniTask.Yield();
+		
+		await client.Initialize(AccountManager.GetDefaultAccount(), SpT.BCHP.streamId);
+		
+		Assert.IsTrue(client.IsValid());
+		Assert.IsNotNull(client.stream.id == SpT.BCHP.streamId);
+
+		Assert.IsTrue(client.branches.Valid());
+		Assert.IsNotNull(client.branch);
+		
+		if(client.commits.Valid())
+			Assert.IsNotNull(client.commit);
 	});
 }

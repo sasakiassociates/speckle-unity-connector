@@ -1,11 +1,11 @@
 ﻿namespace Speckle.ConnectorUnity.Ops
 {
-	public abstract class GenericWrapper<TObj>
+	public abstract class GenericAdapter<TObj>
 	{
 
 		TObj _source;
 
-		public GenericWrapper(TObj value)
+		public GenericAdapter(TObj value)
 		{
 			_source = value;
 		}

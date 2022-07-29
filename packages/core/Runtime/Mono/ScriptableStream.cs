@@ -11,16 +11,16 @@ namespace Speckle.ConnectorUnity.Ops
 {
 
 	/// <summary>
-	/// A unity asset object for interacting with a <see cref="SpeckleStream"/>.
+	/// A unity asset object for interacting with a <see cref="StreamAdapter"/>.
 	/// Only use this type of object if you would like editor based capabilities with a stream.
-	/// If no editor functionality is needed, try using <see cref="SpeckleStream"/> instead.
+	/// If no editor functionality is needed, try using <see cref="StreamAdapter"/> instead.
 	/// </summary>
 	[CreateAssetMenu(menuName = "Speckle/Speckle Stream", fileName = "SpeckleStream", order = 0)]
 	public class ScriptableSpeckleStream : ScriptableObject, ISpeckleOps
 	{
 
-		[SerializeField, HideInInspector] SpeckleStream _stream;
-		[SerializeField, HideInInspector] AccountWrapper _account;
+		[SerializeField, HideInInspector] StreamAdapter _stream;
+		[SerializeField, HideInInspector] AccountAdapter _account;
 		[SerializeField, HideInInspector] SpeckleUnityClient _client;
 		[SerializeField, HideInInspector] StreamUpdateInputWrapper _update;
 
@@ -90,7 +90,7 @@ namespace Speckle.ConnectorUnity.Ops
 					return;
 				}
 
-				_account = new AccountWrapper(accountToUse);
+				_account = new AccountAdapter(accountToUse);
 
 				_client = new SpeckleUnityClient(_account.source);
 
@@ -100,7 +100,7 @@ namespace Speckle.ConnectorUnity.Ops
 					return;
 				}
 
-				_stream = new SpeckleStream(await _client.StreamGet(streamId));
+				_stream = new StreamAdapter(await _client.StreamGet(streamId));
 
 				if (!_stream.IsValid())
 				{

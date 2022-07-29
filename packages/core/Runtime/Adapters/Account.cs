@@ -1,19 +1,20 @@
 ﻿using System;
 using Speckle.Core.Credentials;
+using UnityEngine;
 
 namespace Speckle.ConnectorUnity.Ops
 {
 	[Serializable]
-	public sealed class AccountWrapper : GenericWrapper<Account>
+	public sealed class AccountAdapter : GenericAdapter<Account>
 	{
-		string _serverUrl;
-		string _serverName;
-		string _serverCompany;
-		string _userId;
-		string _userName;
-		string _userEmail;
-		string _userAvatar;
-		string _userCompany;
+		[SerializeField] string _serverUrl;
+		[SerializeField] string _serverName;
+		[SerializeField] string _serverCompany;
+		[SerializeField] string _userId;
+		[SerializeField] string _userName;
+		[SerializeField] string _userEmail;
+		[SerializeField] string _userAvatar;
+		[SerializeField] string _userCompany;
 
 		string _id;
 		string _token;
@@ -28,7 +29,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public bool isDefault => _isDefault;
 
-		public AccountWrapper(Account value) : base(value)
+		public AccountAdapter(Account value) : base(value)
 		{
 			if (value == null) return;
 

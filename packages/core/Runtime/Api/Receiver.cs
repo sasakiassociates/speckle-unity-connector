@@ -42,7 +42,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public void SetCommit(string commitId) => CheckIfValidCommit(_stream.CommitSet(commitId));
 
-		public void SetCommit(int commitIndex) => CheckIfValidCommit(_stream.BranchSet(commitIndex));
+		public void SetCommit(int commitIndex) => CheckIfValidCommit(_stream.CommitSet(commitIndex));
 
 		void CheckIfValidCommit(bool value)
 		{
@@ -57,7 +57,7 @@ namespace Speckle.ConnectorUnity.Ops
 		///  Gets and converts the data of the last commit on the Stream
 		/// </summary>
 		/// <returns></returns>
-		public async UniTask Receive(bool sendReceive = false)
+		public async UniTask Receive()
 		{
 			if (!IsValid())
 				return;
@@ -96,13 +96,11 @@ namespace Speckle.ConnectorUnity.Ops
 				}
 
 				// TODO: handle the process for update objects and not just force deleting
-				if (_deleteOld && _root != null) SpeckleUnity.SafeDestroy(_root.gameObject);
+				if (_deleteOld && _root != null)
+					SpeckleUnity.SafeDestroy(_root.gameObject);
 
 				_root = new GameObject().AddComponent<SpeckleNode>();
-
 				await _root.DataToScene(@base, converter, token);
-
-				Debug.Log("Conversion complete");
 
 				OnNodeComplete?.Invoke(_root);
 			}
@@ -131,16 +129,15 @@ namespace Speckle.ConnectorUnity.Ops
 			}
 		}
 
-		protected override UniTask PostLoadStream()
+		protected override async UniTask PostLoadStream()
 		{
 			if (!branches.Valid())
 			{
 				SpeckleUnity.Console.Log("No Branches on this stream!");
-				return UniTask.CompletedTask;
+				return;
 			}
 
-			SetBranch("main");
-			return UniTask.CompletedTask;
+			await SetBranch("main");
 		}
 
 		protected override UniTask PostLoadBranch()
@@ -178,22 +175,23 @@ namespace Speckle.ConnectorUnity.Ops
 		{
 			var referenceObj = string.Empty;
 
+			// NOTE: this might now need to happen
 			switch (_stream.type)
 			{
 				case StreamWrapperType.Commit:
-					var commit = await _client.CommitGet(_stream.id, _stream.commit.id);
+					var c = await _client.CommitGet(_stream.id, _stream.commit.id);
 
 					// TODO: check if this getting the commit updates the instance
 					if (_sendReceive)
 						_client.CommitReceived(new CommitReceivedInput()
 						{
 							streamId = _stream.id,
-							commitId = commit.id,
+							commitId = c.id,
 							message = "Received Commit from Unity",
 							sourceApplication = SpeckleUnity.HostApp
 						}).Forget();
 
-					referenceObj = commit.referencedObject;
+					referenceObj = c.referencedObject;
 					break;
 				case StreamWrapperType.Object:
 					var obj = await _client.ObjectGet(_stream.id, _stream.@object.id);

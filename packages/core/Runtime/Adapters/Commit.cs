@@ -5,7 +5,7 @@ using Speckle.Core.Api;
 namespace Speckle.ConnectorUnity.Ops
 {
 	[Serializable]
-	public sealed class CommitWrapper : GenericWrapper<Commit>
+	public sealed class CommitAdapter : GenericAdapter<Commit>
 	{
 		public string id;
 		public string message;
@@ -39,7 +39,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public override string ToString() => source.ToString();
 
-		public CommitWrapper(Commit value) : base(value)
+		public CommitAdapter(Commit value) : base(value)
 		{
 			if (value == null) return;
 

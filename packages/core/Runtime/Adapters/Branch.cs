@@ -6,7 +6,7 @@ using Speckle.Core.Api;
 namespace Speckle.ConnectorUnity.Ops
 {
 	[Serializable]
-	public sealed class BranchWrapper : GenericWrapper<Branch>
+	public sealed class BranchAdapter : GenericAdapter<Branch>
 	{
 
 		public string name;
@@ -14,9 +14,9 @@ namespace Speckle.ConnectorUnity.Ops
 		public string description;
 		public string commitCursor;
 		public int commitTotalCount;
-		public List<CommitWrapper> commits;
+		public List<CommitAdapter> commits;
 
-		public BranchWrapper(Branch value) : base(value)
+		public BranchAdapter(Branch value) : base(value)
 		{
 			if (value == null) return;
 
@@ -27,7 +27,7 @@ namespace Speckle.ConnectorUnity.Ops
 			commitTotalCount = value.commits.totalCount;
 
 			commits = value.commits != null && value.commits.items.Valid() ?
-				value.commits.items.Select(x => new CommitWrapper(x)).ToList() : new List<CommitWrapper>();
+				value.commits.items.Select(x => new CommitAdapter(x)).ToList() : new List<CommitAdapter>();
 		}
 
 		// These wrappers should only be used for ui bits.

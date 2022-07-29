@@ -15,11 +15,11 @@ namespace Speckle.ConnectorUnity.Ops
 	public class SpeckleUnityClient : IDisposable, IShouldValidate
 	{
 
-		AccountWrapper _accountWrapper;
+		AccountAdapter _accountAdapter;
 
 		public Account account
 		{
-			get => _accountWrapper?.source;
+			get => _accountAdapter?.source;
 		}
 
 		/// <summary>
@@ -35,7 +35,7 @@ namespace Speckle.ConnectorUnity.Ops
 		{
 			if (obj == null) return;
 
-			_accountWrapper = new AccountWrapper(obj);
+			_accountAdapter = new AccountAdapter(obj);
 			source = new Client(account);
 		}
 
@@ -180,7 +180,9 @@ namespace Speckle.ConnectorUnity.Ops
 			try
 			{
 				if (IsValid())
+				{
 					res = await source.BranchGet(token, streamId, branchName, commitLimit);
+				}
 			}
 			catch (SpeckleException e)
 			{

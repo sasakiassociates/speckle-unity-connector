@@ -18,7 +18,7 @@ namespace Speckle.ConnectorUnity.Ops
 	/// </summary>
 	[AddComponentMenu("Speckle/Sender")]
 	[ExecuteAlways]
-	public class Sender : SpeckleTempClient
+	public class Sender : ClientBehaviour
 	{
 
 		[SerializeField] string commitMessage;
@@ -50,12 +50,7 @@ namespace Speckle.ConnectorUnity.Ops
 		/// <returns></returns>
 		public async UniTask<string> Send(string message = null, CancellationTokenSource tokenSource = null)
 		{
-			if (!IsReady())
-			{
-				SpeckleUnity.Console.Warn($"{name} is not ready");
-				return string.Empty;
-			}
-
+	
 			if (_root == null)
 			{
 				SpeckleUnity.Console.Warn("No objects were found to send! Stopping call");
@@ -86,14 +81,13 @@ namespace Speckle.ConnectorUnity.Ops
 			{
 				SpeckleUnity.Console.Log("Sending data");
 
-				transport = new ServerTransport(client.Account, temp_stream_id);
+				transport = new ServerTransport(_client.account, temp_stream_id);
 
-				objectId = await Operations.Send(data, token, new List<ITransport> { transport }, true, SetProgress, SetError);
+				objectId = await Operations.Send(data, token, new List<ITransport> { transport }, true, HandleProgress, HandleError);
 
 				Debug.Log($"Commit sent to {branch}! ({objectId})");
 
-				var commitId = await client.CommitCreate(
-					token,
+				var commitId = await _client.CommitCreate(
 					new CommitCreateInput
 					{
 						objectId = objectId,

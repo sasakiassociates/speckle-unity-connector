@@ -4,7 +4,7 @@ using Speckle.Core.Api;
 namespace Speckle.ConnectorUnity.Ops
 {
 	[Serializable]
-	public sealed class SpeckleObjectWrapper : GenericWrapper<SpeckleObject>
+	public sealed class SpeckleObjectAdapter : GenericAdapter<SpeckleObject>
 	{
 		public string id;
 		public string createdAt;
@@ -12,7 +12,7 @@ namespace Speckle.ConnectorUnity.Ops
 		public string applicationId;
 		public int totalChildrenCount;
 
-		public SpeckleObjectWrapper(SpeckleObject value) : base(value)
+		public SpeckleObjectAdapter(SpeckleObject value) : base(value)
 		{
 			if (value == null) return;
 

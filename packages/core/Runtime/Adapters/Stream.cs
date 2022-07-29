@@ -10,7 +10,7 @@ namespace Speckle.ConnectorUnity.Ops
 {
 
 	[Serializable]
-	public class SpeckleStream : GenericWrapper<Stream>
+	public class StreamAdapter : GenericAdapter<Stream>
 	{
 		[SerializeField] string _id;
 		[SerializeField] string _name;
@@ -21,11 +21,11 @@ namespace Speckle.ConnectorUnity.Ops
 		[SerializeField] string _favoritedDate;
 		[SerializeField] bool _isPublic;
 
-		[SerializeField] CommitWrapper _commit;
-		[SerializeField] BranchWrapper _branch;
-		[SerializeField] List<BranchWrapper> _branches;
-		[SerializeField] List<CommitWrapper> _commits;
-		[SerializeField] SpeckleObjectWrapper _speckleObject;
+		[SerializeField] CommitAdapter _commit;
+		[SerializeField] BranchAdapter _branch;
+		[SerializeField] List<BranchAdapter> _branches;
+		[SerializeField] List<CommitAdapter> _commits;
+		[SerializeField] SpeckleObjectAdapter _speckleObject;
 
 		public string name => _name;
 
@@ -47,7 +47,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public event Action<Commit> OnCommitSet;
 
-		public SpeckleStream(Stream value) : base(value)
+		public StreamAdapter(Stream value) : base(value)
 		{
 			if (value == null) return;
 
@@ -98,7 +98,7 @@ namespace Speckle.ConnectorUnity.Ops
 			{
 				if (value == null) return;
 
-				_speckleObject = new SpeckleObjectWrapper(value);
+				_speckleObject = new SpeckleObjectAdapter(value);
 			}
 		}
 
@@ -113,8 +113,10 @@ namespace Speckle.ConnectorUnity.Ops
 				if (value == null)
 					return;
 
-				_branch = new BranchWrapper(value);
+				_branch = new BranchAdapter(value);
+				
 				commits = value.commits?.items ?? new List<Commit>();
+				
 				SpeckleUnity.Console.Log($"Setting Active {typeof(Branch)} to {_branch.source}");
 				OnBranchSet?.Invoke(_branch.source);
 			}
@@ -131,7 +133,7 @@ namespace Speckle.ConnectorUnity.Ops
 				if (value == null)
 					return;
 
-				_commit = new CommitWrapper(value);
+				_commit = new CommitAdapter(value);
 				SpeckleUnity.Console.Log($"Setting Active {typeof(Commit)} to {_commit.source}");
 				OnCommitSet?.Invoke(_commit.source);
 			}
@@ -148,7 +150,7 @@ namespace Speckle.ConnectorUnity.Ops
 				if (value == null || !value.Valid())
 					return;
 
-				_branches = value.Select(x => new BranchWrapper(x)).ToList();
+				_branches = value.Select(x => new BranchAdapter(x)).ToList();
 			}
 		}
 
@@ -163,7 +165,7 @@ namespace Speckle.ConnectorUnity.Ops
 				if (value == null || !value.Valid())
 					return;
 
-				_commits = value.Select(x => new CommitWrapper(x)).ToList();
+				_commits = value.Select(x => new CommitAdapter(x)).ToList();
 			}
 		}
 
@@ -421,7 +423,7 @@ namespace Speckle.ConnectorUnity.Ops
 			return activity != null;
 		}
 
-		public bool Equals(SpeckleStream obj) => Equals(obj.source);
+		public bool Equals(StreamAdapter obj) => Equals(obj.source);
 
 		public bool Equals(Stream obj) => source != null && obj != null && id.Equals(obj.id) && name.Equals(obj.name);
 

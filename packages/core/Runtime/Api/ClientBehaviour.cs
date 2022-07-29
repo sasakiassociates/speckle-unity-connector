@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.Converter;
@@ -17,9 +18,9 @@ namespace Speckle.ConnectorUnity.Ops
 		[SerializeField] protected SpeckleNode _root;
 		[SerializeField] protected ScriptableSpeckleConverter _converter;
 
-		[SerializeField, HideInInspector] protected AccountWrapper _account;
+		[SerializeField, HideInInspector] protected AccountAdapter _account;
 		[SerializeField, HideInInspector] protected SpeckleUnityClient _client;
-		[SerializeField, HideInInspector] protected SpeckleStream _stream;
+		[SerializeField, HideInInspector] protected StreamAdapter _stream;
 
 		[SerializeField, HideInInspector] float _progressAmount;
 		[SerializeField, HideInInspector] int _childCountTotal;
@@ -78,7 +79,7 @@ namespace Speckle.ConnectorUnity.Ops
 					return;
 				}
 
-				_account = new AccountWrapper(accountToUse);
+				_account = new AccountAdapter(accountToUse);
 
 				_client = new SpeckleUnityClient(_account.source);
 				_client.token = this.GetCancellationTokenOnDestroy();
@@ -89,7 +90,7 @@ namespace Speckle.ConnectorUnity.Ops
 					return;
 				}
 
-				_stream = new SpeckleStream(await _client.StreamGet(streamId));
+				_stream = new StreamAdapter(await _client.StreamGet(streamId));
 
 				if (!_stream.IsValid())
 				{
@@ -102,6 +103,11 @@ namespace Speckle.ConnectorUnity.Ops
 				name = this.GetType() + $"-{stream.id}";
 
 				OnClientRefresh?.Invoke();
+
+				// TODO: during the build process this should compile and store these objects. 
+				#if UNITY_EDITOR
+				converter = SpeckleUnity.GetAllInstances<ScriptableSpeckleConverter>().FirstOrDefault();
+				#endif
 
 				await PostLoadStream();
 				await PostLoadBranch();
@@ -137,11 +143,28 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public int GetBranchIndex() => branches.Valid() && branch != null ? _stream.branches.FindIndex(x => x.name.Equals(branch.name)) : -1;
 
-		public void SetBranch(string branchName) => CheckIfValidBranch(_stream.BranchSet(branchName));
+		public async UniTask SetBranch(string branchName)
+		{
+			if (_stream.BranchSet(branchName)) await LoadBranch(branchName);
+		}
 
-		public void SetBranch(int branchIndex) => CheckIfValidBranch(_stream.BranchSet(branchIndex));
+		public async UniTask SetBranch(int branchIndex)
+		{
+			if (_stream.BranchSet(branchIndex)) await LoadBranch(_stream.branches[branchIndex].name);
+		}
 
-		public bool IsValid() => _client != null && _client.IsValid() && _stream != null && _stream.IsValid() && _converter != null;
+		async UniTask LoadBranch(string branchName)
+		{
+			await _stream.LoadBranch(_client, branchName);
+
+			OnBranchSet?.Invoke(branch);
+
+			await PostLoadBranch();
+		}
+
+		public bool IsValid() => _client != null && _client.IsValid() && _stream != null && _stream.IsValid();
+
+		public string GetUrl() => IsValid() ? _stream.GetUrl(false, _client.account.serverInfo.url) : string.Empty;
 
 		#endregion
 
@@ -179,15 +202,6 @@ namespace Speckle.ConnectorUnity.Ops
 		#endregion
 
 		#region private
-
-		void CheckIfValidBranch(bool value)
-		{
-			if (value)
-			{
-				OnBranchSet?.Invoke(_stream.branch);
-				PostLoadBranch().Forget();
-			}
-		}
 
 		#endregion
 
