@@ -175,7 +175,7 @@ namespace Speckle.ConnectorUnity
 				Selection.activeObject = mono;
 				#endif
 
-				await mono.SetStream(activeStream);
+				// await mono.SetStream(activeStream);
 
 				OnSenderCreated?.Invoke(mono);
 			});

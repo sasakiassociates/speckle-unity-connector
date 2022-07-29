@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 
 namespace Speckle.ConnectorUnity
 {
-	public abstract class SpeckleClientEditor<TClient> : Editor where TClient : SpeckleTempClient
+	public abstract class SpeckleClientEditor<TClient> : Editor where TClient : ClientBehaviour
 	{
 		protected TClient obj;
 
@@ -52,7 +52,7 @@ namespace Speckle.ConnectorUnity
 			tree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(treePath);
 
 			obj = (TClient)target;
-			obj.onRepaint += RefreshAll;
+			obj.OnClientRefresh += RefreshAll;
 
 			_fields.converterIndex = "_converterIndex";
 			_fields.branchIndex = "_branchIndex";
@@ -62,7 +62,7 @@ namespace Speckle.ConnectorUnity
 
 		protected virtual void OnDisable()
 		{
-			obj.onRepaint -= RefreshAll;
+			obj.OnClientRefresh -= RefreshAll;
 		}
 
 		protected abstract void OnRunClicked();
@@ -87,7 +87,7 @@ namespace Speckle.ConnectorUnity
 
 		protected virtual void SetConverterChange(int index)
 		{
-			obj.SetConverter(index);
+			// obj.SetConverter(index);
 		}
 
 		public override VisualElement CreateInspectorGUI()
@@ -106,21 +106,21 @@ namespace Speckle.ConnectorUnity
 				obj.branches.Format(),
 				e => branches.DropDownChange(e, SetBranchChange));
 
-			converters = root.SetDropDown(
-				"converter",
-				converterIndex,
-				obj.converters.Format(),
-				e => converters.DropDownChange(e, SetConverterChange));
+			// converters = root.SetDropDown(
+			// 	"converter",
+			// 	converterIndex,
+			// 	obj.converters.Format(),
+			// 	e => converters.DropDownChange(e, SetConverterChange));
 
 			streamUrlField = root.Q<TextField>("url");
-			streamUrlField.value = obj.StreamUrl;
+			streamUrlField.value = obj.GetUrl();
 
 			searchButton = root.Q<Button>("search-button");
-			searchButton.clickable.clicked += () =>
-			{
-				if (SpeckleConnector.TryGetSpeckleStream(streamUrlField.value, out var speckleStream))
-					obj.SetStream(speckleStream);
-			};
+			// searchButton.clickable.clicked += () =>
+			// {
+			// 	if (SpeckleConnector.TryGetSpeckleStream(streamUrlField.value, out var speckleStream))
+			// 		obj.SetStream(speckleStream);
+			// };
 
 			runButton = root.Q<Button>("run");
 			runButton.clickable.clicked += OnRunClicked;
