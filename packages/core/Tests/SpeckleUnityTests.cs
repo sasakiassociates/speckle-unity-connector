@@ -9,7 +9,6 @@ using Speckle.Core.Api;
 using Speckle.Core.Credentials;
 using Speckle.Core.Models;
 using UnityEngine.TestTools;
-using StreamWrapper = Speckle.ConnectorUnity.Ops.StreamWrapper;
 
 internal struct StreamRef
 {
@@ -24,7 +23,6 @@ internal static class SpT
 	public const string C_CLIENT = "Client";
 	public const string C_STREAM = "Stream";
 	public const string C_OPS = "Operations";
-	
 
 	public static readonly StreamRef BCHP = new StreamRef()
 	{
@@ -37,7 +35,7 @@ internal static class SpT
 }
 
 [TestFixture]
-public class SpeckleUnityTest_Integrations
+public class Integrations
 {
 
 	Account _account;
@@ -137,17 +135,16 @@ public class SpeckleUnityTest_Integrations
 	[UnityTest, Category(SpT.C_OPS)]
 	public IEnumerator Operations_Receive_FromCommit() => UniTask.ToCoroutine(async () =>
 	{
-		
 		var commit = await _client.CommitGet(SpT.BCHP.streamId, SpT.BCHP.commitId);
-		var res =await SpeckleOps.Receive(_client, SpT.BCHP.streamId, commit.referencedObject);
-		
+		var res = await SpeckleOps.Receive(_client, SpT.BCHP.streamId, commit.referencedObject);
+
 		Assert.IsNotNull(res);
 	});
 
 }
 
 [TestFixture]
-public class SpeckleUnityTest_Unit
+public class Units
 {
 	[Test, Category(SpT.C_CLIENT)]
 	public void Client_IsValid()
@@ -209,7 +206,7 @@ public class SpeckleUnityTest_Unit
 		Assert.IsTrue(stream.id.Equals(SpT.BCHP.streamId));
 
 		// test for wrapper
-		var wrapper = new StreamWrapper(stream);
+		var wrapper = new SpeckleStream(stream);
 		Assert.IsTrue(wrapper.Equals(stream));
 		Assert.IsTrue(wrapper.branches.Valid());
 
@@ -261,7 +258,7 @@ public class SpeckleUnityTest_Unit
 	public IEnumerator Stream_LoadObject() => UniTask.ToCoroutine(async () =>
 	{
 		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
-		var wrapper = new StreamWrapper(await client.StreamGet(SpT.BCHP.streamId));
+		var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
 
 		Assert.IsNotNull(wrapper);
 		Assert.IsTrue(wrapper.id.Equals(SpT.BCHP.streamId));
@@ -274,7 +271,7 @@ public class SpeckleUnityTest_Unit
 	public IEnumerator Stream_LoadCommit() => UniTask.ToCoroutine(async () =>
 	{
 		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
-		var wrapper = new StreamWrapper(await client.StreamGet(SpT.BCHP.streamId));
+		var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
 
 		Assert.IsNotNull(wrapper);
 		Assert.IsTrue(await wrapper.LoadCommit(client, SpT.BCHP.commitId));
@@ -286,30 +283,33 @@ public class SpeckleUnityTest_Unit
 	public IEnumerator Stream_LoadCommits() => UniTask.ToCoroutine(async () =>
 	{
 		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
-		var wrapper = new StreamWrapper(await client.StreamGet(SpT.BCHP.streamId));
+		var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
 
 		Assert.IsNotNull(wrapper);
 		Assert.IsTrue(await wrapper.LoadCommits(client));
 		Assert.IsNotEmpty(wrapper.commits);
+		Assert.IsNull(wrapper.commit);
 	});
 
 	[UnityTest, Category(SpT.C_STREAM)]
 	public IEnumerator Stream_LoadBranch() => UniTask.ToCoroutine(async () =>
 	{
 		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
-		var wrapper = new StreamWrapper(await client.StreamGet(SpT.BCHP.streamId));
+		var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
 
 		Assert.IsNotNull(wrapper);
 		Assert.IsTrue(await wrapper.LoadBranch(client, SpT.BCHP.branchName));
 		Assert.IsNotNull(wrapper.branch);
 		Assert.IsTrue(wrapper.branch.name.Equals(SpT.BCHP.branchName));
+		Assert.IsTrue(wrapper.commits.Valid());
+		Assert.IsNull(wrapper.commit);
 	});
 
 	[UnityTest, Category(SpT.C_STREAM)]
 	public IEnumerator Stream_LoadBranches() => UniTask.ToCoroutine(async () =>
 	{
 		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
-		var wrapper = new StreamWrapper(await client.StreamGet(SpT.BCHP.streamId));
+		var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
 
 		Assert.IsNotNull(wrapper);
 		Assert.IsTrue(wrapper.id.Equals(SpT.BCHP.streamId));
@@ -326,7 +326,7 @@ public class SpeckleUnityTest_Unit
 	public IEnumerator Stream_LoadActivity() => UniTask.ToCoroutine(async () =>
 	{
 		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
-		var wrapper = new StreamWrapper(await client.StreamGet(SpT.BCHP.streamId));
+		var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
 
 		Assert.IsNotNull(wrapper);
 		Assert.IsNull(wrapper.activity);
@@ -334,5 +334,21 @@ public class SpeckleUnityTest_Unit
 		Assert.IsTrue(await wrapper.LoadActivity(client));
 		Assert.IsNotNull(wrapper.activity);
 		Assert.IsNotEmpty(wrapper.activity.items);
+	});
+
+	[UnityTest, Category(SpT.C_STREAM)]
+	public IEnumerator Stream_LoadTypes() => UniTask.ToCoroutine(async () =>
+	{
+		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+		var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
+
+		Assert.IsNotNull(wrapper);
+		Assert.IsTrue(wrapper.type == StreamWrapperType.Stream);
+
+		Assert.IsTrue(await wrapper.LoadBranch(client, SpT.BCHP.branchName));
+		Assert.IsTrue(wrapper.type == StreamWrapperType.Branch);
+
+		Assert.IsTrue(await wrapper.LoadCommit(client, SpT.BCHP.commitId));
+		Assert.IsTrue(wrapper.type == StreamWrapperType.Commit);
 	});
 }

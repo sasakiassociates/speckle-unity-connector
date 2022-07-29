@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using Cysharp.Threading.Tasks;
+using Speckle.ConnectorUnity.Converter;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
 using UnityEngine.Events;
@@ -9,21 +11,17 @@ namespace Speckle.ConnectorUnity.Ops
 {
 	public interface ISpeckleOps
 	{
-		public SpeckleUnityClient client { get; }
+
+		public Account account { get; }
+
+		public Stream stream { get; }
 
 		public CancellationToken token { get; }
 
-		public void Init(Account account);
+		public UniTask Initialize(Account account, string streamId);
 
-		public void LoadStream(Stream stream);
+		public event UnityAction OnClientRefresh;
 
-		public Stream GetStream();
-
-	}
-
-	public interface IHaveProgress
-	{
-		public float progress { get; }
 	}
 
 	public interface IOperationEvents : IHaveProgress
@@ -33,6 +31,14 @@ namespace Speckle.ConnectorUnity.Ops
 		public event UnityAction<string, Exception> OnErrorAction;
 
 		public event UnityAction<int> OnTotalChildCountAction;
+	}
+
+	public interface IConvert
+	{
+		/// <summary>
+		///   the active converter for this client object
+		/// </summary>
+		ScriptableSpeckleConverter converter { get; }
 	}
 
 }
