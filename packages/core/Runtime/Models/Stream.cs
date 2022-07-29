@@ -8,8 +8,9 @@ using UnityEngine;
 
 namespace Speckle.ConnectorUnity.Ops
 {
+
 	[Serializable]
-	public class StreamWrapper : GenericWrapper<Stream>
+	public class SpeckleStream : GenericWrapper<Stream>
 	{
 		[SerializeField] string _id;
 		[SerializeField] string _name;
@@ -19,7 +20,7 @@ namespace Speckle.ConnectorUnity.Ops
 		[SerializeField] string _updatedAt;
 		[SerializeField] string _favoritedDate;
 		[SerializeField] bool _isPublic;
-		
+
 		[SerializeField] CommitWrapper _commit;
 		[SerializeField] BranchWrapper _branch;
 		[SerializeField] List<BranchWrapper> _branches;
@@ -46,7 +47,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public event Action<Commit> OnCommitSet;
 
-		public StreamWrapper(Stream value) : base(value)
+		public SpeckleStream(Stream value) : base(value)
 		{
 			if (value == null) return;
 
@@ -67,6 +68,25 @@ namespace Speckle.ConnectorUnity.Ops
 
 			branches = value.branches?.items;
 			commits = value.commits?.items;
+		}
+
+		public StreamWrapperType type
+		{
+			get
+			{
+				var res = StreamWrapperType.Undefined;
+
+				if (@object != null)
+					res = StreamWrapperType.Object;
+				else if (commit != null)
+					res = StreamWrapperType.Commit;
+				else if (branch != null)
+					res = StreamWrapperType.Branch;
+				else if (id.Valid())
+					res = StreamWrapperType.Stream;
+
+				return res;
+			}
 		}
 
 		public Activity activity { get; set; }
@@ -94,6 +114,7 @@ namespace Speckle.ConnectorUnity.Ops
 					return;
 
 				_branch = new BranchWrapper(value);
+				commits = value.commits?.items ?? new List<Commit>();
 				SpeckleUnity.Console.Log($"Setting Active {typeof(Branch)} to {_branch.source}");
 				OnBranchSet?.Invoke(_branch.source);
 			}
@@ -195,40 +216,81 @@ namespace Speckle.ConnectorUnity.Ops
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="isPreview"></param>
-		/// <param name="serverUrl"></param>
-		/// <param name="streamId"></param>
+		/// <param name="commitId"></param>
 		/// <returns></returns>
-		public string GetUrl(bool isPreview, string serverUrl, string streamId) => $"{serverUrl}/{(isPreview ? "preview" : "streams")}/{streamId}";
+		public Commit CommitGet(int commitId) => _commits.Valid(commitId) ? _commits[commitId].source : null;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="commitId"></param>
+		/// <returns></returns>
+		public Commit CommitGet(string commitId)
+		{
+			Commit res = null;
+
+			if (_commits.Valid() && commitId.Valid())
+				foreach (var b in _commits)
+					if (b.id.Valid() && b.id.Equals(commitId))
+						res = b.source;
+
+			return res;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="input"></param>
+		/// <returns></returns>
+		public bool CommitSet(int input)
+		{
+			commit = CommitGet(input);
+			return commit != null;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="input"></param>
+		/// <returns></returns>
+		public bool CommitSet(string input)
+		{
+			commit = CommitGet(input);
+			return commit != null;
+		}
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="isPreview"></param>
 		/// <param name="serverUrl"></param>
-		/// <param name="streamId"></param>
-		/// <param name="type"></param>
-		/// <param name="value"></param>
 		/// <returns></returns>
-		public string GetUrl(bool isPreview, string serverUrl, string streamId, StreamWrapperType type, string value)
+		public string GetUrl(bool isPreview, string serverUrl) => $"{serverUrl}/{GetUrl(isPreview)}";
+
+		/// <summary>
+		/// Gets a value a url for how this stream is setup
+		/// </summary>
+		/// <param name="isPreview"></param>
+		/// <returns>returns the url without the server url</returns>
+		public string GetUrl(bool isPreview)
 		{
-			string url = GetUrl(isPreview, serverUrl, streamId);
+			string url = $"{(isPreview ? "preview" : "streams")}/{id}";
 			switch (type)
 			{
 				case StreamWrapperType.Stream:
 					return url;
 				case StreamWrapperType.Commit:
-					url += $"/commits/{value}";
+					url += $"/commits/{commit.id}";
 					break;
 				case StreamWrapperType.Branch:
-					url += $"/branches/{value}";
+					url += $"/branches/{branch.name}";
 					break;
 				case StreamWrapperType.Object:
-					url += $"objects/{value}";
+					url += $"objects/{@object.id}";
 					break;
 				case StreamWrapperType.Undefined:
 				default:
-					SpeckleUnity.Console.Warn($"{streamId} is not a valid stream for server {serverUrl}, bailing on the preview thing");
+					SpeckleUnity.Console.Warn($"{id} is not a valid stream, bailing on the preview thing");
 					url = null;
 					break;
 			}
@@ -281,17 +343,20 @@ namespace Speckle.ConnectorUnity.Ops
 		}
 
 		/// <summary>
-		/// 
+		/// Loads a stream branch and commits
 		/// </summary>
 		/// <param name="client"></param>
-		/// <param name="input"></param>
+		/// <param name="branchName"></param>
+		/// <param name="commitLimit"></param>
 		/// <returns></returns>
-		public async UniTask<bool> LoadBranch(SpeckleUnityClient client, string input)
+		public async UniTask<bool> LoadBranch(SpeckleUnityClient client, string branchName, int commitLimit = 10)
 		{
 			if (client.IsValid())
-				branch = await client.BranchGet(id, input);
+			{
+				branch = await client.BranchGet(id, branchName, commitLimit);
+			}
 
-			return branch != null && branch.name.Equals(input);
+			return branch != null && branch.name.Equals(branchName);
 		}
 
 		/// <summary>
@@ -356,7 +421,7 @@ namespace Speckle.ConnectorUnity.Ops
 			return activity != null;
 		}
 
-		public bool Equals(StreamWrapper obj) => Equals(obj.source);
+		public bool Equals(SpeckleStream obj) => Equals(obj.source);
 
 		public bool Equals(Stream obj) => source != null && obj != null && id.Equals(obj.id) && name.Equals(obj.name);
 

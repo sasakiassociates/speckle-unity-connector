@@ -5,31 +5,32 @@ using Cysharp.Threading.Tasks;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Speckle.ConnectorUnity.Ops
 {
 
 	/// <summary>
-	/// A unity asset object for interacting with a <see cref="StreamWrapper"/>.
+	/// A unity asset object for interacting with a <see cref="SpeckleStream"/>.
 	/// Only use this type of object if you would like editor based capabilities with a stream.
-	/// If no editor functionality is needed, try using <see cref="StreamWrapper"/> instead.
+	/// If no editor functionality is needed, try using <see cref="SpeckleStream"/> instead.
 	/// </summary>
 	[CreateAssetMenu(menuName = "Speckle/Speckle Stream", fileName = "SpeckleStream", order = 0)]
 	public class ScriptableSpeckleStream : ScriptableObject, ISpeckleOps
 	{
 
+		[SerializeField, HideInInspector] SpeckleStream _stream;
+		[SerializeField, HideInInspector] AccountWrapper _account;
 		[SerializeField, HideInInspector] SpeckleUnityClient _client;
-		[SerializeField, HideInInspector] StreamWrapper _stream;
 		[SerializeField, HideInInspector] StreamUpdateInputWrapper _update;
 
 		public event Action OnUpdatesAdded;
 
-		public SpeckleUnityClient client
-		{
-			get => _client;
-		}
+		public Account account => _account?.source;
 
-		public CancellationToken token { get; }
+		public Stream stream => _stream?.source;
+
+		public CancellationToken token { get; set; }
 
 		public string id
 		{
@@ -70,36 +71,59 @@ namespace Speckle.ConnectorUnity.Ops
 		{
 			get => _stream?.commits;
 		}
-
-		public void Init(Account account)
-		{
-			if (account == null)
-			{
-				SpeckleUnity.Console.Warn("Invalid Account being used to Create this stream");
-				return;
-			}
-
-			_client = new SpeckleUnityClient(account);
-		}
 		
 		/// <summary>
-		/// Loads in a new <see cref="Stream"/> for the object to use. This will clear any values stored in this object
+		/// 
 		/// </summary>
-		/// <param name="stream"></param>
-		public void LoadStream(Stream stream)
+		/// <param name="accountToUse"></param>
+		/// <param name="streamId"></param>
+		public async UniTask Initialize(Account accountToUse, string streamId)
 		{
-			if (stream == null) return;
+			try
+			{
+				if (accountToUse == null || !streamId.Valid())
+				{
+					SpeckleUnity.Console.Warn(
+						$"Invalid input during {nameof(Initialize)} for {name}\n"
+						+ $"stream :{(streamId.Valid() ? streamId : "invalid")}"
+						+ $"account :{(accountToUse != null ? account.ToString() : "invalid")}");
+					return;
+				}
 
-			_update = null;
+				_account = new AccountWrapper(accountToUse);
 
-			_stream = new StreamWrapper(stream);
+				_client = new SpeckleUnityClient(_account.source);
+
+				if (!_client.IsValid())
+				{
+					SpeckleUnity.Console.Warn($"{name} did not complete {nameof(Initialize)} properly. Seems like the client is invalid");
+					return;
+				}
+
+				_stream = new SpeckleStream(await _client.StreamGet(streamId));
+
+				if (!_stream.IsValid())
+				{
+					SpeckleUnity.Console.Warn($"{name} did not complete {nameof(Initialize)} properly. Seems like the stream is invalid");
+					return;
+				}
+
+				SpeckleUnity.Console.Log($"{name} is all ready to go! {stream}");
+				name = _stream.name;
+			}
+			catch (Exception e)
+			{
+				SpeckleUnity.Console.Warn(e.Message);
+			}
+			finally
+			{
+				OnClientRefresh?.Invoke();
+			}
 		}
 
-		public Stream GetStream() => throw new NotImplementedException();
-
-		public async UniTask<bool> Create()
+		public async UniTask<bool> Create(Account accountToUse)
 		{
-			if (client == null)
+			if (_client == null)
 			{
 				SpeckleUnity.Console.Warn("Invalid Account being used to Create this stream");
 				return false;
@@ -112,13 +136,11 @@ namespace Speckle.ConnectorUnity.Ops
 				name = this.streamName
 			});
 
-			LoadStream(await _client.StreamGet(resId));
-			_client.Dispose();
+			await Initialize(accountToUse, resId);
 
 			return _stream != null && _stream.IsValid();
 		}
 
-		
 		/// <summary>
 		/// Sets new stream details to be applied to this <see cref="Stream"/> 
 		/// </summary>
@@ -153,6 +175,8 @@ namespace Speckle.ConnectorUnity.Ops
 				}
 			});
 		}
+
+		public event UnityAction OnClientRefresh;
 
 		[Serializable]
 		internal class StreamUpdateInputWrapper

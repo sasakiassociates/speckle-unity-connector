@@ -6,6 +6,7 @@ using Speckle.Core.Credentials;
 using Speckle.Core.Kits;
 using Speckle.Core.Logging;
 using UnityEngine;
+using UnityEngine.Networking;
 using Co = Speckle.ConnectorUnity.SpeckleUnity.Console;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -139,7 +140,26 @@ namespace Speckle.ConnectorUnity
 			return url;
 		}
 
-		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="url"></param>
+		/// <returns></returns>
+		public static async UniTask<Texture2D> GetPreview(string url)
+		{
+			if (!url.Valid())
+				return null;
+
+			var www = await UnityWebRequestTexture.GetTexture(url).SendWebRequest();
+
+			if (www.result != UnityWebRequest.Result.Success)
+			{
+				SpeckleUnity.Console.Warn(www.error);
+				return null;
+			}
+
+			return DownloadHandlerTexture.GetContent(www);
+		}
 		public static async UniTask<Account> GetAccountByStreamAsync(string input)
 		{
 			Account res = null;
