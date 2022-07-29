@@ -1,3 +1,5 @@
+## [com.speckle.core-v1.0.2](https://github.com/sasakiassociates/speckle-unity-connector/compare/com.speckle.core-v1.0.1...com.speckle.core-v1.0.2) (2022-07-29)
+
 ## [com.speckle.core-v1.0.1](https://github.com/sasakiassociates/speckle-unity-connector/compare/com.speckle.core-v1.0.0...com.speckle.core-v1.0.1) (2022-06-29)
 
 ## com.speckle.core-v1.0.0 (2022-06-28)
