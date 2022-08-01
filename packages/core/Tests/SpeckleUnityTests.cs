@@ -39,9 +39,9 @@ internal static class SpT
 	public static readonly StreamRef SIMPLE = new StreamRef()
 	{
 		streamId = "4777dea055",
-		branchName = "main", // active study
-		commitId = "12bb31b6c9", // result cloud commit
-		objectId = "1a60ced098216e2839d2952e33bcdef1", // result cloud
+		branchName = "main", 
+		commitId = "12bb31b6c9", // mesh only
+		objectId = "1a60ced098216e2839d2952e33bcdef1", // mesh object
 	};
 
 }
