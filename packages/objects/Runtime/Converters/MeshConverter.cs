@@ -9,7 +9,7 @@ using UN = UnityEngine;
 namespace Speckle.ConnectorUnity.Converter
 {
 
-	[CreateAssetMenu(fileName = nameof(MeshConverter), menuName = "Speckle/Converters/Create Mesh Converter")]
+	[CreateAssetMenu(fileName = nameof(MeshConverter), menuName = SpeckleUnity.NAMESPACE + "/Converters/Create Mesh Converter")]
 	public class MeshConverter : ComponentConverter<Mesh, MeshFilter>, ISpeckleMeshConverter
 	{
 
@@ -62,41 +62,19 @@ namespace Speckle.ConnectorUnity.Converter
 				_defaultMaterial = new Material(Shader.Find("Standard"));
 		}
 
-		public List<ApplicationPlaceholderObject> contextObjects
-		{
-			get;
-			set;
-		}
+		public List<ApplicationPlaceholderObject> contextObjects { get; set; }
 
-		public bool addMeshCollider
-		{
-			get => _addMeshCollider;
-		}
+		public bool addMeshCollider => _addMeshCollider;
 
-		public bool addMeshRenderer
-		{
-			get => _addRenderer;
-		}
+		public bool addMeshRenderer => _addRenderer;
 
-		public bool recenterTransform
-		{
-			get => _recenterTransform;
-		}
+		public bool recenterTransform => _recenterTransform;
 
-		public bool useRenderMaterial
-		{
-			get => _useRenderMaterial;
-		}
+		public bool useRenderMaterial => _useRenderMaterial;
 
-		public bool combineMeshes
-		{
-			get => _combineMeshes;
-		}
+		public bool combineMeshes => _combineMeshes;
 
-		public Material defaultMaterial
-		{
-			get => _defaultMaterial;
-		}
+		public Material defaultMaterial => _defaultMaterial;
 
 		protected override GameObject ConvertBase(Mesh @base)
 		{
@@ -104,8 +82,6 @@ namespace Speckle.ConnectorUnity.Converter
 			return this.MeshToNative(new[] { @base }, NewObj().gameObject);
 		}
 
-		// copied from repo
-		//TODO: support multiple filters?
 		protected override Base ConvertComponent(MeshFilter component) => this.MeshToSpeckle(component);
 
 		public static GameObject CreateAndProcess(Mesh @base)
@@ -152,7 +128,6 @@ namespace Speckle.ConnectorUnity.Converter
 			return obj.gameObject;
 		}
 
-
 		// public static UniTask<IEnumerable<Vector3>> GetVerticesTask(List<double> verts)
 		// {
 		// 	return 
@@ -195,11 +170,11 @@ namespace Speckle.ConnectorUnity.Converter
 			if (speckleMesh.colors != null)
 			{
 				// if (speckleMesh.colors.Count == speckleMesh.VerticesCount)
-					// data.vertexColors.AddRange(speckleMesh.colors.Select(c => c.ToUnityColor()));
+				// data.vertexColors.AddRange(speckleMesh.colors.Select(c => c.ToUnityColor()));
 				// else if (speckleMesh.colors.Count != 0)
-					// TODO what if only some submeshes have colors?
-					// Debug.LogWarning(
-						// $"{typeof(Mesh)} {speckleMesh.id} has invalid number of vertex {nameof(Mesh.colors)}. Expected 0 or {speckleMesh.VerticesCount}, got {speckleMesh.colors.Count}");
+				// TODO what if only some submeshes have colors?
+				// Debug.LogWarning(
+				// $"{typeof(Mesh)} {speckleMesh.id} has invalid number of vertex {nameof(Mesh.colors)}. Expected 0 or {speckleMesh.VerticesCount}, got {speckleMesh.colors.Count}");
 			}
 
 			var tris = new List<int>();
@@ -218,7 +193,6 @@ namespace Speckle.ConnectorUnity.Converter
 			data.subMeshes.Add(tris);
 		}
 
-		
 		// 	public static async UniTask<bool> ProcessMesh(ISpeckleMeshConverter converter, IReadOnlyCollection<Mesh> meshes, ref GameObject obj)
 		// 	{
 		// 		var filter = obj.GetComponent<MeshFilter>();
@@ -288,6 +262,6 @@ namespace Speckle.ConnectorUnity.Converter
 		// 		return obj;
 		// 	}
 		//
-		
+
 	}
 }
