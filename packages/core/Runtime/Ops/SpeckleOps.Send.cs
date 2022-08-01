@@ -93,6 +93,7 @@ namespace Speckle.ConnectorUnity.Ops
 				SpeckleUnity.Console.Log($"{nameof(Send)} command complete!\n{watch.Elapsed}");
 
 				await UniTask.Yield();
+				
 			}
 
 			return objectId;

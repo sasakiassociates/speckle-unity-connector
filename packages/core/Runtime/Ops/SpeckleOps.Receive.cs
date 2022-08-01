@@ -11,8 +11,8 @@ namespace Speckle.ConnectorUnity.Ops
 {
 	public static partial class SpeckleOps
 	{
-		
-			/// <summary>
+
+		/// <summary>
 		/// A unity friendly version of the Receive method from <see cref="Operations"/>
 		/// </summary>
 		/// <param name="client">The client to use for interacting with the stream</param>
@@ -31,8 +31,33 @@ namespace Speckle.ConnectorUnity.Ops
 			Action<int> onChildCount = null
 		)
 		{
-			Base @base = null;
 			var watch = Stopwatch.StartNew();
+			return await Receive(client, streamId, referenceObj, watch, onProgress, onError, onChildCount);
+		}
+
+		/// <summary>
+		/// A unity friendly version of the Receive method from <see cref="Operations"/>
+		/// </summary>
+		/// <param name="client">The client to use for interacting with the stream</param>
+		/// <param name="streamId">Stream ID to use</param>
+		/// <param name="referenceObj">Id of the object to receive</param>
+		/// <param name="watch">A stopwatch for monitor time things</param>
+		/// <param name="onProgress">Optional action to report progress values</param>
+		/// <param name="onError">Optional action to notify about errors</param>
+		/// <param name="onChildCount">Optional action to get the total child count of the found object</param>
+		/// <returns>The unconverted base object</returns>
+		public static async UniTask<Base> Receive(
+			SpeckleUnityClient client,
+			string streamId,
+			string referenceObj,
+			Stopwatch watch,
+			Action<ConcurrentDictionary<string, int>> onProgress = null,
+			Action<string, Exception> onError = null,
+			Action<int> onChildCount = null
+		)
+		{
+			Base @base = null;
+			watch ??= Stopwatch.StartNew();
 
 			SpeckleUnity.Console.Log($"{nameof(Receive)} start!");
 
@@ -94,4 +119,5 @@ namespace Speckle.ConnectorUnity.Ops
 			return @base;
 		}
 	}
+
 }
