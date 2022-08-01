@@ -1,14 +1,13 @@
-﻿using System;
-using System.Linq;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
+using Speckle.ConnectorUnity.Args;
 using Speckle.Core.Api;
 using Speckle.Core.Api.SubscriptionModels;
 using Speckle.Core.Credentials;
+using Speckle.Core.Kits;
 using Speckle.Core.Logging;
 using Speckle.Core.Models;
 using UnityEngine;
 using UnityEngine.Events;
-using Debug = UnityEngine.Debug;
 
 namespace Speckle.ConnectorUnity.Ops
 {
@@ -18,17 +17,16 @@ namespace Speckle.ConnectorUnity.Ops
 	///   that handles conversions and subscriptions for you
 	/// </summary>
 	[ExecuteAlways]
-	[AddComponentMenu("Speckle/Receiver")]
+	[AddComponentMenu(SpeckleUnity.NAMESPACE + "/Receiver")]
 	public class Receiver : ClientBehaviour
 	{
+		[SerializeField] ReceiveMode _mode;
 		[SerializeField] bool _autoReceive;
 		[SerializeField] bool _sendReceive;
 		[SerializeField] bool _deleteOld = true;
 		[SerializeField] Texture _preview;
 		[SerializeField] bool _showPreview = true;
 		[SerializeField] bool _renderPreview = true;
-
-		public Commit commit => _stream?.commit;
 
 		public Texture preview => _preview;
 
@@ -38,29 +36,19 @@ namespace Speckle.ConnectorUnity.Ops
 			set => _showPreview = value;
 		}
 
-		public int GetCommitIndex() => commits.Valid() && commit != null ? _stream.commits.FindIndex(x => x.id.Equals(commit.id)) : -1;
-
-		public void SetCommit(string commitId) => CheckIfValidCommit(_stream.CommitSet(commitId));
-
-		public void SetCommit(int commitIndex) => CheckIfValidCommit(_stream.CommitSet(commitIndex));
-
-		void CheckIfValidCommit(bool value)
-		{
-			if (value)
-			{
-				OnCommitSet?.Invoke(commit);
-				PostLoadCommit().Forget();
-			}
-		}
-
 		/// <summary>
 		///  Gets and converts the data of the last commit on the Stream
 		/// </summary>
 		/// <returns></returns>
-		public async UniTask Receive()
+		public override async UniTask<ClientWorkArgs> Run()
 		{
-			if (!IsValid())
-				return;
+			var args = new ReceiveWorkArgs()
+			{
+				message = "",
+				referenceObj = "",
+				client = this,
+				success = false
+			};
 
 			// might have to check for other objects
 			token = this.GetCancellationTokenOnDestroy();
@@ -72,36 +60,52 @@ namespace Speckle.ConnectorUnity.Ops
 
 				SpeckleUnity.Console.Log("Receive Started");
 
+				if (!IsValid())
+				{
+					args.message = "Invalid Client";
+					SpeckleUnity.Console.Warn($"{args.client}-" + args.message);
+					return args;
+				}
+
 				if (converter == null)
 				{
-					SpeckleUnity.Console.Warn("No active converter found!");
+					args.message = "No active converter found";
+					SpeckleUnity.Console.Warn($"{args.client}-" + args.message);
 					await UniTask.Yield();
-					return;
+					return args;
 				}
 
 				var referenceObj = await GetDataFromStream();
 
 				if (!referenceObj.Valid())
 				{
-					SpeckleUnity.Console.Warn("The reference object pulled down from this stream is not valid");
-					return;
+					args.message = "The reference object pulled down from this stream is not valid";
+					SpeckleUnity.Console.Warn($"{args.client}-" + args.message);
+					return args;
 				}
 
 				Base @base = await SpeckleOps.Receive(_client, _stream.id, referenceObj, HandleProgress, HandleError, HandleChildCount);
 
 				if (@base == null)
 				{
-					SpeckleUnity.Console.Warn("Data from Commit was not valid");
-					return;
+					args.message = "Data from Commit was not valid";
+					SpeckleUnity.Console.Warn($"{args.client}-" + args.message);
+					return args;
 				}
+
+				args.referenceObj = referenceObj;
 
 				// TODO: handle the process for update objects and not just force deleting
 				if (_deleteOld && _root != null)
 					SpeckleUnity.SafeDestroy(_root.gameObject);
 
 				_root = new GameObject().AddComponent<SpeckleNode>();
+
+				// TODO: Handle separating the operation call from the conversion
 				await _root.DataToScene(@base, converter, token);
 
+				args.success = true;
+				args.message = $"Completed {nameof(Run)}";
 				OnNodeComplete?.Invoke(_root);
 			}
 			catch (SpeckleException e)
@@ -113,9 +117,12 @@ namespace Speckle.ConnectorUnity.Ops
 				progress = 0f;
 				isWorking = false;
 
-				HandleRefresh();
 				await UniTask.Yield();
+
+				HandleRefresh();
 			}
+
+			return args;
 		}
 
 		protected override void SetSubscriptions()
@@ -129,31 +136,7 @@ namespace Speckle.ConnectorUnity.Ops
 			}
 		}
 
-		protected override async UniTask PostLoadStream()
-		{
-			if (!branches.Valid())
-			{
-				SpeckleUnity.Console.Log("No Branches on this stream!");
-				return;
-			}
-
-			await SetBranch("main");
-		}
-
-		protected override UniTask PostLoadBranch()
-		{
-			if (branch == null)
-			{
-				SpeckleUnity.Console.Log("No branch set on this stream!");
-
-				return UniTask.CompletedTask;
-			}
-
-			SetCommit(0);
-			return UniTask.CompletedTask;
-		}
-
-		protected virtual UniTask PostLoadCommit()
+		protected override UniTask PostLoadCommit()
 		{
 			UpdatePreview().Forget();
 			return UniTask.CompletedTask;
@@ -188,7 +171,7 @@ namespace Speckle.ConnectorUnity.Ops
 							streamId = _stream.id,
 							commitId = c.id,
 							message = "Received Commit from Unity",
-							sourceApplication = SpeckleUnity.HostApp
+							sourceApplication = SpeckleUnity.APP
 						}).Forget();
 
 					referenceObj = c.referencedObject;
@@ -211,8 +194,6 @@ namespace Speckle.ConnectorUnity.Ops
 		}
 
 		#region Events
-
-		public event UnityAction<Commit> OnCommitSet;
 
 		public event UnityAction<SpeckleNode> OnNodeComplete;
 
