@@ -4,6 +4,9 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using Speckle.ConnectorUnity;
+using Speckle.ConnectorUnity.Args;
+using Speckle.ConnectorUnity.Converter;
+using Speckle.ConnectorUnity.Mono;
 using Speckle.ConnectorUnity.Ops;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
@@ -31,6 +34,14 @@ internal static class SpT
 		branchName = "viewstudy/all-targets", // active study
 		commitId = "0f543d7d92", // result cloud commit
 		objectId = "989d0ec67f26fa7889000a3850df8dca", // result cloud
+	};
+
+	public static readonly StreamRef SIMPLE = new StreamRef()
+	{
+		streamId = "4777dea055",
+		branchName = "main", // active study
+		commitId = "12bb31b6c9", // result cloud commit
+		objectId = "1a60ced098216e2839d2952e33bcdef1", // result cloud
 	};
 
 }
@@ -109,12 +120,12 @@ public class Integrations
 			message = "How Neat!",
 			branchName = SpT.BCHP.branchName,
 			streamId = SpT.BCHP.streamId,
-			sourceApplication = SpeckleUnity.HostApp,
+			sourceApplication = SpeckleUnity.APP,
 			parents = new List<string>(),
 			totalChildrenCount = (int)@base.GetTotalChildrenCount() // will throw an error if no kiddos are found
 		});
 
-		Assert.IsTrue(res.Valid());
+		Assert.IsTrue(SpeckleUnity.Valid(res));
 		_possibleCommitsToDelete.Add(res);
 
 		var commit = await _client.CommitGet(SpT.BCHP.streamId, res);
@@ -137,9 +148,101 @@ public class Integrations
 	public IEnumerator Operations_Receive_FromCommit() => UniTask.ToCoroutine(async () =>
 	{
 		var commit = await _client.CommitGet(SpT.BCHP.streamId, SpT.BCHP.commitId);
+
 		var res = await SpeckleOps.Receive(_client, SpT.BCHP.streamId, commit.referencedObject);
 
 		Assert.IsNotNull(res);
+	});
+
+	[UnityTest, Category(SpT.C_OPS)]
+	public IEnumerator Operations_Receive_FromObject() => UniTask.ToCoroutine(async () =>
+	{
+		var commit = await _client.ObjectGet(SpT.BCHP.streamId, SpT.BCHP.objectId);
+
+		var res = await SpeckleOps.Receive(_client, SpT.BCHP.streamId, commit.id);
+
+		Assert.IsNotNull(res);
+	});
+
+	[UnityTest, Category(SpT.C_OPS)]
+	public IEnumerator Operations_Receive_Run() => UniTask.ToCoroutine(async () =>
+	{
+		var client = new GameObject().AddComponent<Receiver>();
+
+		await UniTask.Yield();
+
+		await client.Initialize(AccountManager.GetDefaultAccount(), SpT.SIMPLE.streamId);
+
+		Assert.IsNotNull(client.converter);
+		Assert.IsNotNull(client.stream.id == SpT.SIMPLE.streamId);
+		Assert.IsTrue(client.branches.Valid());
+		Assert.IsNotNull(client.branch);
+		Assert.IsTrue(client.commits.Valid().Equals(client.commit != null));
+
+		Assert.IsTrue(client.IsValid());
+
+		var args = (ReceiveWorkArgs)await client.Run();
+
+		Assert.IsNotNull(args);
+		Assert.IsTrue(args.success);
+		Assert.IsTrue(args.client.Equals(client));
+		Assert.IsTrue(!string.IsNullOrEmpty(args.message));
+		Assert.IsTrue(!string.IsNullOrEmpty(args.referenceObj));
+	});
+
+	[UnityTest, Category(SpT.C_OPS)]
+	public IEnumerator Operations_Send_Run() => UniTask.ToCoroutine(async () =>
+	{
+		var client = new GameObject().AddComponent<Sender>();
+
+		await UniTask.Yield();
+
+		await client.Initialize(AccountManager.GetDefaultAccount(), SpT.SIMPLE.streamId);
+
+		Assert.IsNotNull(client.converter);
+		Assert.IsNotNull(client.stream.id == SpT.SIMPLE.streamId);
+		Assert.IsTrue(client.branches.Valid());
+		Assert.IsNotNull(client.branch);
+		Assert.IsTrue(client.commits.Valid().Equals(client.commit != null));
+
+		Assert.IsTrue(client.IsValid());
+
+		// Send using only Base object
+		var @base = new Base
+		{
+			["Prop"] = 10,
+			["Child"] = new Base()
+		};
+
+		var args = (SendWorkArgs)await client.Run(@base);
+
+		Assert.IsNotNull(args);
+		Assert.IsTrue(args.success);
+		Assert.IsTrue(args.client.Equals(client));
+		Assert.IsTrue(!string.IsNullOrEmpty(args.message));
+		Assert.IsTrue(!string.IsNullOrEmpty(args.commitId));
+		Assert.IsTrue(!string.IsNullOrEmpty(args.url));
+
+		Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput() { streamId = client.stream.id, id = args.commitId }));
+
+		// Send using speckle node
+		var node = new GameObject("Speckle Node").AddComponent<SpeckleNode>();
+		var layer = new GameObject("Speckle Layer").AddComponent<SpeckleLayer>();
+		var baseProp = new GameObject("Base").AddComponent<BaseBehaviour>();
+		baseProp.SetProps(@base);
+		layer.Add(baseProp.gameObject);
+		node.AddLayer(layer);
+
+		args = (SendWorkArgs)await client.Run(node);
+		
+		Assert.IsNotNull(args);
+		Assert.IsTrue(args.success);
+		Assert.IsTrue(args.client.Equals(client));
+		Assert.IsTrue(!string.IsNullOrEmpty(args.message));
+		Assert.IsTrue(!string.IsNullOrEmpty(args.commitId));
+		Assert.IsTrue(!string.IsNullOrEmpty(args.url));
+		
+		Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput() { streamId = client.stream.id, id = args.commitId }));
 	});
 
 }
@@ -353,22 +456,4 @@ public class Units
 		Assert.IsTrue(wrapper.type == StreamWrapperType.Commit);
 	});
 
-	[UnityTest, Category(SpT.C_CLIENT)]
-	public IEnumerator Receiver_Init() => UniTask.ToCoroutine(async () =>
-	{
-		var client = new GameObject().AddComponent<Receiver>();
-		
-		await UniTask.Yield();
-		
-		await client.Initialize(AccountManager.GetDefaultAccount(), SpT.BCHP.streamId);
-		
-		Assert.IsTrue(client.IsValid());
-		Assert.IsNotNull(client.stream.id == SpT.BCHP.streamId);
-
-		Assert.IsTrue(client.branches.Valid());
-		Assert.IsNotNull(client.branch);
-		
-		if(client.commits.Valid())
-			Assert.IsNotNull(client.commit);
-	});
 }
