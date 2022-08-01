@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -24,7 +25,7 @@ namespace Speckle.ConnectorUnity.Ops
 		[SerializeField] [HideInInspector] long childCount;
 
 		[SerializeField] SpeckleStructure hierarchy;
-		
+
 		/// <summary>
 		///   Reference object id
 		/// </summary>
@@ -49,10 +50,7 @@ namespace Speckle.ConnectorUnity.Ops
 			get => childCount;
 		}
 
-		public List<GameObject> GetObjects()
-		{
-			return hierarchy.GetObjects(hierarchy.layers);
-		}
+		public List<GameObject> GetObjects() => hierarchy.GetObjects(hierarchy.layers);
 
 		public void AddLayer(SpeckleLayer layer)
 		{
@@ -66,7 +64,7 @@ namespace Speckle.ConnectorUnity.Ops
 		/// <param name="converter">Speckle Converter to parse objects with</param>
 		/// <param name="token">Cancellation token</param>
 		/// <returns></returns>
-		public UniTask DataToScene(Base data, ISpeckleConverter converter, CancellationToken token)
+		public async UniTask DataToScene(Base data, ISpeckleConverter converter, CancellationToken token)
 		{
 			id = data.id;
 			appId = data.applicationId;
@@ -79,7 +77,7 @@ namespace Speckle.ConnectorUnity.Ops
 			if (converter == null)
 			{
 				SpeckleUnity.Console.Warn("No valid converter to use during conversion ");
-				return UniTask.CompletedTask;
+				return;
 			}
 
 			DeconstructObject(data, defaultLayer, converter, token);
@@ -95,8 +93,6 @@ namespace Speckle.ConnectorUnity.Ops
 			{
 				SpeckleUnity.SafeDestroy(defaultLayer.gameObject);
 			}
-
-			return UniTask.CompletedTask;
 		}
 
 		public Base SceneToData(ISpeckleConverter converter, CancellationToken token)
@@ -122,7 +118,12 @@ namespace Speckle.ConnectorUnity.Ops
 
 			// 1: Object is supported
 			if (converter.CanConvertToNative(data))
-				defaultLayer.Add(data, converter);
+			{
+				var obj = CheckConvertedFormat(converter.ConvertToNative(data));
+				
+				if (obj != null)
+					defaultLayer.Add(obj);
+			}
 			else
 				// check if there are layers in the ref object
 				foreach (var member in data.GetMemberNames())
@@ -135,7 +136,7 @@ namespace Speckle.ConnectorUnity.Ops
 					// 2: Check each item in the props
 					if (obj.IsList())
 					{
-						var layer = SpeckleUnity.ListToLayer(member, ((IEnumerable)obj).Cast<object>(), converter, token, transform, Debug.Log);
+						var layer = ListToLayer(member, ((IEnumerable)obj).Cast<object>(), converter, token, transform, Debug.Log);
 						hierarchy.Add(layer);
 						continue;
 					}
@@ -153,9 +154,71 @@ namespace Speckle.ConnectorUnity.Ops
 				}
 		}
 
-		void Awake()
+		void OnEnable()
 		{
 			hierarchy ??= new SpeckleStructure();
+		}
+
+		static GameObject CheckConvertedFormat(object obj)
+		{
+			switch (obj)
+			{
+				case GameObject o:
+					return o;
+				case MonoBehaviour o:
+					return o.gameObject;
+				case Component o:
+					return o.gameObject;
+				default:
+					SpeckleUnity.Console.Warn($"Object converted to unity from speckle is not supported {obj.GetType()}");
+					return null;
+			}
+		}
+
+		static SpeckleLayer ListToLayer(
+			string member,
+			IEnumerable<object> data,
+			ISpeckleConverter converter,
+			CancellationToken token,
+			Transform parent = null,
+			Action<string> onError = null
+		)
+		{
+			var layer = new GameObject(member).AddComponent<SpeckleLayer>();
+
+			foreach (var item in data)
+			{
+				if (token.IsCancellationRequested)
+					return layer;
+
+				if (item == null)
+					continue;
+
+				if (item.IsBase(out var @base) && converter.CanConvertToNative(@base))
+				{
+					var obj = CheckConvertedFormat(converter.ConvertToNative(@base));
+
+					if (obj != null)
+						layer.Add(obj);
+				}
+				else if (item.IsList())
+				{
+					var list = ((IEnumerable)item).Cast<object>().ToList();
+					var childLayer = ListToLayer(list.Count.ToString(), list, converter, token, layer.transform, onError);
+					layer.Add(childLayer);
+				}
+				else
+				{
+					onError?.Invoke($"Cannot handle this type of object {item.GetType()}");
+				}
+			}
+
+			if (parent != null)
+				layer.transform.SetParent(parent);
+
+			layer.SetObjectParent(layer.transform);
+
+			return layer;
 		}
 
 		static Base LayerToBase(SpeckleLayer layer, ISpeckleConverter converter, CancellationToken token)
