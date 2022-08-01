@@ -21,22 +21,11 @@ namespace Speckle.ConnectorUnity.Converter
 
 		[SerializeField] protected List<ComponentConverter> converters;
 
-		public HashSet<Exception> ConversionErrors
-		{
-			get;
-		} = new();
+		public HashSet<Exception> ConversionErrors { get; } = new();
 
-		public List<ApplicationPlaceholderObject> ContextObjects
-		{
-			get;
-			set;
-		} = new();
+		public List<ApplicationPlaceholderObject> ContextObjects { get; set; } = new();
 
-		public ProgressReport Report
-		{
-			get;
-			protected set;
-		}
+		public ProgressReport Report { get; protected set; }
 
 		public IEnumerable<string> GetServicedApplications()
 		{
@@ -107,7 +96,7 @@ namespace Speckle.ConnectorUnity.Converter
 		protected bool TryGetConverter(string speckleType, out ComponentConverter converter)
 		{
 			converter = null;
-			
+
 			if (!converters.Any())
 				return false;
 
@@ -122,7 +111,7 @@ namespace Speckle.ConnectorUnity.Converter
 
 			return converter != null;
 		}
-		
+
 		protected bool TryGetConverter(object @object, out Component comp, out IComponentConverter converter)
 		{
 			comp = null;
@@ -176,6 +165,7 @@ namespace Speckle.ConnectorUnity.Converter
 		public string Name
 		{
 			get => name;
+			set => name = value;
 		}
 
 		public string Description

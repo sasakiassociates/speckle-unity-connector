@@ -33,12 +33,13 @@ namespace Speckle.ConnectorUnity.Ops
 		public event UnityAction<int> OnTotalChildCountAction;
 	}
 
-	public interface IConvert
+	public interface ICanConverter
 	{
 		/// <summary>
 		///   the active converter for this client object
 		/// </summary>
-		ScriptableSpeckleConverter converter { get; }
+		ScriptableSpeckleConverter converter { get; set; }
+		
 	}
 
 }

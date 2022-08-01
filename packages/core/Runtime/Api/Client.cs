@@ -12,7 +12,7 @@ namespace Speckle.ConnectorUnity.Ops
 {
 
 	[Serializable]
-	public class SpeckleUnityClient : IDisposable, IShouldValidate
+	public sealed class SpeckleUnityClient : IDisposable, IShouldValidate
 	{
 
 		AccountAdapter _accountAdapter;
@@ -21,11 +21,6 @@ namespace Speckle.ConnectorUnity.Ops
 		{
 			get => _accountAdapter?.source;
 		}
-
-		/// <summary>
-		/// always true, but maybe not for all classes
-		/// </summary>
-		public bool serialize => true;
 
 		public CancellationToken token { get; set; }
 
@@ -481,8 +476,6 @@ namespace Speckle.ConnectorUnity.Ops
 
 		#endregion
 
-
-	
 	}
 
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
@@ -9,6 +10,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Co = Speckle.ConnectorUnity.SpeckleUnity.Console;
 #if UNITY_EDITOR
+using Speckle.ConnectorUnity.Converter;
 using UnityEditor;
 #endif
 
@@ -16,9 +18,10 @@ namespace Speckle.ConnectorUnity
 {
 	public static partial class SpeckleUnity
 	{
-		public const string HostApp = HostApplications.Unity.Name;
 
-		public const string NameSpace = "Speckle";
+		public const string APP = HostApplications.Unity.Name;
+
+		public const string NAMESPACE = "Speckle";
 
 		#if UNITY_EDITOR
 		public static List<T> GetAllInstances<T>() where T : ScriptableObject
@@ -33,6 +36,13 @@ namespace Speckle.ConnectorUnity
 
 			return items;
 		}
+
+		public static ScriptableSpeckleConverter GetDefaultConverter()
+		{
+			var items = GetAllInstances<ScriptableSpeckleConverter>();
+			return items.FirstOrDefault(x => x.Name.ToLower().Equals("converter-unity"));
+		}
+
 		#endif
 
 		public static bool Check(this UserInfo a, UserInfo b, bool includeId)
@@ -110,13 +120,12 @@ namespace Speckle.ConnectorUnity
 			return res;
 		}
 
-				
 		public static string GetUrl(bool isPreview, string serverUrl, string streamId) => $"{serverUrl}/{(isPreview ? "preview" : "streams")}/{streamId}";
 
 		public static string GetUrl(bool isPreview, string serverUrl, string streamId, StreamWrapperType type, string value)
 		{
 			string url = $"{serverUrl}/{(isPreview ? "preview" : "streams")}/{streamId}";
-			
+
 			switch (type)
 			{
 				case StreamWrapperType.Stream:
@@ -160,6 +169,7 @@ namespace Speckle.ConnectorUnity
 
 			return DownloadHandlerTexture.GetContent(www);
 		}
+
 		public static async UniTask<Account> GetAccountByStreamAsync(string input)
 		{
 			Account res = null;

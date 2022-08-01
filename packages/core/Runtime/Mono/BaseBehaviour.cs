@@ -9,6 +9,7 @@ namespace Speckle.ConnectorUnity.Mono
 	/// <summary>
 	///   A simple version of the object Base from Speckle that contains the speckle properties type
 	/// </summary>
+	[AddComponentMenu(SpeckleUnity.NAMESPACE + "/Base")]
 	public class BaseBehaviour : MonoBehaviour
 	{
 
