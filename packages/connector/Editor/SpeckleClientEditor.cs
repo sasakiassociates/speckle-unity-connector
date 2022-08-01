@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.GUI;
 using Speckle.ConnectorUnity.Ops;
 using UnityEditor;
@@ -82,7 +83,7 @@ namespace Speckle.ConnectorUnity
 
 		protected virtual void SetBranchChange(int index)
 		{
-			obj.SetBranch(index);
+			obj.SetBranch(index).Forget();
 		}
 
 		protected virtual void SetConverterChange(int index)

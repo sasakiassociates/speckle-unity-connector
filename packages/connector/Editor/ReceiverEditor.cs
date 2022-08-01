@@ -65,7 +65,7 @@ namespace Speckle.ConnectorUnity
 		protected override void OnRunClicked()
 		{
 			if (!obj.isWorking)
-				obj.Receive().Forget();
+				obj.Run().Forget();
 		}
 
 		protected override void SetBranchChange(int index)
