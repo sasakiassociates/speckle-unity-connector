@@ -20,7 +20,7 @@ namespace Speckle.ConnectorUnity
 		protected override void OnRunClicked()
 		{
 			if (!obj.isWorking)
-				obj.Send().Forget();
+				obj.Run().Forget();
 		}
 	}
 }
