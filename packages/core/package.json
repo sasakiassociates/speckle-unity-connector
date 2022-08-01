@@ -1,6 +1,6 @@
 {
   "name": "com.speckle.core",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "displayName": "Speckle Core",
   "description": "Package for bringing Speckle Core and Objects into Unity from Sasaki",
   "unity": "2020.3",
