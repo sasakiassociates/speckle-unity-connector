@@ -9,24 +9,23 @@ namespace Speckle.ConnectorUnity.Converter
 	[CreateAssetMenu(fileName = "UnityConverter", menuName = "Speckle/Speckle Unity Converter", order = -1)]
 	public class ConverterUnity : ScriptableSpeckleConverter
 	{
-		[SerializeField] ComponentConverterBase defaultConverter;
-
-		void OnEnable()
+		protected override void OnEnable()
 		{
-			if (defaultConverter == null)
-				defaultConverter = CreateInstance<ComponentConverterBase>();
+			base.OnEnable();
 
-			if (!converters.Valid())
-				converters = new List<ComponentConverter>
-				{
-					CreateInstance<MeshConverter>(),
-					CreateInstance<ComponentConverterPolyline>(),
-					CreateInstance<ComponentConverterPoint>(),
-					CreateInstance<ComponentConverterPointCloud>(),
-					CreateInstance<ComponentConverterView3D>(),
-					CreateInstance<ComponentConverterBrep>()
-				};
+			if (defaultConverter == null)
+				SetDefaultConverter(CreateInstance<BaseConverter>());
 		}
+
+		public override List<ComponentConverter> StandardConverters() => new List<ComponentConverter>
+		{
+			CreateInstance<MeshConverter>(),
+			CreateInstance<PolylineConverter>(),
+			CreateInstance<PointConverter>(),
+			CreateInstance<PointCloudConverter>(),
+			CreateInstance<View3DConverter>(),
+			CreateInstance<BrepConverter>()
+		};
 
 		public override object ConvertToNative(Base @base)
 		{
@@ -42,7 +41,7 @@ namespace Speckle.ConnectorUnity.Converter
 				Debug.Log("Handling Singluar Display Value");
 
 				var go = new GameObject(@base.speckle_type);
-				go.AddComponent<BaseBehaviour>().properties = new SpeckleProperties
+				go.AddComponent<BaseBehaviour_v1>().properties = new SpeckleProperties
 					{ Data = @base.FetchProps() };
 
 				var res = ConvertToNative(mesh) as Component;
@@ -55,7 +54,7 @@ namespace Speckle.ConnectorUnity.Converter
 				Debug.Log("Handling List of Display Value");
 
 				var go = new GameObject(@base.speckle_type);
-				go.AddComponent<BaseBehaviour>().properties = new SpeckleProperties
+				go.AddComponent<BaseBehaviour_v1>().properties = new SpeckleProperties
 					{ Data = @base.FetchProps() };
 
 				var displayValues = new GameObject("DisplayValues");

@@ -5,8 +5,8 @@ using UnityEngine;
 
 namespace Speckle.ConnectorUnity.Converter
 {
-	[CreateAssetMenu(fileName = nameof(ComponentConverterBrep), menuName = "Speckle/Converters/Create Brep Converter")]
-	public class ComponentConverterBrep : ComponentConverter<Brep, SpeckleBrep>, ISpeckleMeshConverter
+	[CreateAssetMenu(fileName = nameof(BrepConverter), menuName = SpeckleUnity.Categories.CONVERTERS + "Create Brep Converter")]
+	public class BrepConverter : ComponentConverter<Brep, SpeckleBrep>, ISpeckleMeshConverter
 	{
 
 		/// <summary>
@@ -39,11 +39,7 @@ namespace Speckle.ConnectorUnity.Converter
 		/// </summary>
 		[SerializeField] bool _combineMeshes = false;
 
-		public List<ApplicationPlaceholderObject> contextObjects
-		{
-			get;
-			set;
-		}
+		public List<ApplicationPlaceholderObject> contextObjects { get; set; }
 
 		public bool addMeshCollider
 		{
@@ -75,8 +71,9 @@ namespace Speckle.ConnectorUnity.Converter
 			get => _combineMeshes;
 		}
 
+		protected override void ConvertBase(Brep @base, ref SpeckleBrep instance) => this.MeshToNative(@base.displayValue, instance.gameObject);
+
 		protected override Base ConvertComponent(SpeckleBrep component) => this.MeshToSpeckle(component.mesh);
 
-		protected override GameObject ConvertBase(Brep @base) => this.MeshToNative(@base.displayValue, NewObj().gameObject);
 	}
 }

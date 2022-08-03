@@ -4,29 +4,25 @@ using UnityEngine;
 
 namespace Speckle.ConnectorUnity.Converter
 {
-	[CreateAssetMenu(fileName = nameof(ComponentConverterView3D), menuName = "Speckle/Converters/Create View3d Converter")]
-	public class ComponentConverterView3D : ComponentConverter<View3D, Camera>
+	[CreateAssetMenu(fileName = nameof(View3DConverter), menuName = SpeckleUnity.Categories.CONVERTERS + "Create View3d Converter")]
+	public class View3DConverter : ComponentConverter<View3D, Camera>
 	{
 
 		/// <summary>
 		///   Converts a Speckle View3D to a GameObject
 		/// </summary>
 		/// <param name="base"></param>
-		/// <returns></returns>
-		protected override GameObject ConvertBase(View3D @base)
+		/// <param name="instance"></param>
+		protected override void ConvertBase(View3D @base, ref Camera instance)
 		{
-			var comp = NewObj(@base.name);
-
-			comp.transform.position = ConverterUtils.VectorByCoordinates(
+			instance.transform.position = ConverterUtils.VectorByCoordinates(
 				@base.origin.x, @base.origin.y, @base.origin.z, @base.origin.units);
 
-			comp.transform.forward = ConverterUtils.VectorByCoordinates(
+			instance.transform.forward = ConverterUtils.VectorByCoordinates(
 				@base.forwardDirection.x, @base.forwardDirection.y, @base.forwardDirection.z, @base.forwardDirection.units);
 
-			comp.transform.up = ConverterUtils.VectorByCoordinates(
+			instance.transform.up = ConverterUtils.VectorByCoordinates(
 				@base.upDirection.x, @base.upDirection.y, @base.upDirection.z, @base.upDirection.units);
-
-			return comp.gameObject;
 		}
 
 		protected override Base ConvertComponent(Camera component) => new View3D

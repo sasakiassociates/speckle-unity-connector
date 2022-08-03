@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Speckle.ConnectorUnity
 {
-	public class SpeckleBrep : BaseBehaviour
+	public class SpeckleBrep : BaseBehaviour_v1
 	{
 		public MeshFilter mesh
 		{

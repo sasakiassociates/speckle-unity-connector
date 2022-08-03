@@ -5,8 +5,8 @@ using UnityEngine;
 
 namespace Speckle.ConnectorUnity.Converter
 {
-	[CreateAssetMenu(fileName = nameof(ComponentConverterPolyline), menuName = "Speckle/Converters/Create Polyline Converter")]
-	public class ComponentConverterPolyline : ComponentConverter<Polyline, LineRenderer>
+	[CreateAssetMenu(fileName = nameof(PolylineConverter), menuName = SpeckleUnity.Categories.CONVERTERS + "Create Polyline Converter")]
+	public class PolylineConverter : ComponentConverter<Polyline, LineRenderer>
 	{
 		public float diameter;
 
@@ -14,15 +14,10 @@ namespace Speckle.ConnectorUnity.Converter
 		///   Converts a Speckle curve to a GameObject with a line renderer
 		/// </summary>
 		/// <param name="base"></param>
+		/// <param name="instance"></param>
 		/// <returns></returns>
-		protected override GameObject ConvertBase(Polyline @base)
-		{
-			var line = NewObj(@base.speckle_type);
-
-			line.SetupLineRenderer(@base.GetPoints().ArrayToVector3(@base.units).ToArray(), diameter);
-
-			return line.gameObject;
-		}
+		protected override void ConvertBase(Polyline @base, ref LineRenderer instance) =>
+			instance.SetupLineRenderer(@base.GetPoints().ArrayToVector3(@base.units).ToArray(), diameter);
 
 		protected override Base ConvertComponent(LineRenderer component)
 		{
