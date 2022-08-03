@@ -1,0 +1,24 @@
+{
+    "name": "Speckle.Core.Editor",
+    "rootNamespace": "",
+    "references": [
+        "Speckle.Core",
+        "UniTask",
+        "UniTask.Editor",
+        "UnityEditor.UI",
+        "UnityEngine.UI",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
