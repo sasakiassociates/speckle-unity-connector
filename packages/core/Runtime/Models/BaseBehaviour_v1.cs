@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Speckle.Core.Models;
 using UnityEngine;
@@ -10,11 +12,12 @@ namespace Speckle.ConnectorUnity.Mono
 	///   A simple version of the object Base from Speckle that contains the speckle properties type
 	/// </summary>
 	[AddComponentMenu(SpeckleUnity.NAMESPACE + "/Base")]
-	public class BaseBehaviour : MonoBehaviour
+	public class BaseBehaviour_v1 : MonoBehaviour
 	{
 
 		[SerializeField] [HideInInspector]
 		protected SpeckleProperties _properties;
+		
 
 		protected virtual HashSet<string> excludedProps
 		{
@@ -38,5 +41,6 @@ namespace Speckle.ConnectorUnity.Mono
 			_properties = new SpeckleProperties();
 			_properties.Store(@base, props ?? excludedProps);
 		}
+
 	}
 }

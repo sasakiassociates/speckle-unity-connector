@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Speckle.ConnectorUnity.Converter;
 using Speckle.Core.Kits;
 using Speckle.Core.Logging;
 using Speckle.Core.Models;
@@ -15,7 +16,7 @@ namespace Speckle.ConnectorUnity.Ops
 	/// <summary>
 	///   A speckle node is pretty much the reference object that is first pulled from a commit
 	/// </summary>
-	[AddComponentMenu("Speckle/Node")]
+	[AddComponentMenu(SpeckleUnity.NAMESPACE + "/Node")]
 	public class SpeckleNode : MonoBehaviour
 	{
 		[SerializeField] [HideInInspector] string id;
@@ -26,35 +27,40 @@ namespace Speckle.ConnectorUnity.Ops
 
 		[SerializeField] SpeckleStructure hierarchy;
 
+		[SerializeField] ConverterStyle _converterStyle = ConverterStyle.Queue;
+
 		/// <summary>
 		///   Reference object id
 		/// </summary>
-		public string Id
-		{
-			get => id;
-		}
+		public string Id => id;
 
 		/// <summary>
 		///   Reference to application ID
 		/// </summary>
-		public string AppId
-		{
-			get => appId;
-		}
+		public string AppId => appId;
 
 		/// <summary>
 		///   Total child count
 		/// </summary>
-		public long ChildCount
-		{
-			get => childCount;
-		}
+		public long ChildCount => childCount;
 
 		public List<GameObject> GetObjects() => hierarchy.GetObjects(hierarchy.layers);
 
-		public void AddLayer(SpeckleLayer layer)
+		public void AddLayer(SpeckleLayer layer) => hierarchy.Add(layer);
+
+		public async UniTask DataToScene(Base data, ScriptableSpeckleConverter converter, CancellationToken token)
 		{
-			hierarchy.Add(layer);
+			if (converter == null)
+			{
+				SpeckleUnity.Console.Warn("No valid converter to use during conversion ");
+				return;
+			}
+
+			converter.SetConverterSettings(new ScriptableSpeckleConverterSettings { style = _converterStyle });
+
+			await DataToScene(data, (ISpeckleConverter)converter, token);
+
+			await converter.PostToNative();
 		}
 
 		/// <summary>
@@ -116,42 +122,50 @@ namespace Speckle.ConnectorUnity.Ops
 			if (token.IsCancellationRequested)
 				return;
 
-			// 1: Object is supported
+			// 1: Object is supported, so lets convert the object and it's data 
 			if (converter.CanConvertToNative(data))
 			{
+				// NOTE: Object created in scene
+				// NOTE: This is where the game object instance could be captured and meta stored in each object
+				// NOTE: The converter should spawn a series of mono objects that will handle going through the list of objects to convert and send data to
 				var obj = CheckConvertedFormat(converter.ConvertToNative(data));
-				
+
 				if (obj != null)
 					defaultLayer.Add(obj);
 			}
-			else
-				// check if there are layers in the ref object
-				foreach (var member in data.GetMemberNames())
+
+			// 2: Check for the properties of an object. There might be additional objects that we want to convert as well
+			foreach (var member in data.GetMemberNames())
+			{
+				if (token.IsCancellationRequested)
+					return;
+
+				// NOTE: we should only have to check for certain props and make sure to not duplicate any
+				var obj = data[member];
+
+				// 2a: A prop is a list! We create a special list object to store those items in
+				if (obj.IsList())
 				{
-					if (token.IsCancellationRequested)
-						return;
+					// create the list container 
+					var layer = ListToLayer(member, ((IEnumerable)obj).Cast<object>(), converter, token, transform, Debug.Log);
+					// handle the object conversion
+					// code...
 
-					var obj = data[member];
-
-					// 2: Check each item in the props
-					if (obj.IsList())
-					{
-						var layer = ListToLayer(member, ((IEnumerable)obj).Cast<object>(), converter, token, transform, Debug.Log);
-						hierarchy.Add(layer);
-						continue;
-					}
-
-					// 3: Member is a speckle object
-					if (obj.IsBase(out var @base))
-					{
-						Debug.Log("stepping into objects");
-						DeconstructObject(@base, defaultLayer, converter, token);
-					}
-					else
-					{
-						Debug.LogWarning("Unhandled");
-					}
+					// add to hierarchy 
+					hierarchy.Add(layer);
+					continue;
 				}
+
+				// 3: Member is a speckle object
+				if (obj.IsBase(out var @base))
+				{
+					Debug.Log("stepping into objects");
+					DeconstructObject(@base, defaultLayer, converter, token);
+					continue;
+				}
+
+				Debug.LogWarning("Unhandled");
+			}
 		}
 
 		void OnEnable()
@@ -196,6 +210,8 @@ namespace Speckle.ConnectorUnity.Ops
 
 				if (item.IsBase(out var @base) && converter.CanConvertToNative(@base))
 				{
+					// NOTE: Object created in scene
+					// NOTE: this should be thrown back into the deconstruct object phase
 					var obj = CheckConvertedFormat(converter.ConvertToNative(@base));
 
 					if (obj != null)

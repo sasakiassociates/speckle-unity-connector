@@ -59,7 +59,7 @@ namespace Speckle.ConnectorUnity.Ops
 			Base @base = null;
 			watch ??= Stopwatch.StartNew();
 
-			SpeckleUnity.Console.Log($"{nameof(Receive)} start!");
+			SpeckleUnity.Console.Log($"{nameof(Receive)} intializing!");
 
 			if (client == null || !client.IsValid())
 			{
