@@ -98,13 +98,13 @@ namespace Speckle.ConnectorUnity.Converter
 			}
 		}
 
-		protected virtual BaseBehaviour_v2 GetBaseType(GameObject obj)
+		protected virtual BaseBehaviour GetBaseType(GameObject obj)
 		{
 			if (obj == null) obj = new GameObject();
 
-			var bb = obj.GetComponent<BaseBehaviour_v2>();
+			var bb = obj.GetComponent<BaseBehaviour>();
 
-			if (bb == null) bb = obj.AddComponent<BaseBehaviour_v2>();
+			if (bb == null) bb = obj.AddComponent<BaseBehaviour>();
 
 			return bb;
 		}
@@ -174,9 +174,9 @@ namespace Speckle.ConnectorUnity.Converter
 						// 1c: the object is returned
 						if (storeProps && obj != null)
 						{
-							var bb = (BaseBehaviour_v2)obj.GetComponent(typeof(BaseBehaviour_v2));
+							var bb = (BaseBehaviour)obj.GetComponent(typeof(BaseBehaviour));
 
-							if (bb == null) bb = obj.gameObject.AddComponent<BaseBehaviour_v2>();
+							if (bb == null) bb = obj.gameObject.AddComponent<BaseBehaviour>();
 							bb.Store(@base);
 						}
 
@@ -213,14 +213,14 @@ namespace Speckle.ConnectorUnity.Converter
 
 		public override Base ToSpeckle(Component component) => CanConvertToSpeckle(component) ? ConvertComponent((TComponent)component) : null;
 
-		protected override BaseBehaviour_v2 GetBaseType(GameObject obj)
+		protected override BaseBehaviour GetBaseType(GameObject obj)
 		{
 			var comp = typeof(TComponent);
 
 			if (obj != null) obj = CreateComponentInstance().gameObject;
 
-			if (comp.IsSubclassOf(typeof(BaseBehaviour_v2)) || comp == typeof(BaseBehaviour_v2))
-				return obj.GetComponent<TComponent>() as BaseBehaviour_v2;
+			if (comp.IsSubclassOf(typeof(BaseBehaviour)) || comp == typeof(BaseBehaviour))
+				return obj.GetComponent<TComponent>() as BaseBehaviour;
 
 			return base.GetBaseType(obj);
 		}

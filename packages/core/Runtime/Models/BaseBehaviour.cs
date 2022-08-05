@@ -10,9 +10,8 @@ using UnityEngine.Events;
 namespace Speckle.ConnectorUnity.Models
 {
 	[AddComponentMenu(SpeckleUnity.NAMESPACE + "/Base")]
-	public class BaseBehaviour_v2 : MonoBehaviour, IBase, ISerializationCallbackReceiver
+	public class BaseBehaviour : MonoBehaviour, IBase, ISerializationCallbackReceiver
 	{
-
 		[SerializeField, HideInInspector] SpeckleProperties _props;
 		[SerializeField, HideInInspector] bool _hasChanged;
 

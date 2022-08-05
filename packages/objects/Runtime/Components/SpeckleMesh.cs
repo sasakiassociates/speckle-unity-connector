@@ -3,7 +3,7 @@ using Mesh = Objects.Geometry.Mesh;
 
 namespace Speckle.ConnectorUnity
 {
-    public class SpeckleMesh : BaseBehaviour_v2
+    public class SpeckleMesh : BaseBehaviour
     {
         public void SetObj(Mesh mesh)
         {

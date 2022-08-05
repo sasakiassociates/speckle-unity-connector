@@ -42,7 +42,7 @@ namespace Speckle.ConnectorUnity.Converter
 				Debug.Log("Handling Singluar Display Value");
 				
 				var res = ConvertToNative(mesh) as Component;
-				res.gameObject.AddComponent<BaseBehaviour_v2>().Store(@base);
+				res.gameObject.AddComponent<BaseBehaviour>().Store(@base);
 
 				return res.gameObject;
 			}
@@ -52,7 +52,7 @@ namespace Speckle.ConnectorUnity.Converter
 				Debug.Log("Handling List of Display Value");
 
 				var displayValues = new GameObject("DisplayValues");
-				displayValues.AddComponent<BaseBehaviour_v2>().Store(@base);
+				displayValues.AddComponent<BaseBehaviour>().Store(@base);
 
 				foreach (var b in bs)
 					if (b is Mesh displayMesh)

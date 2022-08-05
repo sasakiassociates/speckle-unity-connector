@@ -229,7 +229,7 @@ public class Integrations
 		// Send using speckle node
 		var node = new GameObject("Speckle Node").AddComponent<SpeckleNode>();
 		var layer = new GameObject("Speckle Layer").AddComponent<SpeckleLayer>();
-		var baseProp = new GameObject("Base").AddComponent<BaseBehaviour_v2>();
+		var baseProp = new GameObject("Base").AddComponent<BaseBehaviour>();
 		baseProp.Store(@base);
 		layer.Add(baseProp.gameObject);
 		node.AddLayer(layer);
