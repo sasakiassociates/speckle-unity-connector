@@ -75,7 +75,7 @@ public class Integrations
 		// part 1 - create hierarchy from objects and props
 		var props = new SpeckleProperties();
 		
-		await props.Store(mesh);
+		await props.Test_Serialize(mesh);
 
 		Assert.IsNotNull(props.Data);
 		Assert.IsNotEmpty(props.Data);

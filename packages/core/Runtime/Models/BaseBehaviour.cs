@@ -60,7 +60,7 @@ namespace Speckle.ConnectorUnity.Models
 			totalChildCount = @base.totalChildrenCount;
 
 			props = new SpeckleProperties();
-			props.SimpleStore(@base);
+			props.Serialize(@base);
 
 			return UniTask.CompletedTask;
 		}
