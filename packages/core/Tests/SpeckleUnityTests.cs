@@ -26,6 +26,7 @@ internal static class SpT
 	public const string C_CLIENT = "Client";
 	public const string C_STREAM = "Stream";
 	public const string C_OPS = "Operations";
+	public const string C_MODEL = "Models";
 
 	public static readonly StreamRef BCHP = new StreamRef()
 	{
@@ -38,10 +39,19 @@ internal static class SpT
 	public static readonly StreamRef SIMPLE = new StreamRef()
 	{
 		streamId = "4777dea055",
-		branchName = "main", 
+		branchName = "main",
 		commitId = "12bb31b6c9", // mesh only
 		objectId = "1a60ced098216e2839d2952e33bcdef1", // mesh object
 	};
+
+	public static async UniTask<Base> GetMesh()
+	{
+		const string stream = "4777dea055";
+		const string id = "d611a3e8bf64984c50147e3f9238c925";
+		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+		var obj = await client.ObjectGet(stream, id);
+		return await SpeckleOps.Receive(client, stream, obj.id);
+	}
 
 }
 
@@ -233,14 +243,14 @@ public class Integrations
 		node.AddLayer(layer);
 
 		args = (SendWorkArgs)await client.Run(node);
-		
+
 		Assert.IsNotNull(args);
 		Assert.IsTrue(args.success);
 		Assert.IsTrue(args.client.Equals(client));
 		Assert.IsTrue(!string.IsNullOrEmpty(args.message));
 		Assert.IsTrue(!string.IsNullOrEmpty(args.commitId));
 		Assert.IsTrue(!string.IsNullOrEmpty(args.url));
-		
+
 		Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput() { streamId = client.stream.id, id = args.commitId }));
 	});
 
@@ -453,6 +463,25 @@ public class Units
 
 		Assert.IsTrue(await wrapper.LoadCommit(client, SpT.BCHP.commitId));
 		Assert.IsTrue(wrapper.type == StreamWrapperType.Commit);
+	});
+
+	[UnityTest, Category(SpT.C_MODEL)]
+	public IEnumerator Base_StoreObject() => UniTask.ToCoroutine(async () =>
+	{
+		var @base = await SpT.GetMesh();
+
+		Assert.IsNotNull(@base);
+		Assert.IsTrue(@base.id.Valid());
+		Assert.IsTrue(@base.speckle_type.Valid());
+
+		var bb = new GameObject().AddComponent<BaseBehaviour>();
+		await bb.Store(@base);
+
+		Assert.IsTrue(bb.id.Valid() == @base.id.Valid() && bb.id == @base.id);
+		Assert.IsTrue(bb.speckle_type.Valid() == @base.speckle_type.Valid() && bb.speckle_type == @base.speckle_type);
+		Assert.IsTrue(bb.applicationId.Valid() == @base.applicationId.Valid() && bb.applicationId == @base.applicationId);
+		Assert.IsTrue(bb.totalChildCount == @base.totalChildrenCount);
+		
 	});
 
 }

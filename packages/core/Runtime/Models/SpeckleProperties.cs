@@ -36,9 +36,7 @@ namespace Speckle.ConnectorUnity.Models
 			get
 			{
 				return _excludedProps ??= new HashSet<string>(
-					typeof(Base).GetProperties(
-						BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase
-					).Select(x => x.Name));
+					typeof(Base).GetProperties().Select(x => x.Name));
 			}
 			private set => _excludedProps = value;
 		}
@@ -65,19 +63,8 @@ namespace Speckle.ConnectorUnity.Models
 		public UniTask Serialize(Base @base)
 		{
 			Data = @base.GetMembers().Where(x => !excludedProps.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
-			return Serialize();
-		}
-
-		/// <summary>
-		/// Saves new data into <see cref="Data"/> and creates a new serialized json 
-		/// </summary>
-		/// <param name="data"></param>
-		/// <returns></returns>
-		public UniTask Serialize(IDictionary<string, object> data)
-		{
-			var tempData = new SpeckleData(data);
-			Data = tempData.GetMembers().Where(x => !excludedProps.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
-			return Serialize();
+			_jsonString = Operations.Serialize(@base);
+			return UniTask.CompletedTask;
 		}
 
 		/// <summary>
@@ -86,6 +73,11 @@ namespace Speckle.ConnectorUnity.Models
 		/// <returns></returns>
 		public UniTask Serialize()
 		{
+			var tData = new Base();
+
+			foreach (var d in Data)
+				tData[d.Key] = d.Value;
+
 			_jsonString = Operations.Serialize(new SpeckleData(Data));
 			return UniTask.CompletedTask;
 		}

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Cysharp.Threading.Tasks;
@@ -13,6 +14,16 @@ namespace Speckle.ConnectorUnity.Models
 	{
 		[SerializeField, HideInInspector] SpeckleProperties _props;
 		[SerializeField, HideInInspector] bool _hasChanged;
+
+		public event UnityAction OnPropsChanged;
+
+		public string speckle_type { get; protected set; }
+
+		public string applicationId { get; protected set; }
+
+		public long totalChildCount { get; protected set; }
+
+		public string id { get; protected set; }
 
 		public SpeckleProperties props
 		{
@@ -30,15 +41,45 @@ namespace Speckle.ConnectorUnity.Models
 			}
 		}
 
-		public event UnityAction OnPropsChanged;
+		public object this[string key]
+		{
+			get
+			{
+				if (props.Data.ContainsKey(key))
+					return props.Data[key];
 
-		public string speckle_type { get; protected set; }
+				var prop = GetType().GetProperty(key);
 
-		public string applicationId { get; protected set; }
+				return prop == null ? null : prop.GetValue(this);
+			}
+			set
+			{
+				if (!this.IsPropNameValid(key, out string reason)) SpeckleUnity.Console.Warn("Invalid prop name: " + reason);
 
-		public long totalChildCount { get; protected set; }
+				if (props.Data.ContainsKey(key))
+				{
+					props.Data[key] = value;
+					return;
+				}
 
-		public string id { get; protected set; }
+				var prop = this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).FirstOrDefault(p => p.Name == key);
+
+				if (prop == null)
+				{
+					props.Data[key] = value;
+					return;
+				}
+
+				try
+				{
+					prop.SetValue(this, value);
+				}
+				catch (Exception ex)
+				{
+					SpeckleUnity.Console.Error(ex.Message);
+				}
+			}
+		}
 
 		public virtual HashSet<string> excluded
 		{
