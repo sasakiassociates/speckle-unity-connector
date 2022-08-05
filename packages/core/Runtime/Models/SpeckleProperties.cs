@@ -9,31 +9,11 @@ using Cysharp.Threading.Tasks;
 using Speckle.Core.Api;
 using Speckle.Core.Models;
 using UnityEngine;
+using UnityEngine.Events;
 using Debug = UnityEngine.Debug;
-using Object = UnityEngine.Object;
 
 namespace Speckle.ConnectorUnity.Mono
 {
-	public interface IBase : IBaseDynamic
-	{
-		public UniTask Store(Base @base);
-	}
-
-	public interface IBaseDynamic
-	{
-		public object this[string key] { get; set; }
-
-		public HashSet<string> excluded { get; }
-
-		SpeckleProperties props { get; }
-
-		// public Dictionary<string, object> props { get; }
-	}
-
-	public interface IBaseDynamite
-	{
-		public Object this[string key] { get; set; }
-	}
 
 	/// <summary>
 	///   This class gets attached to GOs and is used to store Speckle's metadata when sending / receiving
@@ -41,29 +21,34 @@ namespace Speckle.ConnectorUnity.Mono
 	[Serializable]
 	public class SpeckleProperties
 	{
-
 		// TODO: handle rules with this in Editor vs Runtime
 		[SerializeField] [HideInInspector] string _jsonString = "";
 
-		ObservableConcurrentDictionary<string, object> _observableConcurrentDict;
-		Dictionary<string, object> _dict;
-
-		public bool hasChanged { get; private set; }
-
-		[SerializeField] internal SpeckleData _speckleProps;
-
-		HashSet<string> _propsHash;
+		HashSet<string> _excludedProps;
 
 		public HashSet<string> excludedProps
 		{
 			get
 			{
-				return _propsHash ??= new HashSet<string>(
+				return _excludedProps ??= new HashSet<string>(
 					typeof(Base).GetProperties(
 						BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase
 					).Select(x => x.Name));
 			}
-			private set => _propsHash = value;
+			private set => _excludedProps = value;
+		}
+
+		ObservableConcurrentDictionary<string, object> _observableConcurrentDict;
+
+		public IDictionary<string, object> Data
+		{
+			get => _observableConcurrentDict;
+			set
+			{
+				((ICollection<KeyValuePair<string, object>>)_observableConcurrentDict).Clear();
+
+				foreach (var kvp in value) _observableConcurrentDict.Add(kvp.Key, kvp.Value);
+			}
 		}
 
 		public async UniTask Store(Base @base, HashSet<string> props)
@@ -100,7 +85,7 @@ namespace Speckle.ConnectorUnity.Mono
 
 			await UniTask.Create(() =>
 			{
-				_speckleProps = new SpeckleData(Data);
+				// _speckleProps = new SpeckleData(Data);
 				return UniTask.CompletedTask;
 			});
 
@@ -123,53 +108,44 @@ namespace Speckle.ConnectorUnity.Mono
 			watch.Stop();
 		}
 
-		public object this[string key]
+		/// <summary>
+		/// Serializes the stored properties in <see cref="Data"/>
+		/// </summary>
+		/// <returns></returns>
+		public UniTask Serialize()
 		{
-			get => throw new NotImplementedException();
-			set => throw new NotImplementedException();
+			_jsonString = Operations.Serialize(new SpeckleData(Data));
+			return UniTask.CompletedTask;
+		}
+
+		/// <summary>
+		/// Saves new data into <see cref="Data"/> and creates a new serialized json 
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		public UniTask Serialize(IDictionary<string, object> data)
+		{
+			var tempData = new SpeckleData(data);
+			Data = tempData.GetMembers().Where(x => !excludedProps.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
+			return Serialize();
+		}
+
+		public UniTask SimpleStore(Base @base)
+		{
+			_jsonString = Operations.Serialize(@base);
+			Data = @base.GetMembers().Where(x => !excludedProps.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
+			return UniTask.CompletedTask;
 		}
 
 		public SpeckleProperties()
 		{
+			_observableConcurrentDict["hh"] = 10;
 			_observableConcurrentDict = new ObservableConcurrentDictionary<string, object>();
-			_observableConcurrentDict.CollectionChanged += CollectionChangeHandler;
-			_dict = new Dictionary<string, object>();
-
-			hasChanged = true;
+			_observableConcurrentDict.CollectionChanged += (_, args) => OnCollectionChange?.Invoke(args);
+			// hasChanged = true;
 		}
 
-		public IDictionary<string, object> Data
-		{
-			get => _observableConcurrentDict;
-			set
-			{
-				_dict.Clear();
-				((ICollection<KeyValuePair<string, object>>)_observableConcurrentDict).Clear();
-
-				foreach (var kvp in value) _observableConcurrentDict.Add(kvp.Key, kvp.Value);
-				foreach (var kvp in value) _dict.Add(kvp.Key, kvp.Value);
-			}
-		}
-
-		public void OnBeforeSerialize()
-		{
-			if (!hasChanged) return;
-
-			_jsonString = Operations.Serialize(new SpeckleData(Data));
-			hasChanged = false;
-		}
-
-		public void OnAfterDeserialize()
-		{
-			var speckleData = Operations.Deserialize(_jsonString);
-			Data = speckleData.GetMembers();
-			hasChanged = false;
-		}
-
-		void CollectionChangeHandler(object sender, NotifyCollectionChangedEventArgs e)
-		{
-			hasChanged = true;
-		}
+		public event UnityAction<NotifyCollectionChangedEventArgs> OnCollectionChange;
 
 		[Serializable]
 		internal sealed class SpeckleData : Base
@@ -179,5 +155,6 @@ namespace Speckle.ConnectorUnity.Mono
 				foreach (var v in data) this[v.Key] = v.Value;
 			}
 		}
+
 	}
 }
