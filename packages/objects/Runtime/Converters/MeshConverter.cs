@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
-using Objects.Utils;
 using Speckle.Core.Models;
 using UnityEngine;
 using Mesh = Objects.Geometry.Mesh;

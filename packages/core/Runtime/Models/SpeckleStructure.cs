@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Speckle.ConnectorUnity.Ops
+namespace Speckle.ConnectorUnity.Models
 {
 	[Serializable]
 	public class SpeckleStructure

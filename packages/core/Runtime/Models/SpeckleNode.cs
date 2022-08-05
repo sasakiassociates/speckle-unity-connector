@@ -10,7 +10,7 @@ using Speckle.Core.Logging;
 using Speckle.Core.Models;
 using UnityEngine;
 
-namespace Speckle.ConnectorUnity.Ops
+namespace Speckle.ConnectorUnity.Models
 {
 
 	/// <summary>

@@ -1,5 +1,4 @@
-﻿using System;
-using Objects.Geometry;
+﻿using Objects.Geometry;
 using Speckle.Core.Models;
 using UnityEngine;
 

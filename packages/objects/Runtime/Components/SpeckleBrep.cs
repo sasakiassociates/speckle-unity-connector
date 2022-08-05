@@ -1,5 +1,4 @@
 ﻿using Speckle.ConnectorUnity.Models;
-using Speckle.ConnectorUnity.Mono;
 using UnityEngine;
 
 namespace Speckle.ConnectorUnity

@@ -1,16 +1,11 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using Objects.Geometry;
-using Speckle.ConnectorUnity;
 using Speckle.ConnectorUnity.Converter.PlayArea;
-using Speckle.ConnectorUnity.Mono;
+using Speckle.ConnectorUnity.Models;
 using Speckle.ConnectorUnity.Ops;
 using Speckle.Core.Credentials;
-using Speckle.Core.Models;
-using UnityEngine;
 using UnityEngine.TestTools;
 using Mesh = Objects.Geometry.Mesh;
 

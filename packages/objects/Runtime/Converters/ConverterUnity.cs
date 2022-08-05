@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Speckle.ConnectorUnity.Models;
-using Speckle.ConnectorUnity.Mono;
 using Speckle.Core.Models;
 using UnityEngine;
 using Mesh = Objects.Geometry.Mesh;

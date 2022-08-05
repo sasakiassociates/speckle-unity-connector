@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.Args;
+using Speckle.ConnectorUnity.Models;
 using Speckle.Core.Api;
 using Speckle.Core.Api.SubscriptionModels;
 using Speckle.Core.Credentials;

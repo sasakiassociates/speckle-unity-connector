@@ -10,11 +10,9 @@ using Speckle.Core.Api;
 using Speckle.Core.Models;
 using UnityEngine;
 using UnityEngine.Events;
-using Debug = UnityEngine.Debug;
 
-namespace Speckle.ConnectorUnity.Mono
+namespace Speckle.ConnectorUnity.Models
 {
-
 	/// <summary>
 	///   This class gets attached to GOs and is used to store Speckle's metadata when sending / receiving
 	/// </summary>
@@ -102,7 +100,7 @@ namespace Speckle.ConnectorUnity.Mono
 				return UniTask.CompletedTask;
 			});
 
-			Debug.Log($"Step 1: Serialize to string with Operations-{watch.Elapsed}");
+			SpeckleUnity.Console.Log($"Step 1: Serialize to string with Operations-{watch.Elapsed}");
 
 			await UniTask.Yield();
 			watch.Restart();
@@ -113,7 +111,7 @@ namespace Speckle.ConnectorUnity.Mono
 				return UniTask.CompletedTask;
 			});
 
-			Debug.Log($"Step 2: Serialize dictionary of props-{watch.Elapsed}");
+			SpeckleUnity.Console.Log($"Step 2: Serialize dictionary of props-{watch.Elapsed}");
 			await UniTask.Yield();
 			watch.Restart();
 
@@ -121,13 +119,13 @@ namespace Speckle.ConnectorUnity.Mono
 			{
 				var speckleData = Operations.Deserialize(_jsonString);
 
-				Debug.Log(speckleData.speckle_type);
-				Debug.Log(speckleData.id);
+				SpeckleUnity.Console.Log(speckleData.speckle_type);
+				SpeckleUnity.Console.Log(speckleData.id);
 
 				return UniTask.CompletedTask;
 			});
 
-			Debug.Log($"Step 4: DeSerializing string-{watch.Elapsed}");
+			SpeckleUnity.Console.Log($"Step 4: DeSerializing string-{watch.Elapsed}");
 			await UniTask.Yield();
 			watch.Stop();
 		}

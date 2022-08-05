@@ -7,7 +7,7 @@ using Cysharp.Threading.Tasks;
 using Speckle.Core.Logging;
 using Speckle.Core.Models;
 
-namespace Speckle.ConnectorUnity.Mono
+namespace Speckle.ConnectorUnity.Models
 {
 	public interface IBase : IBaseDynamic
 	{

@@ -5,6 +5,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.Args;
 using Speckle.ConnectorUnity.Converter;
+using Speckle.ConnectorUnity.Models;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
 using UnityEngine;

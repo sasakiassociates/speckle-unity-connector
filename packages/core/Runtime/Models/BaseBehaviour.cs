@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Reflection;
 using Cysharp.Threading.Tasks;
-using Speckle.ConnectorUnity.Mono;
 using Speckle.Core.Models;
 using UnityEngine;
 using UnityEngine.Events;
