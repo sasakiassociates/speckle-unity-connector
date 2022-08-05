@@ -174,10 +174,10 @@ namespace Speckle.ConnectorUnity.Converter
 						// 1c: the object is returned
 						if (storeProps && obj != null)
 						{
-							var bb = (BaseBehaviour_v1)obj.GetComponent(typeof(BaseBehaviour_v1));
+							var bb = (BaseBehaviour_v2)obj.GetComponent(typeof(BaseBehaviour_v2));
 
-							if (bb == null) bb = obj.gameObject.AddComponent<BaseBehaviour_v1>();
-							bb.SetProps(@base, excludedProps);
+							if (bb == null) bb = obj.gameObject.AddComponent<BaseBehaviour_v2>();
+							bb.Store(@base);
 						}
 
 						return obj.gameObject;

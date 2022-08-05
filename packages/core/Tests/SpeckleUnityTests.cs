@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Speckle.ConnectorUnity;
 using Speckle.ConnectorUnity.Args;
 using Speckle.ConnectorUnity.Converter;
+using Speckle.ConnectorUnity.Models;
 using Speckle.ConnectorUnity.Mono;
 using Speckle.ConnectorUnity.Ops;
 using Speckle.Core.Api;
@@ -228,8 +229,8 @@ public class Integrations
 		// Send using speckle node
 		var node = new GameObject("Speckle Node").AddComponent<SpeckleNode>();
 		var layer = new GameObject("Speckle Layer").AddComponent<SpeckleLayer>();
-		var baseProp = new GameObject("Base").AddComponent<BaseBehaviour_v1>();
-		baseProp.SetProps(@base);
+		var baseProp = new GameObject("Base").AddComponent<BaseBehaviour_v2>();
+		baseProp.Store(@base);
 		layer.Add(baseProp.gameObject);
 		node.AddLayer(layer);
 
