@@ -27,7 +27,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 		[SerializeField] SpeckleStructure hierarchy;
 
-		[SerializeField] ConverterStyle _converterStyle = ConverterStyle.Queue;
+		[SerializeField] ConverterStyle _converterStyle = ConverterStyle.Direct;
 
 		/// <summary>
 		///   Reference object id
@@ -101,22 +101,6 @@ namespace Speckle.ConnectorUnity.Ops
 			}
 		}
 
-		public Base SceneToData(ISpeckleConverter converter, CancellationToken token)
-		{
-			var data = new Base();
-
-			foreach (var layer in hierarchy.layers)
-			{
-				if (token.IsCancellationRequested)
-					return data;
-
-				data[layer.LayerName] = LayerToBase(layer, converter, token);
-			}
-
-			childCount = data.GetTotalChildrenCount();
-			return data;
-		}
-
 		void DeconstructObject(Base data, SpeckleLayer defaultLayer, ISpeckleConverter converter, CancellationToken token)
 		{
 			if (token.IsCancellationRequested)
@@ -166,6 +150,22 @@ namespace Speckle.ConnectorUnity.Ops
 
 				Debug.LogWarning("Unhandled");
 			}
+		}
+
+		public Base SceneToData(ISpeckleConverter converter, CancellationToken token)
+		{
+			var data = new Base();
+
+			foreach (var layer in hierarchy.layers)
+			{
+				if (token.IsCancellationRequested)
+					return data;
+
+				data[layer.LayerName] = LayerToBase(layer, converter, token);
+			}
+
+			childCount = data.GetTotalChildrenCount();
+			return data;
 		}
 
 		void OnEnable()

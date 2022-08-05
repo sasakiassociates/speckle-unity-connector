@@ -15,24 +15,30 @@ namespace Speckle.ConnectorUnity.Converter
 
 	public class ComponentConverterArgs
 	{
-		public int componentInstanceId;
-		public int objectInstanceId;
+		public readonly int componentInstanceId;
+		public readonly string baseId;
+		public readonly GameObject targetObject;
 
-		public ComponentConverterArgs(int componentInstanceId, int objectInstanceId)
+		public ComponentConverterArgs(int componentInstanceId, GameObject targetObject, string baseId)
 		{
 			this.componentInstanceId = componentInstanceId;
-			this.objectInstanceId = objectInstanceId;
+			this.targetObject = targetObject;
+			this.baseId = baseId;
 		}
 	}
 
 	public abstract class ComponentConverter : ScriptableObject, IComponentConverter
 	{
 
-		public const string ModelUnits = Units.Meters;
+		[SerializeField, HideInInspector] ConverterCrewMember _crew;
+
+		[SerializeField] protected ComponentInfo _info;
 
 		public bool storeProps = true;
 
 		public bool convertProps = true;
+
+		public const string ModelUnits = Units.Meters;
 
 		public abstract bool CanConvertToNative(Base type);
 
@@ -45,6 +51,21 @@ namespace Speckle.ConnectorUnity.Converter
 		public abstract Type unity_type { get; }
 
 		public abstract string speckle_type { get; }
+
+		protected ConverterCrewMember crew
+		{
+			get
+			{
+				if (_crew == null)
+				{
+					_crew = new GameObject().AddComponent<ConverterCrewMember>();
+					_crew.Initialize(this);
+				}
+
+				return _crew;
+			}
+
+		}
 
 		public ScriptableSpeckleConverterSettings settings { get; set; }
 
@@ -62,9 +83,6 @@ namespace Speckle.ConnectorUnity.Converter
 		}
 
 		protected void TriggerObjectConversionEvent(ComponentConverterArgs args) => OnObjectConverted?.Invoke(args);
-
-		protected void TriggerObjectConversionEvent(int compInstance, int objInstance) =>
-			OnObjectConverted?.Invoke(new ComponentConverterArgs(compInstance, objInstance));
 
 		[Serializable]
 		protected struct ComponentInfo
@@ -98,9 +116,7 @@ namespace Speckle.ConnectorUnity.Converter
 		where TBase : Base
 	{
 
-		[SerializeField] protected ComponentInfo info;
-
-		public override string speckle_type => info.speckleTypeName;
+		public override string speckle_type => _info.speckleTypeName;
 
 		public override Type unity_type => typeof(TComponent);
 
@@ -114,14 +130,13 @@ namespace Speckle.ConnectorUnity.Converter
 
 		protected virtual void OnEnable()
 		{
-			info = new ComponentInfo(
+			_info = new ComponentInfo(
 				typeof(TComponent).ToString(),
 				Activator.CreateInstance<TBase>().speckle_type
 			);
 		}
 
 		// TODO: this is silly, probably a much smarter way of handling this 
-
 		public override bool CanConvertToNative(Base type) => type != null && type.GetType() == typeof(TBase);
 
 		public override bool CanConvertToSpeckle(Component type) => type != null && type.GetType() == typeof(TComponent);
@@ -176,7 +191,7 @@ namespace Speckle.ConnectorUnity.Converter
 						baseType.Store(@base);
 
 						// 2b: the converter passes back some info around the gameobject with the stored data to be used later for working through all the objects
-						var converterObjArgs = new ComponentConverterArgs(obj.GetInstanceID(), obj.gameObject.GetInstanceID());
+						var converterObjArgs = new ComponentConverterArgs(obj.GetInstanceID(), obj.gameObject, @base.id);
 
 						// no need to do this stuff, since we are not right now
 						// ConvertBase(compBase, ref obj);
@@ -210,7 +225,7 @@ namespace Speckle.ConnectorUnity.Converter
 			return base.GetBaseType(obj);
 		}
 
-		protected TComponent CreateComponentInstance(string n = null) =>
+		public TComponent CreateComponentInstance(string n = null) =>
 			GetBaseType(new GameObject(n.Valid() ? nameof(TBase) : n).AddComponent<TComponent>().gameObject).GetComponent<TComponent>();
 
 	}
