@@ -60,7 +60,7 @@ namespace Speckle.ConnectorUnity.Ops
 			get => _childCountTotal;
 			protected set => _childCountTotal = value;
 		}
-
+		
 		public ScriptableSpeckleConverter converter
 		{
 			get => _converter;
