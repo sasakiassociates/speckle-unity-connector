@@ -9,8 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b368d3dc244846ca871da4089dfbf16d, type: 3}
-  m_Name: ComponentConverterBase
+  m_Script: {fileID: 11500000, guid: 7905ba0128e14cffbb8fddc85869d430, type: 3}
+  m_Name: BrepConverter
   m_EditorClassIdentifier: 
   storeProps: 1
   convertProps: 1
+  _addMeshCollider: 0
+  _addRenderer: 1
+  _recenterTransform: 1
+  _useRenderMaterial: 0
+  _defaultMaterial: {fileID: 2100000, guid: 4a1328d9603ec9046900bf305af88256, type: 2}

@@ -9,6 +9,7 @@ namespace Speckle.ConnectorUnity.Converter
 	{
 
 		public string speckle_type { get; }
+
 		public Type unity_type { get; }
 
 		public bool CanConvertToNative(Base type);

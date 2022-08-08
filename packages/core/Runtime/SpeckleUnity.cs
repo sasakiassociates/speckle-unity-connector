@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using Speckle.Core.Api;
 using Speckle.Core.Credentials;
 using Speckle.Core.Kits;
 using Speckle.Core.Logging;
@@ -22,6 +21,12 @@ namespace Speckle.ConnectorUnity
 		public const string APP = HostApplications.Unity.Name;
 
 		public const string NAMESPACE = "Speckle";
+		
+		public static class Categories
+		{
+			public const string COMPS = NAMESPACE + "/Components/";
+			public const string CONVERTERS = NAMESPACE + "/Converters/";
+		}
 
 		#if UNITY_EDITOR
 		public static List<T> GetAllInstances<T>() where T : ScriptableObject

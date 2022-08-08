@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using Speckle.Core.Kits;
 using Speckle.Core.Logging;
 using Speckle.Core.Models;
@@ -11,15 +12,18 @@ namespace Speckle.ConnectorUnity.Converter
 
 	public abstract class ScriptableSpeckleConverter : ScriptableObject, ISpeckleConverter
 	{
-		[SerializeField] protected string description;
 
-		[SerializeField] protected string author;
+		[SerializeField] string _description;
 
-		[SerializeField] protected string websiteOrEmail;
+		[SerializeField] string _author;
 
-		[SerializeField] protected ReceiveMode receiveMode;
+		[SerializeField] string _websiteOrEmail;
 
-		[SerializeField] protected List<ComponentConverter> converters;
+		[SerializeField] ReceiveMode _receiveMode;
+
+		[SerializeField] List<ComponentConverter> _converters;
+
+		[SerializeField] ScriptableConverterSettings _settings;
 
 		public HashSet<Exception> ConversionErrors { get; } = new();
 
@@ -27,80 +31,99 @@ namespace Speckle.ConnectorUnity.Converter
 
 		public ProgressReport Report { get; protected set; }
 
-		public IEnumerable<string> GetServicedApplications()
+		public IEnumerable<string> GetServicedApplications() => new[] { HostApplications.Unity.Name };
+
+		public ComponentConverter defaultConverter { get; private set; }
+
+		public void SetDefaultConverter(ComponentConverter converter)
 		{
-			return new[] { HostApplications.Unity.Name };
+			foreach (var c in converters)
+			{
+				if (c.Equals(converter))
+				{
+					defaultConverter = c;
+					return;
+				}
+			}
+
+			// no converter was found, so add set to default 
+			converters.Add(converter);
+			defaultConverter = converters.Last();
 		}
 
-		public virtual void SetContextObjects(List<ApplicationPlaceholderObject> objects)
+		public List<ComponentConverter> converters
 		{
-			ContextObjects = objects;
+			get
+			{
+				if (!_converters.Valid())
+					_converters = StandardConverters();
+
+				return _converters;
+			}
+			set => _converters = value;
 		}
 
-		public virtual void SetPreviousContextObjects(List<ApplicationPlaceholderObject> objects)
+		protected virtual void OnEnable()
 		{
-			ContextObjects = objects;
+			_converters ??= StandardConverters();
+			if (_settings == null) SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Queue });
 		}
+
+		public async UniTask PostWork()
+		{
+			if (!_converters.Valid()) return;
+
+			if (_settings.runAsync)
+			{
+				await UniTask.WhenAll(_converters.Where(x => x!= null && x.HasWorkToDo).Select(x => x.PostWorkAsync()));
+			}
+			else
+			{
+				_converters.Where(x => x.HasWorkToDo).Select(x => x.PostWork());
+			}
+		}
+
+		public abstract List<ComponentConverter> StandardConverters();
+
+		public virtual void SetContextObjects(List<ApplicationPlaceholderObject> objects) => ContextObjects = objects;
+
+		public virtual void SetPreviousContextObjects(List<ApplicationPlaceholderObject> objects) => ContextObjects = objects;
 
 		public virtual void SetContextDocument(object doc)
-		{
-			Debug.Log("Empty call from SetContextDocument");
-		}
+		{ }
 
 		public virtual void SetConverterSettings(object settings)
 		{
-			Debug.Log($"Converter Settings being set with {settings}");
-		}
-
-		public virtual Base ConvertToSpeckle(object @object)
-		{
-			if (TryGetConverter(@object, out var comp, out var converter))
-				return converter.ToSpeckle(comp);
-
-			Debug.LogWarning("No components found for converting to speckle");
-
-			return null;
-		}
-
-		public virtual object ConvertToNative(Base @base)
-		{
-			if (@base == null)
+			if (settings is ScriptableConverterSettings converterSettings)
 			{
-				Debug.LogWarning("Trying to convert a null object! Beep Beep! I don't like that");
-				return null;
+				_settings = converterSettings;
+				if (_converters.Valid()) _converters.ForEach(x => x.settings = _settings);
 			}
-
-			return TryGetConverter(@base.speckle_type, out var converter) ? converter.ToNative(@base) : null;
 		}
 
-		public virtual List<Base> ConvertToSpeckle(List<object> objects)
-		{
-			return objects.Select(ConvertToSpeckle).ToList();
-		}
+		public virtual Base ConvertToSpeckle(object @object) =>
+			@object != null && TryGetConverter(@object, out var comp, out var converter) ? converter.ToSpeckle(comp) : null;
 
-		public virtual List<object> ConvertToNative(List<Base> objects)
-		{
-			return objects.Select(ConvertToNative).ToList();
-		}
+		public virtual object ConvertToNative(Base @base) =>
+			@base != null && TryGetConverter(@base.speckle_type, out var converter) ? converter.ToNative(@base) : null;
 
-		public virtual bool CanConvertToSpeckle(object @object)
-		{
-			return TryGetConverter(@object, out _, out _);
-		}
+		public virtual List<Base> ConvertToSpeckle(List<object> objects) => objects.Valid() ? objects.Select(ConvertToSpeckle).ToList() : new List<Base>();
 
-		public virtual bool CanConvertToNative(Base @base)
-		{
-			return converters.Valid() && converters.Any(x => x.CanConvertToNative(@base));
-		}
+		public virtual List<object> ConvertToNative(List<Base> objects) => objects.Valid() ? objects.Select(ConvertToNative).ToList() : new List<object>();
+
+		public virtual bool CanConvertToSpeckle(Component @object) => _converters.Valid() && _converters.Any(x => x.CanConvertToSpeckle(@object));
+
+		public virtual bool CanConvertToSpeckle(object @object) => TryGetConverter(@object, out _, out _);
+
+		public virtual bool CanConvertToNative(Base @base) => _converters.Valid() && _converters.Any(x => x.CanConvertToNative(@base));
 
 		protected bool TryGetConverter(string speckleType, out ComponentConverter converter)
 		{
 			converter = null;
 
-			if (!converters.Any())
-				return false;
+			if (!_converters.Any()) return false;
 
-			foreach (var c in converters)
+			foreach (var c in _converters)
 			{
 				if (c.speckle_type.Equals(speckleType))
 				{
@@ -117,13 +140,13 @@ namespace Speckle.ConnectorUnity.Converter
 			comp = null;
 			converter = default;
 
-			if (!converters.Any())
+			if (!_converters.Any())
 				return false;
 
 			switch (@object)
 			{
 				case GameObject o:
-					foreach (var c in converters)
+					foreach (var c in _converters)
 					{
 						comp = o.GetComponent(c.unity_type);
 						if (comp == null)
@@ -137,7 +160,7 @@ namespace Speckle.ConnectorUnity.Converter
 
 				case Component o:
 					comp = o;
-					foreach (var c in converters)
+					foreach (var c in _converters)
 					{
 						if (c.unity_type != comp.GetType())
 							continue;
@@ -155,11 +178,6 @@ namespace Speckle.ConnectorUnity.Converter
 			return converter != default && comp != null;
 		}
 
-		public virtual bool CanConvertToSpeckle(Component @object)
-		{
-			return converters.Valid() && converters.Any(x => x.CanConvertToSpeckle(@object));
-		}
-
 		#region converter properties
 
 		public string Name
@@ -170,26 +188,26 @@ namespace Speckle.ConnectorUnity.Converter
 
 		public string Description
 		{
-			get => description;
+			get => _description;
 		}
 
 		public string Author
 		{
-			get => author;
+			get => _author;
 		}
 
 		public string WebsiteOrEmail
 		{
-			get => websiteOrEmail;
+			get => _websiteOrEmail;
 		}
 
 		public ReceiveMode ReceiveMode
 		{
-			get => receiveMode;
+			get => _receiveMode;
 			set
 			{
-				Debug.Log($"Changing Receive Mode from {receiveMode} to {value}");
-				receiveMode = value;
+				Debug.Log($"Changing Receive Mode from {_receiveMode} to {value}");
+				_receiveMode = value;
 			}
 		}
 

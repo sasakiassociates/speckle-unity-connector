@@ -1,15 +1,15 @@
-﻿using Speckle.ConnectorUnity.Mono;
+﻿using Speckle.ConnectorUnity.Models;
 using Speckle.Core.Models;
 using UnityEngine;
 
 namespace Speckle.ConnectorUnity.Converter
 {
 
-	[CreateAssetMenu(fileName = nameof(ComponentConverterBase), menuName = "Speckle/Converters/Create Base Converter")]
-	public class ComponentConverterBase : ComponentConverter<Base, BaseBehaviour>
+	[CreateAssetMenu(fileName = nameof(BaseConverter), menuName = SpeckleUnity.Categories.CONVERTERS + "Create Base Converter")]
+	public class BaseConverter : ComponentConverter<Base, BaseBehaviour>
 	{
 
-		protected override GameObject ConvertBase(Base @base)
+		protected override void ConvertBase(Base @base, ref BaseBehaviour instance)
 		{
 			// if (@base["displayValue"] is Mesh mesh)
 			// {
@@ -48,7 +48,6 @@ namespace Speckle.ConnectorUnity.Converter
 			// Debug.LogWarning($"Skipping {@base.GetType()} {@base.id} - Not supported type");
 			// return null;
 			SpeckleUnity.Console.Log(name + "does not support converting yet");
-			return null;
 		}
 
 		protected override Base ConvertComponent(BaseBehaviour component)

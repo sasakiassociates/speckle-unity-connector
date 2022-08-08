@@ -9,6 +9,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 using OG = Objects.Geometry;
 
@@ -16,6 +17,11 @@ namespace Speckle.ConnectorUnity.Converter.PlayArea
 {
 	public class ConverterAsync : ISpeckleMeshConverter
 	{
+		public ConverterAsync()
+		{
+			_sceneObjects = new Dictionary<string, int>();
+			_objectByBaseId = new Dictionary<string, GameObject>();
+		}
 
 		public List<ApplicationPlaceholderObject> contextObjects { get; set; } = new List<ApplicationPlaceholderObject>();
 
@@ -38,13 +44,41 @@ namespace Speckle.ConnectorUnity.Converter.PlayArea
 		/// int = instance value for game object
 		/// </summary>
 		Dictionary<string, int> _sceneObjects;
-		
+
+		Dictionary<string, GameObject> _objectByBaseId;
 
 		public void Step1_SetupOnThread(string id)
 		{
-			_sceneObjects = new Dictionary<string, int>();
-			var tempMain = new GameObject().AddComponent<MeshFilter>().gameObject.GetInstanceID();
-			_sceneObjects.Add(id, tempMain);
+			var obj = new GameObject().AddComponent<MeshRenderer>().gameObject.AddComponent<MeshFilter>().gameObject;
+
+			var objectInstanceId = obj.GetInstanceID();
+			var componentInstanceId = obj.GetComponent<MeshFilter>().GetInstanceID();
+
+			Debug.Log($"Object instance ID:{objectInstanceId} MeshFilter instance ID:{componentInstanceId} ");
+
+			foreach (var comp in obj.GetComponents<Component>())
+			{
+				if (comp != null && comp.GetInstanceID() == componentInstanceId)
+				{
+					Debug.Log($"Found comp ({comp.name}) by Id {componentInstanceId}");
+				}
+			}
+
+			_objectByBaseId.Add(id, obj);
+			_sceneObjects.Add(id, objectInstanceId);
+		}
+
+		public async UniTask<MeshFilter> Step2_Run(OG.Mesh mesh)
+		{
+			var obj = _objectByBaseId.First(x => x.Key.Equals(mesh.id)).Value;
+			if (obj == null)
+			{
+				Debug.Log($"No valid object found with id: {mesh.id}");
+				return null;
+			}
+
+			await this.MeshToNative(mesh, obj);
+			return obj.GetComponent<MeshFilter>();
 		}
 
 		public async UniTask<MeshFilter> Step2_RunJob(OG.Mesh subMesh)
@@ -67,6 +101,7 @@ namespace Speckle.ConnectorUnity.Converter.PlayArea
 			var instanceId = _sceneObjects.First(x => x.Key.Equals(subMesh.id)).Value;
 
 			MeshFilter comp = null;
+
 			foreach (var obj in Object.FindObjectsOfType<GameObject>())
 			{
 				if (obj.GetInstanceID().Equals(instanceId))
@@ -171,7 +206,6 @@ namespace Speckle.ConnectorUnity.Converter.PlayArea
 
 			return new UniTask<SpeckleMeshJob>(job);
 		}
-		
 
 	}
 }

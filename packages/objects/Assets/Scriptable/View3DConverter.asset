@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04e2c9c76c18493093487763a4ccd796, type: 3}
-  m_Name: ComponentConverterPoint
+  m_Script: {fileID: 11500000, guid: 6ea4f9b8cd7c46dea5a0cf7b425bde7a, type: 3}
+  m_Name: View3DConverter
   m_EditorClassIdentifier: 
   storeProps: 1
   convertProps: 1

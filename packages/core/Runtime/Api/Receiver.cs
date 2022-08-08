@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.Args;
+using Speckle.ConnectorUnity.Models;
 using Speckle.Core.Api;
 using Speckle.Core.Api.SubscriptionModels;
 using Speckle.Core.Credentials;
@@ -50,7 +51,6 @@ namespace Speckle.ConnectorUnity.Ops
 				success = false
 			};
 
-			// might have to check for other objects
 			token = this.GetCancellationTokenOnDestroy();
 
 			try
@@ -75,8 +75,40 @@ namespace Speckle.ConnectorUnity.Ops
 					return args;
 				}
 
-				var referenceObj = await GetDataFromStream();
+				var referenceObj = string.Empty;
 
+				// NOTE: this might now need to happen
+				switch (_stream.type)
+				{
+					case StreamWrapperType.Commit:
+						var c = await _client.CommitGet(_stream.id, _stream.commit.id);
+
+						// TODO: check if this getting the commit updates the instance
+						if (_sendReceive)
+							_client.CommitReceived(new CommitReceivedInput()
+							{
+								streamId = _stream.id,
+								commitId = c.id,
+								message = "Received Commit from Unity",
+								sourceApplication = SpeckleUnity.APP
+							}).Forget();
+
+						referenceObj = c.referencedObject;
+						break;
+					case StreamWrapperType.Object:
+						var obj = await _client.ObjectGet(_stream.id, _stream.@object.id);
+						referenceObj = obj.id;
+						break;
+					case StreamWrapperType.Branch:
+					case StreamWrapperType.Stream:
+						SpeckleUnity.Console.Warn("A commit or object needs to be set in this stream in order to receive something");
+						break;
+					case StreamWrapperType.Undefined:
+					default:
+						SpeckleUnity.Console.Error("Stream is not properly ready to receive");
+						break;
+				}
+				
 				if (!referenceObj.Valid())
 				{
 					args.message = "The reference object pulled down from this stream is not valid";
@@ -153,46 +185,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 			await UniTask.Yield();
 		}
-
-		async UniTask<string> GetDataFromStream()
-		{
-			var referenceObj = string.Empty;
-
-			// NOTE: this might now need to happen
-			switch (_stream.type)
-			{
-				case StreamWrapperType.Commit:
-					var c = await _client.CommitGet(_stream.id, _stream.commit.id);
-
-					// TODO: check if this getting the commit updates the instance
-					if (_sendReceive)
-						_client.CommitReceived(new CommitReceivedInput()
-						{
-							streamId = _stream.id,
-							commitId = c.id,
-							message = "Received Commit from Unity",
-							sourceApplication = SpeckleUnity.APP
-						}).Forget();
-
-					referenceObj = c.referencedObject;
-					break;
-				case StreamWrapperType.Object:
-					var obj = await _client.ObjectGet(_stream.id, _stream.@object.id);
-					referenceObj = obj.id;
-					break;
-				case StreamWrapperType.Branch:
-				case StreamWrapperType.Stream:
-					SpeckleUnity.Console.Warn("A commit or object needs to be set in this stream in order to receive something");
-					break;
-				case StreamWrapperType.Undefined:
-				default:
-					SpeckleUnity.Console.Error("Stream is not properly ready to receive");
-					break;
-			}
-
-			return referenceObj;
-		}
-
+		
 		#region Events
 
 		public event UnityAction<SpeckleNode> OnNodeComplete;

@@ -12,14 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e87d4b790b3740f78ff0a76263f44a9a, type: 3}
   m_Name: converter-unity
   m_EditorClassIdentifier: 
-  description: Standard Speckle converter for Unity
-  author: Speckle
-  websiteOrEmail: systems.speckle
-  converters:
+  _description: Standard Object Converter
+  _author: Speckle
+  _websiteOrEmail: speckle.systems
+  _receiveMode: 0
+  _converters:
+  - {fileID: 11400000, guid: dc35304f366ae0e419c518dbaabe2351, type: 2}
   - {fileID: 11400000, guid: fd5badb03b0e55a43b3187acfe273fdd, type: 2}
   - {fileID: 11400000, guid: c35cce7461270cb4aa2dc7297f3d4f29, type: 2}
-  - {fileID: 11400000, guid: 8c3277418997e5a4b8abe5b7fa0bee56, type: 2}
   - {fileID: 11400000, guid: 0034a009b3964fb469c73dd9d79a14a0, type: 2}
+  - {fileID: 11400000, guid: 8c3277418997e5a4b8abe5b7fa0bee56, type: 2}
   - {fileID: 11400000, guid: dbf9b4585c504dd48b087249a99f7726, type: 2}
   - {fileID: 11400000, guid: ede43ad32363fbf41bd50dd41ce8f032, type: 2}
-  defaultConverter: {fileID: 11400000, guid: dc35304f366ae0e419c518dbaabe2351, type: 2}
+  _settings:
+    style: 1
+    runAsync: 1
