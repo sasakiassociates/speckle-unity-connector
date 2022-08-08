@@ -26,5 +26,7 @@
     "email": "hello@speckle.systems",
     "url": "https://speckle.systems"
   },
-  "dependencies": {}
+  "dependencies": {
+    "com.speckle.core": "1.0.4"
+  }
 }
