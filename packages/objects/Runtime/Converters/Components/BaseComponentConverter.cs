@@ -5,8 +5,8 @@ using UnityEngine;
 namespace Speckle.ConnectorUnity.Converter
 {
 
-	[CreateAssetMenu(fileName = nameof(BaseConverter), menuName = SpeckleUnity.Categories.CONVERTERS + "Create Base Converter")]
-	public class BaseConverter : ComponentConverter<Base, BaseBehaviour>
+	[CreateAssetMenu(fileName = nameof(BaseComponentConverter), menuName = SpeckleUnity.Categories.CONVERTERS + "Create Base Converter")]
+	public class BaseComponentConverter : ComponentConverter<Base, BaseBehaviour>
 	{
 
 		protected override void ConvertBase(Base @base, ref BaseBehaviour instance)

@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace Speckle.ConnectorUnity.Converter
 {
-	[CreateAssetMenu(fileName = nameof(PointCloudConverter), menuName = SpeckleUnity.Categories.CONVERTERS + "Create PointCloud Converter")]
-	public class PointCloudConverter : ComponentConverter<Pointcloud, ParticleSystem>
+	[CreateAssetMenu(fileName = nameof(PointCloudComponentConverter), menuName = SpeckleUnity.Categories.CONVERTERS + "Create PointCloud Converter")]
+	public class PointCloudComponentConverter : ComponentConverter<Pointcloud, ParticleSystem>
 	{
 
 		protected override void ConvertBase(Pointcloud @base, ref ParticleSystem instance)

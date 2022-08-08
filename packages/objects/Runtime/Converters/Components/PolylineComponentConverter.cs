@@ -5,8 +5,8 @@ using UnityEngine;
 
 namespace Speckle.ConnectorUnity.Converter
 {
-	[CreateAssetMenu(fileName = nameof(PolylineConverter), menuName = SpeckleUnity.Categories.CONVERTERS + "Create Polyline Converter")]
-	public class PolylineConverter : ComponentConverter<Polyline, LineRenderer>
+	[CreateAssetMenu(fileName = nameof(PolylineComponentConverter), menuName = SpeckleUnity.Categories.CONVERTERS + "Create Polyline Converter")]
+	public class PolylineComponentConverter : ComponentConverter<Polyline, LineRenderer>
 	{
 		public float diameter;
 

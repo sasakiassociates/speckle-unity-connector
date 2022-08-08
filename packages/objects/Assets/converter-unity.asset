@@ -17,7 +17,6 @@ MonoBehaviour:
   _websiteOrEmail: speckle.systems
   _receiveMode: 0
   _converters:
-  - {fileID: 11400000, guid: dc35304f366ae0e419c518dbaabe2351, type: 2}
   - {fileID: 11400000, guid: fd5badb03b0e55a43b3187acfe273fdd, type: 2}
   - {fileID: 11400000, guid: c35cce7461270cb4aa2dc7297f3d4f29, type: 2}
   - {fileID: 11400000, guid: 0034a009b3964fb469c73dd9d79a14a0, type: 2}

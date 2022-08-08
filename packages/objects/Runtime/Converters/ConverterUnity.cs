@@ -14,17 +14,17 @@ namespace Speckle.ConnectorUnity.Converter
 			base.OnEnable();
 
 			if (defaultConverter == null)
-				SetDefaultConverter(CreateInstance<BaseConverter>());
+				SetDefaultConverter(CreateInstance<BaseComponentConverter>());
 		}
 
 		public override List<ComponentConverter> StandardConverters() => new List<ComponentConverter>
 		{
-			CreateInstance<MeshConverter>(),
-			CreateInstance<PolylineConverter>(),
-			CreateInstance<PointConverter>(),
-			CreateInstance<PointCloudConverter>(),
-			CreateInstance<View3DConverter>(),
-			CreateInstance<BrepConverter>()
+			CreateInstance<MeshComponentConverter>(),
+			CreateInstance<PolylineComponentConverter>(),
+			CreateInstance<PointComponentConverter>(),
+			CreateInstance<PointCloudComponentConverter>(),
+			CreateInstance<View3DComponentConverter>(),
+			CreateInstance<BrepComponentConverter>()
 		};
 
 		public override object ConvertToNative(Base @base)

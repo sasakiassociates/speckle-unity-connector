@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace Speckle.ConnectorUnity.Converter
 {
-	[CreateAssetMenu(fileName = nameof(PointConverter), menuName = SpeckleUnity.Categories.CONVERTERS + "Create Point Converter")]
-	public class PointConverter : ComponentConverter<Point, SpecklePoint>
+	[CreateAssetMenu(fileName = nameof(PointComponentConverter), menuName = SpeckleUnity.Categories.CONVERTERS + "Create Point Converter")]
+	public class PointComponentConverter : ComponentConverter<Point, SpecklePoint>
 	{
 
 		protected override void ConvertBase(Point @base, ref SpecklePoint instance) => instance.pos = @base.ToVector3();

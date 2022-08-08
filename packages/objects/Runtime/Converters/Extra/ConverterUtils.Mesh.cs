@@ -94,6 +94,7 @@ namespace Speckle.ConnectorUnity.Converter
 		{
 			if (mesh == null || mesh.vertices.Count == 0 || mesh.faces.Count == 0) return;
 
+			
 			var data = new MeshData
 			{
 				uvs = new List<Vector2>(),

@@ -8,8 +8,8 @@ using UN = UnityEngine;
 namespace Speckle.ConnectorUnity.Converter
 {
 
-	[CreateAssetMenu(fileName = nameof(MeshConverter), menuName = SpeckleUnity.Categories.CONVERTERS + "Create Mesh Converter")]
-	public class MeshConverter : ComponentConverter<Mesh, MeshFilter>, ISpeckleMeshConverter
+	[CreateAssetMenu(fileName = nameof(MeshComponentConverter), menuName = SpeckleUnity.Categories.CONVERTERS + "Create Mesh Converter")]
+	public class MeshComponentConverter : ComponentConverter<Mesh, MeshFilter>, ISpeckleMeshConverter
 	{
 
 		/// <summary>

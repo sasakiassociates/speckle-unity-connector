@@ -5,8 +5,8 @@ using UnityEngine;
 
 namespace Speckle.ConnectorUnity.Converter
 {
-	[CreateAssetMenu(fileName = nameof(BrepConverter), menuName = SpeckleUnity.Categories.CONVERTERS + "Create Brep Converter")]
-	public class BrepConverter : ComponentConverter<Brep, SpeckleBrep>, ISpeckleMeshConverter
+	[CreateAssetMenu(fileName = nameof(BrepComponentConverter), menuName = SpeckleUnity.Categories.CONVERTERS + "Create Brep Converter")]
+	public class BrepComponentConverter : ComponentConverter<Brep, SpeckleBrep>, ISpeckleMeshConverter
 	{
 
 		/// <summary>
