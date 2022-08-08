@@ -19,7 +19,7 @@ These packages are all available through [OpenUpm](https://github.com/openupm/op
 | version | status | feature                                     |
 |---------|--------|---------------------------------------------|
 | 1.0.1   | ✔️     | ~~Package structure~~                       |
-| 1.0.2   |        | Speckle Client and other models with Basic Operation Calls   |
+| 1.0.2   |   ✔️     | ~~Speckle Client and other models with Basic Operation Calls~~   |
 | 1.0.3   |        | Async support for Conversion and Operations |
 | 1.0.4   |        | Stream Scriptable Object, UI, Editor        |
 | 1.0.5   |        | Receiver and Sender Objects, UI, and Editor |

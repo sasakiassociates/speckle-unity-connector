@@ -5,8 +5,6 @@ using Cysharp.Threading.Tasks;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
 using Speckle.Core.Logging;
-using UnityEngine;
-using UnityEngine.Networking;
 
 namespace Speckle.ConnectorUnity.Ops
 {

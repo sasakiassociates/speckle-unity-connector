@@ -5,19 +5,6 @@ using UnityEngine;
 namespace Speckle.ConnectorUnity.Converter
 {
 
-	[Serializable]
-	public class ScriptableSpeckleConverterSettings
-	{
-		public ConverterStyle style;
-	}
-	
-
-	public enum ConverterStyle
-	{
-		Direct,
-		Queue
-	}
-
 	public interface IComponentConverter
 	{
 

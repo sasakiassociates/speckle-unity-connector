@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Speckle.ConnectorUnity.Mono;
+using Speckle.ConnectorUnity.Models;
 using Speckle.Core.Models;
 using UnityEngine;
 using Mesh = Objects.Geometry.Mesh;
@@ -39,13 +39,10 @@ namespace Speckle.ConnectorUnity.Converter
 			if (@base["displayValue"] is Mesh mesh)
 			{
 				Debug.Log("Handling Singluar Display Value");
-
-				var go = new GameObject(@base.speckle_type);
-				go.AddComponent<BaseBehaviour_v1>().properties = new SpeckleProperties
-					{ Data = @base.FetchProps() };
-
+				
 				var res = ConvertToNative(mesh) as Component;
-				res.transform.SetParent(go.transform);
+				res.gameObject.AddComponent<BaseBehaviour>().Store(@base);
+
 				return res.gameObject;
 			}
 
@@ -53,12 +50,8 @@ namespace Speckle.ConnectorUnity.Converter
 			{
 				Debug.Log("Handling List of Display Value");
 
-				var go = new GameObject(@base.speckle_type);
-				go.AddComponent<BaseBehaviour_v1>().properties = new SpeckleProperties
-					{ Data = @base.FetchProps() };
-
 				var displayValues = new GameObject("DisplayValues");
-				displayValues.transform.SetParent(go.transform);
+				displayValues.AddComponent<BaseBehaviour>().Store(@base);
 
 				foreach (var b in bs)
 					if (b is Mesh displayMesh)
@@ -68,7 +61,7 @@ namespace Speckle.ConnectorUnity.Converter
 							obj.transform.SetParent(displayValues.transform);
 					}
 
-				return go;
+				return displayValues;
 			}
 
 			return null;

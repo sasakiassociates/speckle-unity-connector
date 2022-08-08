@@ -1,9 +1,9 @@
-﻿using Speckle.ConnectorUnity.Mono;
+﻿using Speckle.ConnectorUnity.Models;
 using UnityEngine;
 
 namespace Speckle.ConnectorUnity
 {
-	public class SpeckleBrep : BaseBehaviour_v1
+	public class SpeckleBrep : BaseBehaviour
 	{
 		public MeshFilter mesh
 		{

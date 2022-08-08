@@ -6,7 +6,7 @@ using NUnit.Framework;
 using Speckle.ConnectorUnity;
 using Speckle.ConnectorUnity.Args;
 using Speckle.ConnectorUnity.Converter;
-using Speckle.ConnectorUnity.Mono;
+using Speckle.ConnectorUnity.Models;
 using Speckle.ConnectorUnity.Ops;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
@@ -27,6 +27,7 @@ internal static class SpT
 	public const string C_CLIENT = "Client";
 	public const string C_STREAM = "Stream";
 	public const string C_OPS = "Operations";
+	public const string C_MODEL = "Models";
 
 	public static readonly StreamRef BCHP = new StreamRef()
 	{
@@ -39,10 +40,19 @@ internal static class SpT
 	public static readonly StreamRef SIMPLE = new StreamRef()
 	{
 		streamId = "4777dea055",
-		branchName = "main", 
+		branchName = "main",
 		commitId = "12bb31b6c9", // mesh only
 		objectId = "1a60ced098216e2839d2952e33bcdef1", // mesh object
 	};
+
+	public static async UniTask<Base> GetMesh()
+	{
+		const string stream = "4777dea055";
+		const string id = "d611a3e8bf64984c50147e3f9238c925";
+		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+		var obj = await client.ObjectGet(stream, id);
+		return await SpeckleOps.Receive(client, stream, obj.id);
+	}
 
 }
 
@@ -165,7 +175,7 @@ public class Integrations
 	});
 
 	[UnityTest, Category(SpT.C_OPS)]
-	public IEnumerator Operations_Receive_Run() => UniTask.ToCoroutine(async () =>
+	public IEnumerator Operations_Receive_RunDirect() => UniTask.ToCoroutine(async () =>
 	{
 		var client = new GameObject().AddComponent<Receiver>();
 
@@ -181,7 +191,53 @@ public class Integrations
 
 		Assert.IsTrue(client.IsValid());
 
+		client.converter.SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Direct, runAsync = false });
 		var args = (ReceiveWorkArgs)await client.Run();
+
+		Assert.IsNotNull(args);
+		Assert.IsTrue(args.success);
+		Assert.IsTrue(args.client.Equals(client));
+		Assert.IsTrue(!string.IsNullOrEmpty(args.message));
+		Assert.IsTrue(!string.IsNullOrEmpty(args.referenceObj));
+
+		client.converter.SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Direct, runAsync = true });
+		args = (ReceiveWorkArgs)await client.Run();
+
+		Assert.IsNotNull(args);
+		Assert.IsTrue(args.success);
+		Assert.IsTrue(args.client.Equals(client));
+		Assert.IsTrue(!string.IsNullOrEmpty(args.message));
+		Assert.IsTrue(!string.IsNullOrEmpty(args.referenceObj));
+	});
+
+	[UnityTest, Category(SpT.C_OPS)]
+	public IEnumerator Operations_Receive_RunQueue() => UniTask.ToCoroutine(async () =>
+	{
+		var client = new GameObject().AddComponent<Receiver>();
+
+		await UniTask.Yield();
+
+		await client.Initialize(AccountManager.GetDefaultAccount(), SpT.SIMPLE.streamId);
+
+		Assert.IsNotNull(client.converter);
+		Assert.IsNotNull(client.stream.id == SpT.SIMPLE.streamId);
+		Assert.IsTrue(client.branches.Valid());
+		Assert.IsNotNull(client.branch);
+		Assert.IsTrue(client.commits.Valid().Equals(client.commit != null));
+
+		Assert.IsTrue(client.IsValid());
+
+		client.converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue, runAsync = false });
+		var args = (ReceiveWorkArgs)await client.Run();
+
+		Assert.IsNotNull(args);
+		Assert.IsTrue(args.success);
+		Assert.IsTrue(args.client.Equals(client));
+		Assert.IsTrue(!string.IsNullOrEmpty(args.message));
+		Assert.IsTrue(!string.IsNullOrEmpty(args.referenceObj));
+
+		client.converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue, runAsync = true });
+		args = (ReceiveWorkArgs)await client.Run();
 
 		Assert.IsNotNull(args);
 		Assert.IsTrue(args.success);
@@ -228,20 +284,20 @@ public class Integrations
 		// Send using speckle node
 		var node = new GameObject("Speckle Node").AddComponent<SpeckleNode>();
 		var layer = new GameObject("Speckle Layer").AddComponent<SpeckleLayer>();
-		var baseProp = new GameObject("Base").AddComponent<BaseBehaviour_v1>();
-		baseProp.SetProps(@base);
+		var baseProp = new GameObject("Base").AddComponent<BaseBehaviour>();
+		baseProp.Store(@base);
 		layer.Add(baseProp.gameObject);
 		node.AddLayer(layer);
 
 		args = (SendWorkArgs)await client.Run(node);
-		
+
 		Assert.IsNotNull(args);
 		Assert.IsTrue(args.success);
 		Assert.IsTrue(args.client.Equals(client));
 		Assert.IsTrue(!string.IsNullOrEmpty(args.message));
 		Assert.IsTrue(!string.IsNullOrEmpty(args.commitId));
 		Assert.IsTrue(!string.IsNullOrEmpty(args.url));
-		
+
 		Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput() { streamId = client.stream.id, id = args.commitId }));
 	});
 
@@ -454,6 +510,24 @@ public class Units
 
 		Assert.IsTrue(await wrapper.LoadCommit(client, SpT.BCHP.commitId));
 		Assert.IsTrue(wrapper.type == StreamWrapperType.Commit);
+	});
+
+	[UnityTest, Category(SpT.C_MODEL)]
+	public IEnumerator Base_StoreObject() => UniTask.ToCoroutine(async () =>
+	{
+		var @base = await SpT.GetMesh();
+
+		Assert.IsNotNull(@base);
+		Assert.IsTrue(SpeckleUnity.Valid(@base.id));
+		Assert.IsTrue(SpeckleUnity.Valid(@base.speckle_type));
+
+		var bb = new GameObject().AddComponent<BaseBehaviour>();
+		await bb.Store(@base);
+
+		Assert.IsTrue(SpeckleUnity.Valid(bb.id) == SpeckleUnity.Valid(@base.id) && bb.id == @base.id);
+		Assert.IsTrue(SpeckleUnity.Valid(bb.speckle_type) == SpeckleUnity.Valid(@base.speckle_type) && bb.speckle_type == @base.speckle_type);
+		Assert.IsTrue(SpeckleUnity.Valid(bb.applicationId) == SpeckleUnity.Valid(@base.applicationId) && bb.applicationId == @base.applicationId);
+		Assert.IsTrue(bb.totalChildCount == @base.totalChildrenCount);
 	});
 
 }

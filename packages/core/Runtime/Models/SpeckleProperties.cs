@@ -10,19 +10,24 @@ using Speckle.Core.Api;
 using Speckle.Core.Models;
 using UnityEngine;
 using UnityEngine.Events;
-using Debug = UnityEngine.Debug;
 
-namespace Speckle.ConnectorUnity.Mono
+namespace Speckle.ConnectorUnity.Models
 {
-
 	/// <summary>
 	///   This class gets attached to GOs and is used to store Speckle's metadata when sending / receiving
 	/// </summary>
 	[Serializable]
 	public class SpeckleProperties
 	{
-		// TODO: handle rules with this in Editor vs Runtime
+		public SpeckleProperties()
+		{
+			_observableConcurrentDict = new ObservableConcurrentDictionary<string, object>();
+			_observableConcurrentDict.CollectionChanged += (_, args) => OnCollectionChange?.Invoke(args);
+		}
+
 		[SerializeField] [HideInInspector] string _jsonString = "";
+
+		public event UnityAction<NotifyCollectionChangedEventArgs> OnCollectionChange;
 
 		HashSet<string> _excludedProps;
 
@@ -31,9 +36,7 @@ namespace Speckle.ConnectorUnity.Mono
 			get
 			{
 				return _excludedProps ??= new HashSet<string>(
-					typeof(Base).GetProperties(
-						BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase
-					).Select(x => x.Name));
+					typeof(Base).GetProperties().Select(x => x.Name));
 			}
 			private set => _excludedProps = value;
 		}
@@ -51,14 +54,42 @@ namespace Speckle.ConnectorUnity.Mono
 			}
 		}
 
-		public async UniTask Store(Base @base, HashSet<string> props)
+		public UniTask Serialize(Base @base, HashSet<string> props)
 		{
 			if (props != null) excludedProps = props;
-
-			await Store(@base);
+			return Serialize(@base);
 		}
 
-		public async UniTask Store(Base @base)
+		public UniTask Serialize(Base @base)
+		{
+			Data = @base.GetMembers().Where(x => !excludedProps.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
+			_jsonString = Operations.Serialize(@base);
+			return UniTask.CompletedTask;
+		}
+
+		public UniTask Serialize(IDictionary<string, object> objectProps)
+		{
+			Data = objectProps;
+			_jsonString = Operations.Serialize(new BasePropsWrapper(Data));
+			return UniTask.CompletedTask;
+		}
+
+		/// <summary>
+		/// Serializes the stored properties in <see cref="Data"/>
+		/// </summary>
+		/// <returns></returns>
+		public UniTask Serialize()
+		{
+			var tData = new Base();
+
+			foreach (var d in Data)
+				tData[d.Key] = d.Value;
+
+			_jsonString = Operations.Serialize(new BasePropsWrapper(Data));
+			return UniTask.CompletedTask;
+		}
+
+		public async UniTask Test_Serialize(Base @base)
 		{
 			var watch = Stopwatch.StartNew();
 
@@ -68,7 +99,7 @@ namespace Speckle.ConnectorUnity.Mono
 				return UniTask.CompletedTask;
 			});
 
-			Debug.Log($"Step 1: Serialize to string with Operations-{watch.Elapsed}");
+			SpeckleUnity.Console.Log($"Step 1: Serialize to string with Operations-{watch.Elapsed}");
 
 			await UniTask.Yield();
 			watch.Restart();
@@ -79,17 +110,7 @@ namespace Speckle.ConnectorUnity.Mono
 				return UniTask.CompletedTask;
 			});
 
-			Debug.Log($"Step 2: Serialize dictionary of props-{watch.Elapsed}");
-			await UniTask.Yield();
-			watch.Restart();
-
-			await UniTask.Create(() =>
-			{
-				// _speckleProps = new SpeckleData(Data);
-				return UniTask.CompletedTask;
-			});
-
-			Debug.Log($"Step 3: Serializing through class-{watch.Elapsed}");
+			SpeckleUnity.Console.Log($"Step 2: Serialize dictionary of props-{watch.Elapsed}");
 			await UniTask.Yield();
 			watch.Restart();
 
@@ -97,60 +118,21 @@ namespace Speckle.ConnectorUnity.Mono
 			{
 				var speckleData = Operations.Deserialize(_jsonString);
 
-				Debug.Log(speckleData.speckle_type);
-				Debug.Log(speckleData.id);
+				SpeckleUnity.Console.Log(speckleData.speckle_type);
+				SpeckleUnity.Console.Log(speckleData.id);
 
 				return UniTask.CompletedTask;
 			});
 
-			Debug.Log($"Step 4: DeSerializing string-{watch.Elapsed}");
+			SpeckleUnity.Console.Log($"Step 4: DeSerializing string-{watch.Elapsed}");
 			await UniTask.Yield();
 			watch.Stop();
 		}
 
-		/// <summary>
-		/// Serializes the stored properties in <see cref="Data"/>
-		/// </summary>
-		/// <returns></returns>
-		public UniTask Serialize()
-		{
-			_jsonString = Operations.Serialize(new SpeckleData(Data));
-			return UniTask.CompletedTask;
-		}
-
-		/// <summary>
-		/// Saves new data into <see cref="Data"/> and creates a new serialized json 
-		/// </summary>
-		/// <param name="data"></param>
-		/// <returns></returns>
-		public UniTask Serialize(IDictionary<string, object> data)
-		{
-			var tempData = new SpeckleData(data);
-			Data = tempData.GetMembers().Where(x => !excludedProps.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
-			return Serialize();
-		}
-
-		public UniTask SimpleStore(Base @base)
-		{
-			_jsonString = Operations.Serialize(@base);
-			Data = @base.GetMembers().Where(x => !excludedProps.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
-			return UniTask.CompletedTask;
-		}
-
-		public SpeckleProperties()
-		{
-			_observableConcurrentDict["hh"] = 10;
-			_observableConcurrentDict = new ObservableConcurrentDictionary<string, object>();
-			_observableConcurrentDict.CollectionChanged += (_, args) => OnCollectionChange?.Invoke(args);
-			// hasChanged = true;
-		}
-
-		public event UnityAction<NotifyCollectionChangedEventArgs> OnCollectionChange;
-
 		[Serializable]
-		internal sealed class SpeckleData : Base
+		internal sealed class BasePropsWrapper : Base
 		{
-			public SpeckleData(IDictionary<string, object> data)
+			public BasePropsWrapper(IDictionary<string, object> data)
 			{
 				foreach (var v in data) this[v.Key] = v.Value;
 			}

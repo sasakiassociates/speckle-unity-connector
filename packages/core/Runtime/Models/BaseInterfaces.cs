@@ -1,86 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
-using Speckle.Core.Logging;
 using Speckle.Core.Models;
 
-namespace Speckle.ConnectorUnity.Mono
+namespace Speckle.ConnectorUnity.Models
 {
-	public interface IBase : IBaseDynamic
+
+	public static class BaseExt
 	{
-
-		public UniTask Store(Base @base);
-
-		public string id { get; }
-
-		public string speckle_type { get; }
-
-		public string applicationId { get; }
-
-		public long totalChildCount { get; }
-
-	}
-	public interface IBaseDynamic
-	{
-		public HashSet<string> excluded { get; }
-
-		SpeckleProperties props { get; }
-
-		#region copy pasta from speckle core models
-
-		public object this[string key]
-		{
-			get
-			{
-				if (props.Data.ContainsKey(key))
-					return props.Data[key];
-
-				var prop = GetType().GetProperty(key);
-
-				return prop == null ? null : prop.GetValue(this);
-			}
-			set
-			{
-				if (!this.IsPropNameValid(key, out string reason)) throw new SpeckleException("Invalid prop name: " + reason);
-
-				if (props.Data.ContainsKey(key))
-				{
-					props.Data[key] = value;
-					return;
-				}
-
-				// TODO: this probably wont work
-				var prop = this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).FirstOrDefault(p => p.Name == key);
-
-				if (prop == null)
-				{
-					props.Data[key] = value;
-					return;
-				}
-
-				try
-				{
-					prop.SetValue(this, value);
-				}
-				catch (Exception ex)
-				{
-					SpeckleUnity.Console.Error(ex.Message);
-				}
-			}
-		}
-
-		public bool IsPropNameValid(string name, out string reason)
-		{
+		
+		public static bool IsPropNameValid(this IBase obj, string name, out string reason)
+		{ 
 			// Regex rules
 			// Rule for multiple leading @.
 			var manyLeadingAtChars = new Regex(@"^@{2,}");
 			// Rule for invalid chars.
 			var invalidChars = new Regex(@"[\.\/]");
-			// Existing members
-			var members = GetInstanceMembersNames();
 
 			// TODO: Check for detached/non-detached duplicate names? i.e: '@something' vs 'something'
 			// TODO: Instance members will not be overwritten, this may cause issues.
@@ -107,20 +42,31 @@ namespace Speckle.ConnectorUnity.Mono
 			return isValid;
 		}
 
-		/// <summary>
-		/// Gets the names of the defined class properties (typed).
-		/// </summary>
-		/// <returns></returns>
-		public IEnumerable<string> GetInstanceMembersNames()
-		{
-			var names = new List<string>();
-			var pinfos = GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
-			foreach (var pinfo in pinfos) names.Add(pinfo.Name);
 
-			names.Remove("Item"); // TODO: investigate why we get Item out?
-			return names;
-		}
+	} 
+	public interface IBase : IBaseDynamic
+	{
 
+		public UniTask Store(Base @base);
+
+		public string id { get; }
+
+		public string speckle_type { get; }
+
+		public string applicationId { get; }
+
+		public long totalChildCount { get; }
+
+	}
+	public interface IBaseDynamic
+	{
+		public HashSet<string> excluded { get; }
+
+		SpeckleProperties props { get; }
+
+		#region copy pasta from speckle core models
+
+		public object this[string key] { get; set; }
 		#endregion
 
 	}

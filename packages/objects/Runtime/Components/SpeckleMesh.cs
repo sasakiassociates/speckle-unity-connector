@@ -1,12 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using Speckle.ConnectorUnity.Mono;
-using UnityEngine;
+using Speckle.ConnectorUnity.Models;
 using Mesh = Objects.Geometry.Mesh;
 
 namespace Speckle.ConnectorUnity
 {
-    public class SpeckleMesh : BaseBehaviour_v1
+    public class SpeckleMesh : BaseBehaviour
     {
         public void SetObj(Mesh mesh)
         {

@@ -10,7 +10,7 @@ using Speckle.Core.Logging;
 using Speckle.Core.Models;
 using UnityEngine;
 
-namespace Speckle.ConnectorUnity.Ops
+namespace Speckle.ConnectorUnity.Models
 {
 
 	/// <summary>
@@ -26,8 +26,6 @@ namespace Speckle.ConnectorUnity.Ops
 		[SerializeField] [HideInInspector] long childCount;
 
 		[SerializeField] SpeckleStructure hierarchy;
-
-		[SerializeField] ConverterStyle _converterStyle = ConverterStyle.Direct;
 
 		/// <summary>
 		///   Reference object id
@@ -55,12 +53,10 @@ namespace Speckle.ConnectorUnity.Ops
 				SpeckleUnity.Console.Warn("No valid converter to use during conversion ");
 				return;
 			}
-
-			converter.SetConverterSettings(new ScriptableSpeckleConverterSettings { style = _converterStyle });
-
+			
 			await DataToScene(data, (ISpeckleConverter)converter, token);
 
-			await converter.PostToNative();
+			await converter.PostWork();
 		}
 
 		/// <summary>
@@ -70,7 +66,7 @@ namespace Speckle.ConnectorUnity.Ops
 		/// <param name="converter">Speckle Converter to parse objects with</param>
 		/// <param name="token">Cancellation token</param>
 		/// <returns></returns>
-		public async UniTask DataToScene(Base data, ISpeckleConverter converter, CancellationToken token)
+		public UniTask DataToScene(Base data, ISpeckleConverter converter, CancellationToken token)
 		{
 			id = data.id;
 			appId = data.applicationId;
@@ -83,7 +79,7 @@ namespace Speckle.ConnectorUnity.Ops
 			if (converter == null)
 			{
 				SpeckleUnity.Console.Warn("No valid converter to use during conversion ");
-				return;
+				return UniTask.CompletedTask;
 			}
 
 			DeconstructObject(data, defaultLayer, converter, token);
@@ -96,15 +92,14 @@ namespace Speckle.ConnectorUnity.Ops
 				hierarchy.Add(defaultLayer);
 			}
 			else
-			{
 				SpeckleUnity.SafeDestroy(defaultLayer.gameObject);
-			}
+
+			return UniTask.CompletedTask;
 		}
 
 		void DeconstructObject(Base data, SpeckleLayer defaultLayer, ISpeckleConverter converter, CancellationToken token)
 		{
-			if (token.IsCancellationRequested)
-				return;
+			if (token.IsCancellationRequested) return;
 
 			// 1: Object is supported, so lets convert the object and it's data 
 			if (converter.CanConvertToNative(data))
@@ -168,10 +163,7 @@ namespace Speckle.ConnectorUnity.Ops
 			return data;
 		}
 
-		void OnEnable()
-		{
-			hierarchy ??= new SpeckleStructure();
-		}
+		void OnEnable() => hierarchy ??= new SpeckleStructure();
 
 		static GameObject CheckConvertedFormat(object obj)
 		{
