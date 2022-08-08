@@ -63,6 +63,7 @@ namespace Speckle.ConnectorUnity.Converter.PlayArea
 					Debug.Log($"Found comp ({comp.name}) by Id {componentInstanceId}");
 				}
 			}
+
 			_objectByBaseId.Add(id, obj);
 			_sceneObjects.Add(id, objectInstanceId);
 		}

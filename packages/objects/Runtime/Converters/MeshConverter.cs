@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Speckle.Core.Models;
 using UnityEngine;
 using Mesh = Objects.Geometry.Mesh;
@@ -73,10 +74,13 @@ namespace Speckle.ConnectorUnity.Converter
 		public bool combineMeshes => _combineMeshes;
 
 		public Material defaultMaterial => _defaultMaterial;
-		
-		protected override void ConvertBase(Mesh @base, ref MeshFilter instance) => this.MeshToNative(new[] { @base }, instance.gameObject);
+
+		public override UniTask ToNativeConversionAsync(Base @base, Component component) =>
+			ValidObjects(@base, component, out var b, out var c) ? this.MeshToNative(b, c.gameObject) : UniTask.CompletedTask;
+
+		protected override void ConvertBase(Mesh @base, ref MeshFilter instance) => this.MeshToNative(@base, instance.gameObject).Forget();
 
 		protected override Base ConvertComponent(MeshFilter component) => this.MeshToSpeckle(component);
-		
+
 	}
 }
