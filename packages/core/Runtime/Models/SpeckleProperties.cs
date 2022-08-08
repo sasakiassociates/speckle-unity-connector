@@ -67,6 +67,13 @@ namespace Speckle.ConnectorUnity.Models
 			return UniTask.CompletedTask;
 		}
 
+		public UniTask Serialize(IDictionary<string, object> objectProps)
+		{
+			Data = objectProps;
+			_jsonString = Operations.Serialize(new BasePropsWrapper(Data));
+			return UniTask.CompletedTask;
+		}
+
 		/// <summary>
 		/// Serializes the stored properties in <see cref="Data"/>
 		/// </summary>
@@ -78,7 +85,7 @@ namespace Speckle.ConnectorUnity.Models
 			foreach (var d in Data)
 				tData[d.Key] = d.Value;
 
-			_jsonString = Operations.Serialize(new SpeckleData(Data));
+			_jsonString = Operations.Serialize(new BasePropsWrapper(Data));
 			return UniTask.CompletedTask;
 		}
 
@@ -123,9 +130,9 @@ namespace Speckle.ConnectorUnity.Models
 		}
 
 		[Serializable]
-		internal sealed class SpeckleData : Base
+		internal sealed class BasePropsWrapper : Base
 		{
-			public SpeckleData(IDictionary<string, object> data)
+			public BasePropsWrapper(IDictionary<string, object> data)
 			{
 				foreach (var v in data) this[v.Key] = v.Value;
 			}

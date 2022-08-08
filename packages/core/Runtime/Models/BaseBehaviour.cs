@@ -9,6 +9,7 @@ using UnityEngine.Events;
 
 namespace Speckle.ConnectorUnity.Models
 {
+	
 	[AddComponentMenu(SpeckleUnity.NAMESPACE + "/Base")]
 	public class BaseBehaviour : MonoBehaviour, IBase, ISerializationCallbackReceiver
 	{
@@ -38,6 +39,17 @@ namespace Speckle.ConnectorUnity.Models
 					_hasChanged = true;
 					OnPropsChanged?.Invoke();
 				};
+			}
+		}
+
+		public virtual HashSet<string> excluded
+		{
+			get
+			{
+				return new HashSet<string>(
+					typeof(Base).GetProperties(
+						BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase
+					).Select(x => x.Name));
 			}
 		}
 
@@ -81,27 +93,10 @@ namespace Speckle.ConnectorUnity.Models
 			}
 		}
 
-		public virtual HashSet<string> excluded
+		public  UniTask Store(Base @base)
 		{
-			get
-			{
-				return new HashSet<string>(
-					typeof(Base).GetProperties(
-						BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase
-					).Select(x => x.Name));
-			}
-		}
-
-		public virtual UniTask Store(Base @base)
-		{
-			id = @base.id;
-			speckle_type = @base.speckle_type;
-			applicationId = @base.applicationId;
-			totalChildCount = @base.totalChildrenCount;
-
-			props = new SpeckleProperties();
-			props.Serialize(@base);
-
+			HandleBaseProps(@base);
+			HandleTypeProps(@base);
 			return UniTask.CompletedTask;
 		}
 
@@ -115,5 +110,27 @@ namespace Speckle.ConnectorUnity.Models
 
 		public void OnAfterDeserialize()
 		{ }
+
+		/// <summary>
+		/// Method for populating the standard <see cref="Base"/> Props
+		/// </summary>
+		/// <param name="base"></param>
+		protected virtual void HandleBaseProps(Base @base)
+		{
+			id = @base.id;
+			speckle_type = @base.speckle_type;
+			applicationId = @base.applicationId;
+			totalChildCount = @base.totalChildrenCount;
+		}
+
+		/// <summary>
+		/// Method for modifying how
+		/// </summary>
+		protected virtual void HandleTypeProps(Base @base)
+		{
+			props = new SpeckleProperties();
+			props.Serialize(@base);
+		}
+
 	}
 }
