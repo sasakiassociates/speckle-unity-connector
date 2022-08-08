@@ -23,9 +23,7 @@ namespace Speckle.ConnectorUnity.Converter
 
 		[SerializeField] List<ComponentConverter> _converters;
 
-		[SerializeField] List<ConverterCrewMember> _converterCrew;
-
-		[SerializeField] ScriptableSpeckleConverterSettings _settings;
+		[SerializeField] ScriptableConverterSettings _settings;
 
 		public HashSet<Exception> ConversionErrors { get; } = new();
 
@@ -41,8 +39,7 @@ namespace Speckle.ConnectorUnity.Converter
 		{
 			foreach (var c in converters)
 			{
-				// what happens if there are two types of converters of the same type? 
-				if (c.unity_type == converter.unity_type && c.speckle_type == converter.speckle_type && c.name == converter.name)
+				if (c.Equals(converter))
 				{
 					defaultConverter = c;
 					return;
@@ -69,15 +66,20 @@ namespace Speckle.ConnectorUnity.Converter
 		protected virtual void OnEnable()
 		{
 			_converters ??= StandardConverters();
-			if (_settings == null) SetConverterSettings(new ScriptableSpeckleConverterSettings() { style = ConverterStyle.Queue });
+			if (_settings == null) SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Queue });
 		}
 
-		public virtual async UniTask PostToNative()
+		public async UniTask PostWork()
 		{
-			// NOTE: probably need to check the settings values as wall
-			if (_converterCrew.Valid())
+			if (!_converters.Valid()) return;
+
+			if (_settings.runAsync)
 			{
-				await UniTask.WhenAll(_converterCrew.Select(x => x.PostWork()));
+				await UniTask.WhenAll(_converters.Where(x => x!= null && x.HasWorkToDo).Select(x => x.PostWorkAsync()));
+			}
+			else
+			{
+				_converters.Where(x => x.HasWorkToDo).Select(x => x.PostWork());
 			}
 		}
 
@@ -92,7 +94,7 @@ namespace Speckle.ConnectorUnity.Converter
 
 		public virtual void SetConverterSettings(object settings)
 		{
-			if (settings is ScriptableSpeckleConverterSettings converterSettings)
+			if (settings is ScriptableConverterSettings converterSettings)
 			{
 				_settings = converterSettings;
 				if (_converters.Valid()) _converters.ForEach(x => x.settings = _settings);
@@ -126,16 +128,6 @@ namespace Speckle.ConnectorUnity.Converter
 				if (c.speckle_type.Equals(speckleType))
 				{
 					converter = c;
-
-					_converterCrew ??= new List<ConverterCrewMember>();
-
-					if (!_converterCrew.Any(x => x.Equals(c)))
-					{
-						var crew = new GameObject().AddComponent<ConverterCrewMember>();
-						crew.Initialize(converter);
-						_converterCrew.Add(crew);
-					}
-
 					break;
 				}
 			}
