@@ -1,6 +1,6 @@
 {
   "name": "com.speckle.objects",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "displayName": "Speckle Objects",
   "description": "A set of Speckle Objects converted to Unity Components from Sasaki",
   "unity": "2020.3",
