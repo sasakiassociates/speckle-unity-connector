@@ -90,11 +90,78 @@ namespace Speckle.ConnectorUnity.Converter
 			};
 		}
 
-		public static async UniTask MeshToNative(this ISpeckleMeshConverter converter, Mesh mesh, GameObject obj)
+		public static void MeshToNative(this ISpeckleMeshConverter converter, Mesh mesh, GameObject obj)
 		{
 			if (mesh == null || mesh.vertices.Count == 0 || mesh.faces.Count == 0) return;
 
-			
+			var data = new MeshData
+			{
+				uvs = new List<Vector2>(),
+				vertices = new List<Vector3>(),
+				subMeshes = new List<List<int>>(),
+				vertexColors = new List<Color>()
+			};
+
+			var nativeMesh = new UnityEngine.Mesh();
+
+			data.AddMesh(mesh);
+
+			nativeMesh.SetVertices(data.vertices);
+			nativeMesh.SetUVs(0, data.uvs);
+			nativeMesh.SetColors(data.vertexColors);
+
+			var j = 0;
+			foreach (var subMeshTriangles in data.subMeshes)
+			{
+				nativeMesh.SetTriangles(subMeshTriangles, j);
+				j++;
+			}
+
+			if (nativeMesh.vertices.Length >= ushort.MaxValue)
+				nativeMesh.indexFormat = IndexFormat.UInt32;
+
+			nativeMesh.Optimize();
+			nativeMesh.RecalculateBounds();
+			nativeMesh.RecalculateNormals();
+			nativeMesh.RecalculateTangents();
+
+			UniTask.SwitchToMainThread();
+
+			nativeMesh.subMeshCount = data.subMeshes.Count;
+
+			var filter = obj.GetComponent<MeshFilter>();
+
+			if (filter == null)
+				filter = obj.AddComponent<MeshFilter>();
+
+			if (IsRuntime)
+				filter.mesh = nativeMesh;
+			else
+				filter.sharedMesh = nativeMesh;
+
+			if (converter.addMeshCollider)
+			{
+				var c = filter.gameObject.GetComponent<MeshCollider>();
+				if (c == null) c = filter.gameObject.AddComponent<MeshCollider>();
+
+				c.sharedMesh = IsRuntime ? filter.mesh : filter.sharedMesh;
+			}
+
+			if (converter.addMeshRenderer)
+			{
+				var c = filter.gameObject.GetComponent<MeshRenderer>();
+				if (c == null) c = filter.gameObject.AddComponent<MeshRenderer>();
+
+				c.sharedMaterial = converter.useRenderMaterial ?
+					GetMaterial(converter, mesh["renderMaterial"] as RenderMaterial) :
+					converter.defaultMaterial;
+			}
+		}
+
+		public static async UniTask MeshToNativeAsync(this ISpeckleMeshConverter converter, Mesh mesh, GameObject obj)
+		{
+			if (mesh == null || mesh.vertices.Count == 0 || mesh.faces.Count == 0) return;
+
 			var data = new MeshData
 			{
 				uvs = new List<Vector2>(),

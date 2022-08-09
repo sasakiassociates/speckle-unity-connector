@@ -77,7 +77,7 @@ namespace Speckle.ConnectorUnity.Converter.PlayArea
 				return null;
 			}
 
-			await this.MeshToNative(mesh, obj);
+			await this.MeshToNativeAsync(mesh, obj);
 			return obj.GetComponent<MeshFilter>();
 		}
 

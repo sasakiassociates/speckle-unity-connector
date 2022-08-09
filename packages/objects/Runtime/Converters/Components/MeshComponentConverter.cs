@@ -42,25 +42,6 @@ namespace Speckle.ConnectorUnity.Converter
 		/// </summary>
 		[SerializeField] bool _combineMeshes = false;
 
-		protected override HashSet<string> excludedProps
-		{
-			get
-			{
-				var res = base.excludedProps;
-				res.Add("displayValue");
-				res.Add("displayMesh");
-				return res;
-			}
-		}
-
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-
-			if (_defaultMaterial == null)
-				_defaultMaterial = new Material(Shader.Find("Standard"));
-		}
-
 		public List<ApplicationPlaceholderObject> contextObjects { get; set; }
 
 		public bool addMeshCollider => _addMeshCollider;
@@ -75,10 +56,17 @@ namespace Speckle.ConnectorUnity.Converter
 
 		public Material defaultMaterial => _defaultMaterial;
 
-		public override UniTask ToNativeConversionAsync(Base @base, Component component) =>
-			ValidObjects(@base, component, out var b, out var c) ? this.MeshToNative(b, c.gameObject) : UniTask.CompletedTask;
+		protected override void OnEnable()
+		{
+			base.OnEnable();
 
-		protected override void ConvertBase(Mesh @base, ref MeshFilter instance) => this.MeshToNative(@base, instance.gameObject).Forget();
+			if (_defaultMaterial == null) _defaultMaterial = new Material(Shader.Find("Standard"));
+		}
+
+		public override UniTask ToNativeConversionAsync(Base @base, Component component) => ValidObjects(@base, component, out var b, out var c)
+			? this.MeshToNativeAsync(b, c.gameObject) : UniTask.CompletedTask;
+
+		protected override void ConvertBase(Mesh @base, ref MeshFilter instance) => this.MeshToNative(@base, instance.gameObject);
 
 		protected override Base ConvertComponent(MeshFilter component) => this.MeshToSpeckle(component);
 

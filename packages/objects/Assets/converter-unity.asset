@@ -23,6 +23,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8c3277418997e5a4b8abe5b7fa0bee56, type: 2}
   - {fileID: 11400000, guid: dbf9b4585c504dd48b087249a99f7726, type: 2}
   - {fileID: 11400000, guid: ede43ad32363fbf41bd50dd41ce8f032, type: 2}
+  - {fileID: 11400000, guid: 0bf126cdc5cd77f4d8e390e0c79ada45, type: 2}
   _settings:
     style: 1
     runAsync: 1
