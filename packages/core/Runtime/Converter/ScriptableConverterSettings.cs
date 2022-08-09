@@ -6,7 +6,6 @@ namespace Speckle.ConnectorUnity.Converter
 	public class ScriptableConverterSettings
 	{
 		public ConverterStyle style;
-		public bool runAsync = true;
 	}
 
 	public enum ConverterStyle

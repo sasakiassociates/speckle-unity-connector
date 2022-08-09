@@ -6,13 +6,13 @@ namespace Speckle.ConnectorUnity.Converter
 
 	public class ConverterArgs
 	{
-		public Component component;
-		public readonly Base @base;
+		public Component unityObj;
+		public readonly Base speckleObj;
 
-		public ConverterArgs(Base @base, Component component)
+		public ConverterArgs(Base speckleObj, Component unityObj)
 		{
-			this.@base = @base;
-			this.component = component;
+			this.speckleObj = speckleObj;
+			this.unityObj = unityObj;
 		}
 	}
 

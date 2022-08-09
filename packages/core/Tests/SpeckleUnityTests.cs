@@ -191,7 +191,7 @@ public class Integrations
 
 		Assert.IsTrue(client.IsValid());
 
-		client.converter.SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Direct, runAsync = false });
+		client.converter.SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Direct });
 		var args = (ReceiveWorkArgs)await client.Run();
 
 		Assert.IsNotNull(args);
@@ -200,7 +200,7 @@ public class Integrations
 		Assert.IsTrue(!string.IsNullOrEmpty(args.message));
 		Assert.IsTrue(!string.IsNullOrEmpty(args.referenceObj));
 
-		client.converter.SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Direct, runAsync = true });
+		client.converter.SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Direct });
 		args = (ReceiveWorkArgs)await client.Run();
 
 		Assert.IsNotNull(args);
@@ -227,7 +227,7 @@ public class Integrations
 
 		Assert.IsTrue(client.IsValid());
 
-		client.converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue, runAsync = false });
+		client.converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue });
 		var args = (ReceiveWorkArgs)await client.Run();
 
 		Assert.IsNotNull(args);
@@ -236,7 +236,7 @@ public class Integrations
 		Assert.IsTrue(!string.IsNullOrEmpty(args.message));
 		Assert.IsTrue(!string.IsNullOrEmpty(args.referenceObj));
 
-		client.converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue, runAsync = true });
+		client.converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue });
 		args = (ReceiveWorkArgs)await client.Run();
 
 		Assert.IsNotNull(args);
@@ -285,6 +285,7 @@ public class Integrations
 		var node = new GameObject("Speckle Node").AddComponent<SpeckleNode>();
 		var layer = new GameObject("Speckle Layer").AddComponent<SpeckleLayer>();
 		var baseProp = new GameObject("Base").AddComponent<BaseBehaviour>();
+		
 		baseProp.Store(@base);
 		layer.Add(baseProp.gameObject);
 		node.AddLayer(layer);
