@@ -46,19 +46,6 @@ namespace Speckle.ConnectorUnity.Models
 
 		public void AddLayer(SpeckleLayer layer) => hierarchy.Add(layer);
 
-		public async UniTask DataToScene(Base data, ScriptableSpeckleConverter converter, CancellationToken token)
-		{
-			if (converter == null)
-			{
-				SpeckleUnity.Console.Warn("No valid converter to use during conversion ");
-				return;
-			}
-			
-			await DataToScene(data, (ISpeckleConverter)converter, token);
-
-			await converter.PostWork();
-		}
-
 		/// <summary>
 		///   Setup the hierarchy for the commit coming in
 		/// </summary>
@@ -66,22 +53,24 @@ namespace Speckle.ConnectorUnity.Models
 		/// <param name="converter">Speckle Converter to parse objects with</param>
 		/// <param name="token">Cancellation token</param>
 		/// <returns></returns>
-		public UniTask DataToScene(Base data, ISpeckleConverter converter, CancellationToken token)
+		public async UniTask DataToScene(Base data, ISpeckleConverter converter, CancellationToken token)
 		{
+			if (data == null) return;
+			
 			id = data.id;
 			appId = data.applicationId;
 			childCount = (int)data.totalChildrenCount;
 			name = $"Node: {id}";
-
-			hierarchy = new SpeckleStructure();
-			var defaultLayer = new GameObject("Default").AddComponent<SpeckleLayer>();
-
+			
 			if (converter == null)
 			{
 				SpeckleUnity.Console.Warn("No valid converter to use during conversion ");
-				return UniTask.CompletedTask;
+				return;
 			}
 
+			hierarchy = new SpeckleStructure();
+			var defaultLayer = new GameObject("Default").AddComponent<SpeckleLayer>();
+			
 			DeconstructObject(data, defaultLayer, converter, token);
 
 			Debug.Log("Speckle Node Complete");
@@ -94,7 +83,11 @@ namespace Speckle.ConnectorUnity.Models
 			else
 				SpeckleUnity.SafeDestroy(defaultLayer.gameObject);
 
-			return UniTask.CompletedTask;
+			if (converter is ScriptableSpeckleConverter sc)
+			{
+				Debug.Log("Doing post work");
+				await sc.PostWork();
+			}
 		}
 
 		void DeconstructObject(Base data, SpeckleLayer defaultLayer, ISpeckleConverter converter, CancellationToken token)
