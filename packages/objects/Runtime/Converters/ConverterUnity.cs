@@ -9,13 +9,6 @@ namespace Speckle.ConnectorUnity.Converter
 	[CreateAssetMenu(fileName = "UnityConverter", menuName = "Speckle/Speckle Unity Converter", order = -1)]
 	public class ConverterUnity : ScriptableSpeckleConverter
 	{
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-
-			if (defaultConverter == null)
-				SetDefaultConverter(CreateInstance<BaseComponentConverter>());
-		}
 
 		public override List<ComponentConverter> StandardConverters() => new List<ComponentConverter>
 		{
