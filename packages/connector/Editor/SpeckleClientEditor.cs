@@ -12,21 +12,13 @@ namespace Speckle.ConnectorUnity
 	public abstract class SpeckleClientEditor<TClient> : Editor where TClient : ClientBehaviour
 	{
 		protected TClient obj;
-
 		protected DropdownField branches;
-
 		protected DropdownField converters;
-
 		protected ProgressBar progress;
-
 		protected VisualElement root;
-
 		protected Button runButton;
-
 		protected Button searchButton;
-
 		protected TextField streamUrlField;
-
 		protected VisualTreeAsset tree;
 
 		protected(string converterIndex, string branchIndex, string commitIndex, string nodeRoot) _fields;

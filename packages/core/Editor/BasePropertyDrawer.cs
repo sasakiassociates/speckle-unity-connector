@@ -1,8 +1,6 @@
 // using Speckle.Core.Models;
 // using UnityEditor;
-// using UnityEditor.UIElements;
 // using UnityEngine;
-// using UnityEngine.UIElements;
 //
 // [CustomPropertyDrawer(typeof(Base))]
 // public class BasePropertyDrawer : PropertyDrawer
@@ -17,7 +15,7 @@
 //
 // 		// Draw label
 // 		position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
-//
+// 		
 // 		// Don't make child fields be indented
 // 		var indent = EditorGUI.indentLevel;
 // 		EditorGUI.indentLevel = 0;
