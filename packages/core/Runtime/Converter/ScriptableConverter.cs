@@ -24,7 +24,7 @@ namespace Speckle.ConnectorUnity.Converter
 		[SerializeField] List<ComponentConverter> _converters;
 
 		[SerializeField] ScriptableConverterSettings _settings;
-		
+
 		public HashSet<Exception> ConversionErrors { get; } = new();
 
 		public List<ApplicationPlaceholderObject> ContextObjects { get; set; } = new();
@@ -33,39 +33,13 @@ namespace Speckle.ConnectorUnity.Converter
 
 		public IEnumerable<string> GetServicedApplications() => new[] { HostApplications.Unity.Name };
 
-		// public ComponentConverter defaultConverter { get; private set; }
-		//
-		// public void SetDefaultConverter(ComponentConverter converter)
-		// {
-		// 	foreach (var c in converters)
-		// 	{
-		// 		if (c.Equals(converter))
-		// 		{
-		// 			defaultConverter = c;
-		// 			return;
-		// 		}
-		// 	}
-		//
-		// 	// no converter was found, so add set to default 
-		// 	converters.Add(converter);
-		// 	defaultConverter = converters.Last();
-		// }
-
-		public List<ComponentConverter> converters
-		{
-			get
-			{
-				if (!_converters.Valid())
-					_converters = StandardConverters();
-
-				return _converters;
-			}
-			set => _converters = value;
-		}
+		public List<ComponentConverter> converters { get; protected set; }
 
 		protected virtual void OnEnable()
 		{
-			_converters ??= StandardConverters();
+			// Don't override serialized scriptable object lists
+			converters = _converters.Valid() ? _converters : StandardConverters();
+			
 			if (_settings == null) SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Queue });
 		}
 

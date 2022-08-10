@@ -34,7 +34,7 @@ namespace Speckle.ConnectorUnity.Models
 				if (value == null) return;
 
 				_props = value;
-				_props.OnCollectionChange += (_) =>
+				_props.OnCollectionChange += _ =>
 				{
 					_hasChanged = true;
 					OnPropsChanged?.Invoke();
@@ -93,7 +93,7 @@ namespace Speckle.ConnectorUnity.Models
 			}
 		}
 
-		public  UniTask Store(Base @base)
+		public UniTask Store(Base @base)
 		{
 			HandleBaseProps(@base);
 			HandleTypeProps(@base);
