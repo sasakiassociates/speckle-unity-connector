@@ -158,7 +158,6 @@ public class Integrations
 	public IEnumerator Operations_Receive_FromCommit() => UniTask.ToCoroutine(async () =>
 	{
 		var commit = await _client.CommitGet(SpT.BCHP.streamId, SpT.BCHP.commitId);
-
 		var res = await SpeckleOps.Receive(_client, SpT.BCHP.streamId, commit.referencedObject);
 
 		Assert.IsNotNull(res);
@@ -229,8 +228,8 @@ public class Integrations
 
 		client.converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue });
 		var args = (ReceiveWorkArgs)await client.Run();
-
 		Assert.IsNotNull(args);
+
 		Assert.IsTrue(args.success);
 		Assert.IsTrue(args.client.Equals(client));
 		Assert.IsTrue(!string.IsNullOrEmpty(args.message));
@@ -279,18 +278,19 @@ public class Integrations
 		Assert.IsTrue(!string.IsNullOrEmpty(args.commitId));
 		Assert.IsTrue(!string.IsNullOrEmpty(args.url));
 
-		Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput() { streamId = client.stream.id, id = args.commitId }));
+		Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput
+			                                         { streamId = client.stream.id, id = args.commitId }));
 
 		// Send using speckle node
-		var node = new GameObject("Speckle Node").AddComponent<SpeckleNode>();
+		var obj = new GameObject("Speckle Object").AddComponent<SpeckleObjectBehaviour>();
 		var layer = new GameObject("Speckle Layer").AddComponent<SpeckleLayer>();
 		var baseProp = new GameObject("Base").AddComponent<BaseBehaviour>();
-		
+
 		baseProp.Store(@base);
 		layer.Add(baseProp.gameObject);
-		node.AddLayer(layer);
+		obj.hierarchy.Add(layer);
 
-		args = (SendWorkArgs)await client.Run(node);
+		args = (SendWorkArgs)await client.Run(obj);
 
 		Assert.IsNotNull(args);
 		Assert.IsTrue(args.success);
@@ -511,6 +511,25 @@ public class Units
 
 		Assert.IsTrue(await wrapper.LoadCommit(client, SpT.BCHP.commitId));
 		Assert.IsTrue(wrapper.type == StreamWrapperType.Commit);
+	});
+	
+	[UnityTest, Category(SpT.C_CLIENT)]
+	public IEnumerator Object_LoadFromStream() => UniTask.ToCoroutine(async () =>
+	{
+		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+		
+		var res = await client.ObjectGet(SpT.BCHP.streamId, SpT.BCHP.objectId);
+
+		Debug.Log("Object ID: " + res.id);
+		Debug.Log("Object Type: " + res.speckleType);
+		Debug.Log("Object Count: " + res.totalChildrenCount);
+		Debug.Log("Application ID: " + res.applicationId);
+		Debug.Log("Created At: " + res.createdAt);
+
+		Assert.IsNotNull(res);
+		Assert.IsTrue(res.id.Equals(SpT.BCHP.objectId));
+		
+		
 	});
 
 	[UnityTest, Category(SpT.C_MODEL)]

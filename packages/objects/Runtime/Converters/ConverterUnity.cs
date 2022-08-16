@@ -6,7 +6,7 @@ using Mesh = Objects.Geometry.Mesh;
 
 namespace Speckle.ConnectorUnity.Converter
 {
-	[CreateAssetMenu(fileName = "UnityConverter", menuName = "Speckle/Speckle Unity Converter", order = -1)]
+	[CreateAssetMenu(fileName = "UnityConverter", menuName = SpeckleUnity.NAMESPACE + "Speckle Unity Converter", order = -1)]
 	public class ConverterUnity : ScriptableSpeckleConverter
 	{
 
@@ -20,19 +20,14 @@ namespace Speckle.ConnectorUnity.Converter
 			CreateInstance<BrepComponentConverter>()
 		};
 
-		public override object ConvertToNative(Base @base)
-		{
-			var res = base.ConvertToNative(@base) ?? TryConvertDefault(@base);
-
-			return res;
-		}
+		public override object ConvertToNative(Base @base) => base.ConvertToNative(@base) ?? TryConvertDefault(@base);
 
 		GameObject TryConvertDefault(Base @base)
 		{
 			if (@base["displayValue"] is Mesh mesh)
 			{
 				Debug.Log("Handling Singluar Display Value");
-				
+
 				var res = ConvertToNative(mesh) as Component;
 				res.gameObject.AddComponent<BaseBehaviour>().Store(@base);
 
