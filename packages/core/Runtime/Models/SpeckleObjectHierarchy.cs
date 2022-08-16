@@ -5,18 +5,20 @@ using UnityEngine;
 namespace Speckle.ConnectorUnity.Models
 {
 	[Serializable]
-	public class SpeckleStructure
+	public class SpeckleObjectHierarchy
 	{
 
 		public List<SpeckleLayer> layers;
 
-		public SpeckleStructure() => layers = new List<SpeckleLayer>();
+		public SpeckleObjectHierarchy() => layers = new List<SpeckleLayer>();
 
 		public void Add(SpeckleLayer layer)
 		{
 			layers ??= new List<SpeckleLayer>();
 			layers.Add(layer);
 		}
+
+		public List<GameObject> GetObjects() => GetObjects(layers);
 
 		public List<GameObject> GetObjects(List<SpeckleLayer> objs)
 		{

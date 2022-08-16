@@ -3,6 +3,7 @@ using Speckle.Core.Api;
 
 namespace Speckle.ConnectorUnity.Ops
 {
+
 	[Serializable]
 	public sealed class SpeckleObjectAdapter : GenericAdapter<SpeckleObject>
 	{
@@ -31,5 +32,8 @@ namespace Speckle.ConnectorUnity.Ops
 			totalChildrenCount = this.totalChildrenCount,
 			createdAt = this.createdAt,
 		};
+		
+		public override string ToString() =>
+			$"ID: {id}\nType: {speckleType}\nCount: {totalChildrenCount}\nApplication: {applicationId}\nCreated At: {createdAt}";
 	}
 }

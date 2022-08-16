@@ -9,12 +9,12 @@ using UnityEngine;
 namespace Speckle.ConnectorUnity.Converter
 {
 	/// <summary>
-	/// A class for helping with conversions
+	/// A scene object for helping with conversions
 	/// </summary>
 	[AddComponentMenu(SpeckleUnity.NAMESPACE + "/Converter Crew")]
 	public class ComponentConverterCrew : MonoBehaviour
 	{
-		[SerializeField] int _chunkSize = 1;
+		[SerializeField] int _chunkSize = 20;
 
 		[SerializeField] ComponentConverter _converter;
 

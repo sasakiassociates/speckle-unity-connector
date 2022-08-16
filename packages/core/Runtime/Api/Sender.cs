@@ -44,7 +44,7 @@ namespace Speckle.ConnectorUnity.Ops
 		/// <param name="message">Commit message</param>
 		/// <param name="tokenSource">Cancellation token</param>
 		/// <returns></returns>
-		public async UniTask<ClientWorkArgs> Run(SpeckleNode obj, string message = null, CancellationTokenSource tokenSource = null)
+		public async UniTask<ClientWorkArgs> Run(SpeckleObjectBehaviour obj, string message = null, CancellationTokenSource tokenSource = null)
 		{
 			if (obj != null) _root = obj;
 

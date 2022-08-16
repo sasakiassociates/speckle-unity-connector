@@ -25,7 +25,7 @@ namespace Speckle.ConnectorUnity.Models
 
 		[SerializeField] [HideInInspector] long childCount;
 
-		[SerializeField] SpeckleStructure hierarchy;
+		[SerializeField] SpeckleObjectHierarchy hierarchy;
 
 		/// <summary>
 		///   Reference object id
@@ -42,7 +42,7 @@ namespace Speckle.ConnectorUnity.Models
 		/// </summary>
 		public long ChildCount => childCount;
 
-		public List<GameObject> GetObjects() => hierarchy.GetObjects(hierarchy.layers);
+		public List<GameObject> GetObjects() => hierarchy.GetObjects();
 
 		public void AddLayer(SpeckleLayer layer) => hierarchy.Add(layer);
 
@@ -56,21 +56,21 @@ namespace Speckle.ConnectorUnity.Models
 		public async UniTask DataToScene(Base data, ISpeckleConverter converter, CancellationToken token)
 		{
 			if (data == null) return;
-			
+
 			id = data.id;
 			appId = data.applicationId;
 			childCount = (int)data.totalChildrenCount;
 			name = $"Node: {id}";
-			
+
 			if (converter == null)
 			{
 				SpeckleUnity.Console.Warn("No valid converter to use during conversion ");
 				return;
 			}
 
-			hierarchy = new SpeckleStructure();
+			hierarchy = new SpeckleObjectHierarchy();
 			var defaultLayer = new GameObject("Default").AddComponent<SpeckleLayer>();
-			
+
 			DeconstructObject(data, defaultLayer, converter, token);
 
 			Debug.Log("Speckle Node Complete");
@@ -156,7 +156,7 @@ namespace Speckle.ConnectorUnity.Models
 			return data;
 		}
 
-		void OnEnable() => hierarchy ??= new SpeckleStructure();
+		void OnEnable() => hierarchy ??= new SpeckleObjectHierarchy();
 
 		static GameObject CheckConvertedFormat(object obj)
 		{

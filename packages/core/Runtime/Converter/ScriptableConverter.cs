@@ -33,13 +33,13 @@ namespace Speckle.ConnectorUnity.Converter
 
 		public IEnumerable<string> GetServicedApplications() => new[] { HostApplications.Unity.Name };
 
-		public List<ComponentConverter> converters { get; protected set; }
+		public List<ComponentConverter> converters { get; private set; }
 
 		protected virtual void OnEnable()
 		{
 			// Don't override serialized scriptable object lists
 			converters = _converters.Valid() ? _converters : StandardConverters();
-			
+
 			if (_settings == null) SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Queue });
 		}
 
@@ -85,11 +85,11 @@ namespace Speckle.ConnectorUnity.Converter
 
 		public virtual bool CanConvertToNative(Base @base) => TryGetConverter(@base, false, out _);
 
-		bool TryGetConverter(Base speckleType, bool init, out ComponentConverter converter)
+		protected virtual bool TryGetConverter(Base speckleType, bool init, out ComponentConverter converter)
 		{
 			converter = null;
 
-			if (!_converters.Any()) return false;
+			if (!_converters.Valid()) return false;
 
 			foreach (var c in _converters)
 			{

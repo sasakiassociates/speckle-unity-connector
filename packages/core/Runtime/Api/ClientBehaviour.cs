@@ -13,10 +13,10 @@ using UnityEngine.Events;
 
 namespace Speckle.ConnectorUnity.Ops
 {
-	public abstract class ClientBehaviour : MonoBehaviour, ISpeckleOps, IOperationEvents, IShouldValidate, ICanConverter
+	public abstract class ClientBehaviour : MonoBehaviour, ISpeckleOps, ISpeckleOpsEvent, IShouldValidate, ICanConverter
 	{
 
-		[SerializeField] protected SpeckleNode _root;
+		[SerializeField] protected SpeckleObjectBehaviour _root;
 		[SerializeField] protected ScriptableSpeckleConverter _converter;
 
 		[SerializeField, HideInInspector] protected StreamAdapter _stream;

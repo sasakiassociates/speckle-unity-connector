@@ -9,22 +9,29 @@ using UnityEngine.Events;
 
 namespace Speckle.ConnectorUnity.Models
 {
-	
+
 	[AddComponentMenu(SpeckleUnity.NAMESPACE + "/Base")]
 	public class BaseBehaviour : MonoBehaviour, IBase, ISerializationCallbackReceiver
 	{
-		[SerializeField, HideInInspector] SpeckleProperties _props;
+
+		[SerializeField, ReadOnly] string _speckle_type;
+		[SerializeField, ReadOnly] string _applicationId;
+		[SerializeField, ReadOnly] string _id;
+		[SerializeField, ReadOnly] long _totalChildCount;
+
+		[SerializeField] SpeckleProperties _props;
+		
 		[SerializeField, HideInInspector] bool _hasChanged;
 
 		public event UnityAction OnPropsChanged;
 
-		public string speckle_type { get; protected set; }
+		public string id => _id;
 
-		public string applicationId { get; protected set; }
+		public string speckle_type => _speckle_type;
 
-		public long totalChildCount { get; protected set; }
+		public string applicationId => _applicationId;
 
-		public string id { get; protected set; }
+		public long totalChildCount => _totalChildCount;
 
 		public SpeckleProperties props
 		{
@@ -117,10 +124,10 @@ namespace Speckle.ConnectorUnity.Models
 		/// <param name="base"></param>
 		protected virtual void HandleBaseProps(Base @base)
 		{
-			id = @base.id;
-			speckle_type = @base.speckle_type;
-			applicationId = @base.applicationId;
-			totalChildCount = @base.totalChildrenCount;
+			_id = @base.id;
+			_speckle_type = @base.speckle_type;
+			_applicationId = @base.applicationId;
+			_totalChildCount = @base.totalChildrenCount;
 		}
 
 		/// <summary>

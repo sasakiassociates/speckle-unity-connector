@@ -75,7 +75,7 @@ namespace Speckle.ConnectorUnity.Ops
 					return args;
 				}
 
-				var referenceObj = string.Empty;
+				_root = new GameObject().AddComponent<SpeckleObjectBehaviour>();
 
 				// NOTE: this might now need to happen
 				switch (_stream.type)
@@ -93,11 +93,10 @@ namespace Speckle.ConnectorUnity.Ops
 								sourceApplication = SpeckleUnity.APP
 							}).Forget();
 
-						referenceObj = c.referencedObject;
+						_root.source = await _client.ObjectGet(_stream.id, c.referencedObject);
 						break;
 					case StreamWrapperType.Object:
-						var obj = await _client.ObjectGet(_stream.id, _stream.@object.id);
-						referenceObj = obj.id;
+						_root.source = await _client.ObjectGet(_stream.id, _stream.@object.id);
 						break;
 					case StreamWrapperType.Branch:
 					case StreamWrapperType.Stream:
@@ -108,15 +107,15 @@ namespace Speckle.ConnectorUnity.Ops
 						SpeckleUnity.Console.Error("Stream is not properly ready to receive");
 						break;
 				}
-				
-				if (!referenceObj.Valid())
+
+				if (!_root.IsValid())
 				{
 					args.message = "The reference object pulled down from this stream is not valid";
 					SpeckleUnity.Console.Warn($"{args.client}-" + args.message);
 					return args;
 				}
 
-				Base @base = await SpeckleOps.Receive(_client, _stream.id, referenceObj, HandleProgress, HandleError, HandleChildCount);
+				Base @base = await SpeckleOps.Receive(_client, _stream.id, _root.id, HandleProgress, HandleError, HandleChildCount);
 
 				if (@base == null)
 				{
@@ -125,13 +124,11 @@ namespace Speckle.ConnectorUnity.Ops
 					return args;
 				}
 
-				args.referenceObj = referenceObj;
+				args.referenceObj = _root.id;
 
 				// TODO: handle the process for update objects and not just force deleting
-				if (_deleteOld && _root != null)
-					SpeckleUnity.SafeDestroy(_root.gameObject);
-
-				_root = new GameObject().AddComponent<SpeckleNode>();
+				if (_deleteOld)
+					_root.Purge();
 
 				// TODO: Handle separating the operation call from the conversion
 				await _root.DataToScene(@base, converter, token);
@@ -185,10 +182,10 @@ namespace Speckle.ConnectorUnity.Ops
 
 			await UniTask.Yield();
 		}
-		
+
 		#region Events
 
-		public event UnityAction<SpeckleNode> OnNodeComplete;
+		public event UnityAction<SpeckleObjectBehaviour> OnNodeComplete;
 
 		public event UnityAction OnPreviewSet;
 

@@ -169,7 +169,7 @@ namespace Speckle.ConnectorUnity.Converter
 			}
 
 			var component = CreateComponentInstance();
-			
+
 			GetBaseType(component.gameObject).Store(@base);
 
 			// ex. 1: create the gameobject and convert the data
@@ -187,8 +187,9 @@ namespace Speckle.ConnectorUnity.Converter
 
 		public override Base ToSpeckle(Component component) => CanConvertToSpeckle(component) ? ConvertComponent((TComponent)component) : null;
 
-		public TComponent CreateComponentInstance(string n = null) =>
-			GetBaseType(new GameObject(n.Valid() ? n : nameof(TBase)).AddComponent<TComponent>().gameObject).GetComponent<TComponent>();
+		public TComponent CreateComponentInstance(string n = null) => GetBaseType(
+			new GameObject(n.Valid() ? n : this.GetType().ToString().Split('.').LastOrDefault() + " Instance")
+				.AddComponent<TComponent>().gameObject).GetComponent<TComponent>();
 
 	}
 

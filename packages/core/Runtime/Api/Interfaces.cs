@@ -24,7 +24,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 	}
 
-	public interface IOperationEvents : IHaveProgress
+	public interface ISpeckleOpsEvent : IHaveProgress
 	{
 		public event UnityAction<ConcurrentDictionary<string, int>> OnProgressAction;
 

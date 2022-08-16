@@ -1,5 +1,11 @@
 ﻿namespace Speckle.ConnectorUnity.Ops
 {
+	public interface ICanAdapt<TObj>
+	{
+		public TObj source { get; set; }
+
+	}
+
 	public abstract class GenericAdapter<TObj>
 	{
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace Speckle.ConnectorUnity
 		public const string APP = HostApplications.Unity.Name;
 
 		public const string NAMESPACE = "Speckle";
-		
+
 		public static class Categories
 		{
 			public const string COMPS = NAMESPACE + "/Components/";
@@ -192,5 +193,20 @@ namespace Speckle.ConnectorUnity
 			return res;
 		}
 
+		public static void LogProgress(ConcurrentDictionary<string, int> args)
+		{
+			// from speckle gh connector
+			var total = 0.0f;
+			foreach (var kvp in args)
+			{
+				//NOTE: progress set to indeterminate until the TotalChildrenCount is correct
+				total += kvp.Value;
+			}
+
+			var progress = total / args.Keys.Count;
+			SpeckleUnity.Console.Log(progress.ToString());
+		}
+
 	}
+
 }
