@@ -185,6 +185,9 @@ namespace Speckle.ConnectorUnity.Converter
 
 			await UniTask.Create(() =>
 			{
+				RecenterVertices(data.vertices, out var center);
+				obj.transform.position = center;
+				
 				nativeMesh.SetVertices(data.vertices);
 				nativeMesh.SetUVs(0, data.uvs);
 				nativeMesh.SetColors(data.vertexColors);
@@ -438,5 +441,23 @@ namespace Speckle.ConnectorUnity.Converter
 			// 3. if not renderMaterial was passed, the default shader will be used 
 			return converter.defaultMaterial;
 		}
+
+		public static void RecenterVertices(List<Vector3> vertices, out Vector3 center)
+		{
+			center = Vector3.zero;
+
+			if (vertices == null || !vertices.Any()) return;
+
+			Bounds meshBounds = new Bounds { center = vertices[0] };
+
+			foreach (var vert in vertices)
+				meshBounds.Encapsulate(vert);
+
+			center = meshBounds.center;
+
+			for (int i = 0; i < vertices.Count; i++)
+				vertices[i] -= meshBounds.center;
+		}
+
 	}
 }
