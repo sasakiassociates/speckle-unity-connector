@@ -57,7 +57,7 @@ namespace Speckle.ConnectorUnity
 		{
 			@base = null;
 
-			if (!value.GetType().IsSimpleType() && value is Base o)
+			if (value != null && !value.GetType().IsSimpleType() && value is Base o)
 				@base = o;
 
 			return @base != null;
@@ -135,11 +135,11 @@ namespace Speckle.ConnectorUnity
 			public const string title = "speckle-connector:";
 
 			public static void Exception(Exception exception) => Debug.LogException(exception);
-			
+
 			public static void Log(string msg) => Debug.Log(title + " " + msg);
 
 			public static void Warn(string message) => Debug.LogWarning(title + message);
-			
+
 			public static void Error(string msg) => Debug.LogError(title + " " + msg);
 		}
 	}
