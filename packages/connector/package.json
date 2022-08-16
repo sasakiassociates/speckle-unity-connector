@@ -1,6 +1,6 @@
 {
   "name": "com.speckle.connector",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "displayName": "Speckle Connector",
   "description": "An Unofficial Speckle Connector for Unity from Sasaki",
   "unity": "2021.3",
