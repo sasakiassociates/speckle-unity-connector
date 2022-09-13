@@ -72,11 +72,6 @@ namespace Speckle.ConnectorUnity.Ops
 			get => _stream?.commits;
 		}
 		
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="accountToUse"></param>
-		/// <param name="streamId"></param>
 		public async UniTask Initialize(Account accountToUse, string streamId)
 		{
 			try
