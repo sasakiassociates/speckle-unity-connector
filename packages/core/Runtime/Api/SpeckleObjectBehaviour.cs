@@ -11,18 +11,22 @@ namespace Speckle.ConnectorUnity.Ops
 		///   Reference object id
 		/// </summary>
 		[ReadOnly] public string id;
+		
 		/// <summary>
 		///  Reference to when the object was created
 		/// </summary>
 		[ReadOnly] public string createdAt;
+		
 		/// <summary>
 		///  Reference speckle type
 		/// </summary>
 		[ReadOnly] public string speckleType;
+		
 		/// <summary>
 		///   Reference to application ID
 		/// </summary>
 		[ReadOnly] public string applicationId;
+		
 		/// <summary>
 		///   Total child count
 		/// </summary>

@@ -9,7 +9,7 @@ namespace Speckle.ConnectorUnity.Converter
 	{
 
 		/// <summary>
-		///   Converts a Speckle View3D to a GameObject
+		///  Converts a Speckle View3D to a GameObject
 		/// </summary>
 		/// <param name="base"></param>
 		/// <param name="instance"></param>
