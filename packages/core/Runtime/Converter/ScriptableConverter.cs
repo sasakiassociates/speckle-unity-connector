@@ -49,10 +49,8 @@ namespace Speckle.ConnectorUnity.Converter
 
 			foreach (var c in _converters)
 			{
-				if (c != null)
-				{
+				if (c != null && c.HasWorkToDo)
 					await c.PostWorkAsync();
-				}
 			}
 		}
 

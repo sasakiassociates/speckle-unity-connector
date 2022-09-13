@@ -1,70 +1,105 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.Models;
 using Speckle.Core.Kits;
 using Speckle.Core.Models;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Speckle.ConnectorUnity.Converter
 {
 
-	public abstract class ComponentConverter : ScriptableObject, IComponentConverter
+	public abstract class ComponentConverter : ScriptableObject, IComponentConverter, IComponentConverterProcess
 	{
-
+		/// <summary>
+		/// Simple data container of what the component supports
+		/// </summary>
 		[SerializeField] protected ComponentInfo _info;
 
-		ComponentConverterCrew _crew;
+		protected ConcurrentQueue<ConverterArgs> _queue;
 
+		/// <summary>
+		/// A container for managing the conversion settings
+		/// </summary>
 		public ScriptableConverterSettings settings { get; set; }
 
-		protected ComponentConverterCrew crew
-		{
-			get
-			{
-				if (_crew == null)
-				{
-					_crew = new GameObject().AddComponent<ComponentConverterCrew>();
-					_crew.Initialize(this);
-				}
+		/// <summary>
+		/// Reports true if any items are in the queue
+		/// </summary>
+		public bool HasWorkToDo => _queue.Valid();
 
-				return _crew;
+		/// <summary>
+		/// Typical speckle conversion called from <seealso cref="ISpeckleConverter"/>
+		/// This method is mainly used for setting up the gameobject and component data on the  main thread 
+		/// </summary>
+		/// <param name="base">The <see cref="Base"/> object to convert</param>
+		/// <returns>The scene object with necessary component info</returns>
+		public GameObject ToNative(Base @base)
+		{
+			if (TryConverterArgs(@base, out var args))
+			{
+				_queue.Enqueue(args);
+
+				onQueueSizeChanged?.Invoke(_queue.Count);
+
+				return args.unityObj.gameObject;
 			}
 
+			SpeckleUnity.Console.Warn("Object was not converted properly");
+			return null;
 		}
 
-		public const string ModelUnits = Units.Meters;
-
+		/// <summary>
+		/// Simple check to see if <see cref="Base"/> is supported by the converter
+		/// </summary>
+		/// <param name="type"></param>
+		/// <returns>Returns true if casted type is supported</returns>
 		public abstract bool CanConvertToNative(Base type);
 
+		/// <summary>
+		/// Simple check to see if <see cref="Component"/> is supported by the converter
+		/// </summary>
+		/// <param name="type"></param>
+		/// <returns>Returns true if casted type is supported</returns>
 		public abstract bool CanConvertToSpeckle(Component type);
 
-		public abstract GameObject ToNative(Base @base);
-
+		/// <summary>
+		/// Actual conversion logic for processing speckle data into the necessary unity component(s)
+		/// </summary>
+		/// <param name="base">Speckle Object to convert</param>
+		/// <param name="obj">Referenced scene object with component to send data to</param>
 		public abstract void ToNativeConversion(Base @base, ref Component obj);
 
+		/// <summary>
+		/// Actual conversion logic for processing speckle data into the necessary unity component(s), but with the spice of async
+		/// </summary>
+		/// <param name="base">Speckle Object to convert</param>
+		/// <param name="obj">Referenced scene object with component to send data to</param>
 		public abstract UniTask ToNativeConversionAsync(Base @base, Component obj);
 
+		/// <summary>
+		/// Conversion logic to parse the unity components into a Speckle Object
+		/// </summary>
+		/// <param name="component">Component to convert</param>
+		/// <returns>The <see cref="Base"/> processed</returns>
 		public abstract Base ToSpeckle(Component component);
 
+		/// <summary>
+		/// The unity <see cref="Component"/> type targeted for conversion
+		/// </summary>
 		public abstract Type unity_type { get; }
 
+		/// <summary>
+		/// The <see cref="Base"/> speckle type targeted for conversion
+		/// </summary>
 		public abstract string speckle_type { get; }
 
-		public async UniTask PostWorkAsync()
-		{
-			if (crew.HasWorkToDo)
-			{
-				SpeckleUnity.Console.Log("Post Work Started");
-				await crew.PostWorkAsync();
-			}
-
-			SpeckleUnity.Console.Log("Post Work Completed");
-
-			SpeckleUnity.SafeDestroy(crew.gameObject);
-		}
+		/// <summary>
+		/// Event for notify queue updates during conversion
+		/// </summary>
+		public event UnityAction<int> onQueueSizeChanged;
 
 		public virtual bool Equals(ComponentConverter other)
 		{
@@ -73,6 +108,69 @@ namespace Speckle.ConnectorUnity.Converter
 			       && other.unity_type == unity_type
 			       && other.speckle_type.Valid()
 			       && other.speckle_type.Equals(speckle_type);
+		}
+
+		/// <summary>
+		/// Follow up method for handling all conversion data
+		/// Will process speckle data at specific rate set in <see cref="spawnSpeed"/>
+		/// </summary>
+		public async UniTask PostWorkAsync()
+		{
+			SpeckleUnity.Console.Log($"{nameof(PostWorkAsync)} for {name} with {_queue.Count}");
+
+			try
+			{
+				if (_queue.Valid())
+				{
+					var chunk = new List<ConverterArgs>();
+					while (_queue.TryDequeue(out var args))
+					{
+						Debug.Log($"Deque called {args.speckleObj}");
+
+						chunk.Add(args);
+
+						if (_queue.Count <= 0 || chunk.Count >= settings.spawnSpeed)
+						{
+							await UniTask.WhenAll(chunk.Select(x => ToNativeConversionAsync(x.speckleObj, x.unityObj)));
+
+							chunk = new List<ConverterArgs>();
+
+							onQueueSizeChanged?.Invoke(_queue.Count);
+
+							// call for making sure the ui thread doesnt get blocked
+							await UniTask.Yield();
+						}
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				SpeckleUnity.Console.Warn(e.Message);
+			}
+			finally
+			{
+				SpeckleUnity.Console.Log("Post Work Completed");
+				onQueueSizeChanged?.Invoke(0);
+			}
+		}
+
+		/// <summary>
+		/// Protected method for handling game object creation
+		/// </summary>
+		/// <param name="base">Object to build off of</param>
+		/// <param name="args">Output args to be added to the queue</param>
+		/// <returns>Returns true if args are valid</returns>
+		protected abstract bool TryConverterArgs(Base @base, out ConverterArgs args);
+
+		protected virtual BaseBehaviour GetBaseType(GameObject obj)
+		{
+			if (obj == null) obj = new GameObject();
+
+			var bb = obj.GetComponent<BaseBehaviour>();
+
+			if (bb == null) bb = obj.AddComponent<BaseBehaviour>();
+
+			return bb;
 		}
 
 		[Serializable]
@@ -89,17 +187,6 @@ namespace Speckle.ConnectorUnity.Converter
 			}
 		}
 
-		protected virtual BaseBehaviour GetBaseType(GameObject obj)
-		{
-			if (obj == null) obj = new GameObject();
-
-			var bb = obj.GetComponent<BaseBehaviour>();
-
-			if (bb == null) bb = obj.AddComponent<BaseBehaviour>();
-
-			return bb;
-		}
-
 	}
 
 	public abstract class ComponentConverter<TBase, TComponent> : ComponentConverter
@@ -109,6 +196,9 @@ namespace Speckle.ConnectorUnity.Converter
 
 		public override string speckle_type => _info.speckleTypeName;
 
+		/// <summary>
+		/// <see cref="TComponent"/> targeted for conversion to <see cref="TBase"/>
+		/// </summary>
 		public override Type unity_type => typeof(TComponent);
 
 		protected bool ValidObjects(Base @base, Component component, out TBase tBase, out TComponent tComp)
@@ -124,8 +214,11 @@ namespace Speckle.ConnectorUnity.Converter
 			return tBase != null && tComp != null;
 		}
 
-		protected virtual void OnEnable() => _info =
-			new ComponentInfo(typeof(TComponent).ToString(), Activator.CreateInstance<TBase>().speckle_type);
+		protected virtual void OnEnable()
+		{
+			_queue = new ConcurrentQueue<ConverterArgs>();
+			_info = new ComponentInfo(typeof(TComponent).ToString(), Activator.CreateInstance<TBase>().speckle_type);
+		}
 
 		public override bool CanConvertToNative(Base type) => type != null && type.GetType() == typeof(TBase);
 
@@ -157,39 +250,29 @@ namespace Speckle.ConnectorUnity.Converter
 			return UniTask.CompletedTask;
 		});
 
-		/// <summary>
-		///   Unity Component to search for when trying to convert a game object
-		/// </summary>
-		public override GameObject ToNative(Base @base)
+		protected override bool TryConverterArgs(Base @base, out ConverterArgs args)
 		{
-			if (!CanConvertToNative(@base) || @base is not TBase compBase)
+			args = null;
+			if (CanConvertToNative(@base) && @base is TBase compBase)
+			{
+				var component = CreateComponentInstance();
+
+				GetBaseType(component.gameObject).Store(compBase);
+
+				args = new ConverterArgs(compBase, component);
+			}
+			else
 			{
 				SpeckleUnity.Console.Warn($"{@base.speckle_type} somehow ended up in the wrong converter!\n{this}");
-				return null;
 			}
 
-			var component = CreateComponentInstance();
-
-			GetBaseType(component.gameObject).Store(@base);
-
-			// ex. 1: create the gameobject and convert the data
-			if (settings.style == ConverterStyle.Direct)
-			{
-				ConvertBase(compBase, ref component);
-			}
-			else // ex. 2: create the gameobject and store the data for conversion later
-			{
-				crew.Add(@base, component);
-			}
-
-			return component.gameObject;
+			return args != null;
 		}
 
 		public override Base ToSpeckle(Component component) => CanConvertToSpeckle(component) ? ConvertComponent((TComponent)component) : null;
 
 		public TComponent CreateComponentInstance(string n = null) => GetBaseType(
-			new GameObject(n.Valid() ? n : this.GetType().ToString().Split('.').LastOrDefault() + " Instance")
-				.AddComponent<TComponent>().gameObject).GetComponent<TComponent>();
+			new GameObject(n.Valid() ? n : speckle_type).AddComponent<TComponent>().gameObject).GetComponent<TComponent>();
 
 	}
 

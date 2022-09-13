@@ -40,10 +40,8 @@ namespace Speckle.ConnectorUnity.Ops
 			speckleObject.hierarchy = new SpeckleObjectHierarchy();
 			var defaultLayer = new GameObject("Default").AddComponent<SpeckleLayer>();
 
-			speckleObject.DeconstructObject(data, defaultLayer, converter, token);
-
-			Debug.Log("Speckle Node Complete");
-
+			await speckleObject.DeconstructObject(data, defaultLayer, converter, token);
+			
 			if (defaultLayer.Layers.Any())
 			{
 				defaultLayer.SetObjectParent(speckleObject.transform);
@@ -52,14 +50,11 @@ namespace Speckle.ConnectorUnity.Ops
 			else
 				SpeckleUnity.SafeDestroy(defaultLayer.gameObject);
 
-			if (converter is ScriptableSpeckleConverter sc)
-			{
-				Debug.Log("Doing post work");
+			if (converter is ScriptableSpeckleConverter sc)			
 				await sc.PostWork();
-			}
 		}
 
-		static void DeconstructObject(
+		static async UniTask DeconstructObject(
 			this SpeckleObjectBehaviour speckleObj, Base data, SpeckleLayer defaultLayer, ISpeckleConverter converter, CancellationToken token
 		)
 		{
@@ -75,6 +70,8 @@ namespace Speckle.ConnectorUnity.Ops
 
 				if (obj != null)
 					defaultLayer.Add(obj);
+				
+				await UniTask.Yield();
 			}
 
 			// 2: Check for the properties of an object. There might be additional objects that we want to convert as well
@@ -96,18 +93,23 @@ namespace Speckle.ConnectorUnity.Ops
 
 					// add to hierarchy 
 					speckleObj.hierarchy.Add(layer);
+					
+					await UniTask.Yield();
+
 					continue;
 				}
 
 				// 3: Member is a speckle object
 				if (obj.IsBase(out var @base))
 				{
-					Debug.Log("stepping into objects");
-					speckleObj.DeconstructObject(@base, defaultLayer, converter, token);
+					await speckleObj.DeconstructObject(@base, defaultLayer, converter, token);
+					
 					continue;
 				}
 
-				Debug.LogWarning("Unhandled");
+				SpeckleUnity.Console.Warn("Unhandled");
+				
+				await UniTask.Yield();
 			}
 		}
 
@@ -126,8 +128,6 @@ namespace Speckle.ConnectorUnity.Ops
 			speckleObj.totalChildrenCount = (int)data.GetTotalChildrenCount();
 			return data;
 		}
-
-		
 
 		static GameObject CheckConvertedFormat(object obj)
 		{

@@ -1,10 +1,17 @@
 ﻿using System;
 using Speckle.Core.Models;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Speckle.ConnectorUnity.Converter
 {
 
+	public interface IComponentConverterProcess
+	{
+		public event UnityAction<int> onQueueSizeChanged;
+		
+	}
+	
 	public interface IComponentConverter
 	{
 

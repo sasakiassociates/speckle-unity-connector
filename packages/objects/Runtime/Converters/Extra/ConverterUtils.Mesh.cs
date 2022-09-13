@@ -213,10 +213,10 @@ namespace Speckle.ConnectorUnity.Converter
 			UniTask.SwitchToMainThread();
 
 			nativeMesh.subMeshCount = data.subMeshes.Count;
-
-			Debug.Log($"Mesh Stats for Native"
-			          + $"\nVertexCount:{nativeMesh.vertexCount}"
-			          + $"\nSubMeshes:{nativeMesh.subMeshCount}");
+			//
+			// Debug.Log($"Mesh Stats for Native"
+			//           + $"\nVertexCount:{nativeMesh.vertexCount}"
+			//           + $"\nSubMeshes:{nativeMesh.subMeshCount}");
 
 			var filter = obj.GetComponent<MeshFilter>();
 
@@ -297,9 +297,9 @@ namespace Speckle.ConnectorUnity.Converter
 			nativeMesh.RecalculateNormals();
 			nativeMesh.RecalculateTangents();
 
-			Debug.Log($"Mesh Stats for Native"
-			          + $"\nVertexCount:{nativeMesh.vertexCount}"
-			          + $"\nSubMeshes:{nativeMesh.subMeshCount}");
+			// Debug.Log($"Mesh Stats for Native"
+			//           + $"\nVertexCount:{nativeMesh.vertexCount}"
+			//           + $"\nSubMeshes:{nativeMesh.subMeshCount}");
 
 			var filter = obj.GetComponent<MeshFilter>();
 

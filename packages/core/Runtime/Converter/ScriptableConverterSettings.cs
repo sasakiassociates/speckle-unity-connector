@@ -6,6 +6,7 @@ namespace Speckle.ConnectorUnity.Converter
 	public class ScriptableConverterSettings
 	{
 		public ConverterStyle style;
+		public int spawnSpeed = 20;
 	}
 
 	public enum ConverterStyle
