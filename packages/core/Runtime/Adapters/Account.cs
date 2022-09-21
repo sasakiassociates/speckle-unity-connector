@@ -1,4 +1,5 @@
 ﻿using System;
+using Speckle.Core.Api;
 using Speckle.Core.Credentials;
 using UnityEngine;
 

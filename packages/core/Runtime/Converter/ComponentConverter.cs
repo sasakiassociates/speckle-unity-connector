@@ -17,7 +17,9 @@ namespace Speckle.ConnectorUnity.Converter
 		/// Simple data container of what the component supports
 		/// </summary>
 		[SerializeField] protected ComponentInfo _info;
-
+		
+		public ScriptableSpeckleConverter parent { get; set; } 
+		
 		protected ConcurrentQueue<ConverterArgs> _queue;
 
 		/// <summary>

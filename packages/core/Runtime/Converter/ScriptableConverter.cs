@@ -6,6 +6,7 @@ using Speckle.Core.Kits;
 using Speckle.Core.Logging;
 using Speckle.Core.Models;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Speckle.ConnectorUnity.Converter
 {
@@ -25,9 +26,11 @@ namespace Speckle.ConnectorUnity.Converter
 
 		[SerializeField] ScriptableConverterSettings _settings;
 
+		public Dictionary<string, Object> LoadedAssets { get; private set; }
+		
 		public HashSet<Exception> ConversionErrors { get; } = new();
 
-		public List<ApplicationPlaceholderObject> ContextObjects { get; set; } = new();
+		public List<ApplicationObject> ContextObjects { get; set; } = new();
 
 		public ProgressReport Report { get; protected set; }
 
@@ -56,12 +59,15 @@ namespace Speckle.ConnectorUnity.Converter
 
 		public abstract List<ComponentConverter> StandardConverters();
 
-		public virtual void SetContextObjects(List<ApplicationPlaceholderObject> objects) => ContextObjects = objects;
+		public virtual void SetContextObjects(List<ApplicationObject> objects) => ContextObjects = objects;
 
-		public virtual void SetPreviousContextObjects(List<ApplicationPlaceholderObject> objects) => ContextObjects = objects;
+		public virtual void SetPreviousContextObjects(List<ApplicationObject> objects) => ContextObjects = objects;
 
 		public virtual void SetContextDocument(object doc)
-		{ }
+		{
+			if(doc is not Dictionary<string, Object>  loadedAssets) throw new ArgumentException($"Expected {nameof(doc)} to be of type {typeof(Dictionary<string, Object>)}", nameof(doc));
+			LoadedAssets = loadedAssets;
+		}
 
 		public virtual void SetConverterSettings(object settings)
 		{
