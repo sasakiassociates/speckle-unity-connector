@@ -42,7 +42,7 @@ namespace Speckle.ConnectorUnity.Converter
 		/// </summary>
 		[SerializeField] bool _combineMeshes = false;
 
-		public List<ApplicationPlaceholderObject> contextObjects { get; set; }
+		public List<ApplicationObject> contextObjects { get; set; }
 
 		public bool addMeshCollider => _addMeshCollider;
 

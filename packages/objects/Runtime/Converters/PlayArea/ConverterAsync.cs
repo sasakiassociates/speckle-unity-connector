@@ -23,7 +23,7 @@ namespace Speckle.ConnectorUnity.Converter.PlayArea
 			_objectByBaseId = new Dictionary<string, GameObject>();
 		}
 
-		public List<ApplicationPlaceholderObject> contextObjects { get; set; } = new List<ApplicationPlaceholderObject>();
+		public List<ApplicationObject> contextObjects { get; set; } = new List<ApplicationObject>();
 
 		public bool addMeshCollider { get; } = false;
 

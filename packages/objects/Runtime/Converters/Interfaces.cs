@@ -6,7 +6,7 @@ namespace Speckle.ConnectorUnity.Converter
 {
 	public interface IWantContextObj
 	{
-		public List<ApplicationPlaceholderObject> contextObjects
+		public List<ApplicationObject> contextObjects
 		{
 			get;
 			set;

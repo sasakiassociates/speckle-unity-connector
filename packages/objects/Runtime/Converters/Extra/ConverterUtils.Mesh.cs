@@ -7,7 +7,8 @@ using Objects.Other;
 using Objects.Utils;
 using UnityEngine;
 using UnityEngine.Rendering;
-using Mesh = Objects.Geometry.Mesh;
+using SMesh = Objects.Geometry.Mesh;
+using Material = UnityEngine.Material;
 
 namespace Speckle.ConnectorUnity.Converter
 {
@@ -25,7 +26,7 @@ namespace Speckle.ConnectorUnity.Converter
 			get => Application.isPlaying;
 		}
 
-		public static Mesh MeshToSpeckle(this ISpeckleMeshConverter converter, MeshFilter component)
+		public static SMesh MeshToSpeckle(this ISpeckleMeshConverter converter, MeshFilter component)
 		{
 			var nativeMesh = IsRuntime ? component.mesh : component.sharedMesh;
 
@@ -80,7 +81,7 @@ namespace Speckle.ConnectorUnity.Converter
 			//   }
 			// }
 
-			return new Mesh
+			return new SMesh
 			{
 				vertices = sVertices,
 				faces = sFaces,
@@ -90,7 +91,7 @@ namespace Speckle.ConnectorUnity.Converter
 			};
 		}
 
-		public static void MeshToNative(this ISpeckleMeshConverter converter, Mesh mesh, GameObject obj)
+		public static void MeshToNative(this ISpeckleMeshConverter converter, SMesh mesh, GameObject obj)
 		{
 			if (mesh == null || mesh.vertices.Count == 0 || mesh.faces.Count == 0) return;
 
@@ -158,7 +159,7 @@ namespace Speckle.ConnectorUnity.Converter
 			}
 		}
 
-		public static async UniTask MeshToNativeAsync(this ISpeckleMeshConverter converter, Mesh mesh, GameObject obj)
+		public static async UniTask MeshToNativeAsync(this ISpeckleMeshConverter converter, SMesh mesh, GameObject obj)
 		{
 			if (mesh == null || mesh.vertices.Count == 0 || mesh.faces.Count == 0) return;
 
@@ -187,7 +188,7 @@ namespace Speckle.ConnectorUnity.Converter
 			{
 				RecenterVertices(data.vertices, out var center);
 				obj.transform.position = center;
-				
+
 				nativeMesh.SetVertices(data.vertices);
 				nativeMesh.SetUVs(0, data.uvs);
 				nativeMesh.SetColors(data.vertexColors);
@@ -247,7 +248,7 @@ namespace Speckle.ConnectorUnity.Converter
 			}
 		}
 
-		public static GameObject MeshToNative(this ISpeckleMeshConverter converter, IReadOnlyCollection<Mesh> meshes, GameObject obj)
+		public static GameObject MeshToNative(this ISpeckleMeshConverter converter, IReadOnlyCollection<SMesh> meshes, GameObject obj)
 		{
 			var materials = new List<Material>(meshes.Count);
 
@@ -320,7 +321,7 @@ namespace Speckle.ConnectorUnity.Converter
 			return obj;
 		}
 
-		public static void AddMesh(this MeshData data, Mesh subMesh)
+		public static void AddMesh(this MeshData data, SMesh subMesh)
 		{
 			subMesh.AlignVerticesWithTexCoordsByIndex();
 			subMesh.TriangulateMesh();
@@ -360,7 +361,7 @@ namespace Speckle.ConnectorUnity.Converter
 				else if (subMesh.colors.Count != 0)
 					//TODO what if only some submeshes have colors?
 					Debug.LogWarning(
-						$"{typeof(Mesh)} {subMesh.id} has invalid number of vertex {nameof(Mesh.colors)}. Expected 0 or {subMesh.VerticesCount}, got {subMesh.colors.Count}");
+						$"{typeof(SMesh)} {subMesh.id} has invalid number of vertex {nameof(SMesh.colors)}. Expected 0 or {subMesh.VerticesCount}, got {subMesh.colors.Count}");
 			}
 
 			var tris = new List<int>();
@@ -398,37 +399,33 @@ namespace Speckle.ConnectorUnity.Converter
 		// Copied from main repo
 		public static Material GetMaterial(this ISpeckleMeshConverter converter, RenderMaterial renderMaterial)
 		{
+			return converter.defaultMaterial;
+
 			//if a renderMaterial is passed use that, otherwise try get it from the mesh itself
 			if (renderMaterial != null)
 			{
+				//todo support more complex materials
+				var shader = Shader.Find("Standard");
+				Material mat = new Material(shader);
+
 				// 1. match material by name, if any
-				Material matByName = null;
+				string materialName = string.IsNullOrWhiteSpace(renderMaterial.name)
+					? $"material-{renderMaterial.id}"
+					: renderMaterial.name.Replace('/', '-');
 
-				foreach (var _mat in converter.contextObjects)
-					if (((Material)_mat.NativeObject).name == renderMaterial.name)
-					{
-						if (matByName == null) matByName = (Material)_mat.NativeObject;
-						else Debug.LogWarning("There is more than one Material with the name \'" + renderMaterial.name + "\'!", (Material)_mat.NativeObject);
-					}
-
-				if (matByName != null) return matByName;
+				// if (LoadedAssets.TryGetValue(materialName, out Object asset)
+				//     && asset is Material loadedMaterial) return loadedMaterial;
 
 				// 2. re-create material by setting diffuse color and transparency on standard shaders
-				Material mat;
 				if (renderMaterial.opacity < 1)
 				{
-					var shader = Shader.Find("Transparent/Diffuse");
+					shader = Shader.Find("Transparent/Diffuse");
 					mat = new Material(shader);
-				}
-				else
-				{
-					mat = converter.defaultMaterial;
 				}
 
 				var c = renderMaterial.diffuse.ToUnityColor();
 				mat.color = new Color(c.r, c.g, c.b, (float)renderMaterial.opacity);
-				mat.name = renderMaterial.name ?? "material-" + Guid.NewGuid().ToString().Substring(0, 8);
-
+				mat.name = materialName;
 				mat.SetFloat(Metallic, (float)renderMaterial.metalness);
 				mat.SetFloat(Glossiness, 1 - (float)renderMaterial.roughness);
 
