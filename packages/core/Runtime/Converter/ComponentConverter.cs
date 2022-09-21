@@ -125,8 +125,6 @@ namespace Speckle.ConnectorUnity.Converter
 					var chunk = new List<ConverterArgs>();
 					while (_queue.TryDequeue(out var args))
 					{
-						Debug.Log($"Deque called {args.speckleObj}");
-
 						chunk.Add(args);
 
 						if (_queue.Count <= 0 || chunk.Count >= settings.spawnSpeed)
