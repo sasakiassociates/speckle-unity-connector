@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.Converter;
+using Speckle.ConnectorUnity.Models;
 using Speckle.ConnectorUnity.Ops;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
@@ -24,7 +25,7 @@ namespace Speckle.ConnectorUnity
 	public class SpeckleConnector : MonoBehaviour
 	{
 
-		[SerializeField] List<ScriptableSpeckleStream> _streams = new();
+		[SerializeField] List<ScriptableStream> _streams = new();
 
 		[SerializeField] List<Sender> _senders = new();
 
@@ -42,9 +43,9 @@ namespace Speckle.ConnectorUnity
 
 		public List<Account> Accounts { get; private set; }
 
-		public List<ScriptableSpeckleStream> Streams
+		public List<ScriptableStream> Streams
 		{
-			get => _streams.Valid() ? _streams : new List<ScriptableSpeckleStream>();
+			get => _streams.Valid() ? _streams : new List<ScriptableStream>();
 		}
 
 		public Account activeAccount
@@ -52,7 +53,7 @@ namespace Speckle.ConnectorUnity
 			get => Accounts.Valid(_accountIndex) ? Accounts[_accountIndex] : null;
 		}
 
-		public ScriptableSpeckleStream activeStream
+		public ScriptableStream activeStream
 		{
 			get => _streams.Valid(_streamIndex) ? _streams[_streamIndex] : null;
 		}
@@ -98,7 +99,7 @@ namespace Speckle.ConnectorUnity
 					return;
 				}
 
-				_streams = new List<ScriptableSpeckleStream>();
+				_streams = new List<ScriptableStream>();
 
 				_client = null;
 				_streamIndex = 0;
@@ -110,11 +111,11 @@ namespace Speckle.ConnectorUnity
 					_client = new Client(activeAccount);
 
 					var res = await _client.StreamsGet(_streamLimit);
-					_streams = new List<ScriptableSpeckleStream>();
+					_streams = new List<ScriptableStream>();
 
 					foreach (var s in res)
 					{
-						var wrapper = ScriptableObject.CreateInstance<ScriptableSpeckleStream>();
+						var wrapper = ScriptableObject.CreateInstance<ScriptableStream>();
 
 						// if (await wrapper.TrySetNew(s.id, activeAccount.userInfo.id, _client.ServerUrl))
 						// {
@@ -134,9 +135,9 @@ namespace Speckle.ConnectorUnity
 			}
 		}
 
-		public static bool TryGetSpeckleStream(string streamUrl, out ScriptableSpeckleStream stream)
+		public static bool TryGetSpeckleStream(string streamUrl, out ScriptableStream stream)
 		{
-			stream = ScriptableObject.CreateInstance<ScriptableSpeckleStream>();
+			stream = ScriptableObject.CreateInstance<ScriptableStream>();
 			// stream.Init(streamUrl);
 			return false;
 			// return stream.IsValid();

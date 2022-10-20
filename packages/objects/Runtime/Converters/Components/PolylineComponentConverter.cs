@@ -13,13 +13,13 @@ namespace Speckle.ConnectorUnity.Converter
 		/// <summary>
 		///   Converts a Speckle curve to a GameObject with a line renderer
 		/// </summary>
-		/// <param name="base"></param>
+		/// <param name="obj"></param>
 		/// <param name="instance"></param>
 		/// <returns></returns>
-		protected override void ConvertBase(Polyline @base, ref LineRenderer instance) =>
-			instance.SetupLineRenderer(@base.GetPoints().ArrayToVector3(@base.units).ToArray(), diameter);
+		protected override void ConvertBase(Polyline obj, ref LineRenderer instance) =>
+			instance.SetupLineRenderer(obj.GetPoints().ArrayToVector3(obj.units).ToArray(), diameter);
 
-		protected override Base ConvertComponent(LineRenderer component)
+		public override Base ConvertComponent(LineRenderer component)
 		{
 			// TODO: check if this should use world or local scale
 			var points = new Vector3[component.positionCount];

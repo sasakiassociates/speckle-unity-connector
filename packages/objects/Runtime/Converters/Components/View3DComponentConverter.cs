@@ -11,21 +11,21 @@ namespace Speckle.ConnectorUnity.Converter
 		/// <summary>
 		///  Converts a Speckle View3D to a GameObject
 		/// </summary>
-		/// <param name="base"></param>
+		/// <param name="obj"></param>
 		/// <param name="instance"></param>
-		protected override void ConvertBase(View3D @base, ref Camera instance)
+		protected override void ConvertBase(View3D obj, ref Camera instance)
 		{
 			instance.transform.position = ConverterUtils.VectorByCoordinates(
-				@base.origin.x, @base.origin.y, @base.origin.z, @base.origin.units);
+				obj.origin.x, obj.origin.y, obj.origin.z, obj.origin.units);
 
 			instance.transform.forward = ConverterUtils.VectorByCoordinates(
-				@base.forwardDirection.x, @base.forwardDirection.y, @base.forwardDirection.z, @base.forwardDirection.units);
+				obj.forwardDirection.x, obj.forwardDirection.y, obj.forwardDirection.z, obj.forwardDirection.units);
 
 			instance.transform.up = ConverterUtils.VectorByCoordinates(
-				@base.upDirection.x, @base.upDirection.y, @base.upDirection.z, @base.upDirection.units);
+				obj.upDirection.x, obj.upDirection.y, obj.upDirection.z, obj.upDirection.units);
 		}
 
-		protected override Base ConvertComponent(Camera component) => new View3D
+		public override Base ConvertComponent(Camera component) => new View3D
 		{
 			origin = component.transform.position.ToPoint(),
 			forwardDirection = component.transform.forward.ToSpeckle(),

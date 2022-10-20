@@ -9,7 +9,7 @@ namespace Speckle.ConnectorUnity.Converter
 	public class BaseComponentConverter : ComponentConverter<Base, BaseBehaviour>
 	{
 
-		protected override void ConvertBase(Base @base, ref BaseBehaviour instance)
+		protected override void ConvertBase(Base obj, ref BaseBehaviour instance)
 		{
 			// if (@base["displayValue"] is Mesh mesh)
 			// {
@@ -50,7 +50,7 @@ namespace Speckle.ConnectorUnity.Converter
 			SpeckleUnity.Console.Log(name + "does not support converting yet");
 		}
 
-		protected override Base ConvertComponent(BaseBehaviour component)
+		public override Base ConvertComponent(BaseBehaviour component)
 		{
 			SpeckleUnity.Console.Log(name + "does not support converting yet");
 			return null;

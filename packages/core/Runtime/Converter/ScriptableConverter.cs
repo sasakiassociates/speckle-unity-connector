@@ -27,7 +27,7 @@ namespace Speckle.ConnectorUnity.Converter
 		[SerializeField] ScriptableConverterSettings _settings;
 
 		public Dictionary<string, Object> LoadedAssets { get; private set; }
-		
+
 		public HashSet<Exception> ConversionErrors { get; } = new();
 
 		public List<ApplicationObject> ContextObjects { get; set; } = new();
@@ -40,15 +40,23 @@ namespace Speckle.ConnectorUnity.Converter
 
 		protected virtual void OnEnable()
 		{
+			Report = new ProgressReport();
 			// Don't override serialized scriptable object lists
 			converters = _converters.Valid() ? _converters : StandardConverters();
 
-			if (_settings == null) SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Queue });
+			foreach (var cc in converters)
+			{
+				cc.parent = this;
+			}
+
+			if (_settings == null)
+				SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Queue });
 		}
 
 		public virtual async UniTask PostWork()
 		{
-			if (!_converters.Valid()) return;
+			if (!_converters.Valid())
+				return;
 
 			foreach (var c in _converters)
 			{
@@ -65,7 +73,9 @@ namespace Speckle.ConnectorUnity.Converter
 
 		public virtual void SetContextDocument(object doc)
 		{
-			if(doc is not Dictionary<string, Object>  loadedAssets) throw new ArgumentException($"Expected {nameof(doc)} to be of type {typeof(Dictionary<string, Object>)}", nameof(doc));
+			if (doc is not Dictionary<string, Object> loadedAssets)
+				throw new ArgumentException($"Expected {nameof(doc)} to be of type {typeof(Dictionary<string, Object>)}", nameof(doc));
+
 			LoadedAssets = loadedAssets;
 		}
 
@@ -89,23 +99,24 @@ namespace Speckle.ConnectorUnity.Converter
 
 		public virtual bool CanConvertToNative(Base @base) => TryGetConverter(@base, false, out _);
 
-		protected virtual bool TryGetConverter(Base speckleType, bool init, out ComponentConverter converter)
+		protected virtual bool TryGetConverter(Base obj, bool init, out ComponentConverter converter)
 		{
 			converter = null;
 
-			if (!_converters.Valid()) return false;
+			if (!_converters.Valid() || obj.IsWrapper())
+				return false;
 
 			foreach (var c in _converters)
 			{
-				if (c == null) continue;
+				if (c == null)
+					continue;
 
-				if (c.speckle_type.Equals(speckleType.speckle_type))
+				if (c.speckle_type.Equals(obj.speckle_type))
 				{
 					converter = c;
+
 					if (init)
-					{
 						c.settings = _settings;
-					}
 
 					break;
 				}
@@ -127,11 +138,13 @@ namespace Speckle.ConnectorUnity.Converter
 				case GameObject o:
 					foreach (var c in _converters)
 					{
-						if (c == null || o.GetComponent(c.unity_type)) continue;
+						if (c == null || o.GetComponent(c.unity_type))
+							continue;
 
 						converter = c;
 
-						if (init) c.settings = _settings;
+						if (init)
+							c.settings = _settings;
 
 						break;
 					}

@@ -12,11 +12,9 @@ namespace Speckle.ConnectorUnity.Ops
 	public interface ISpeckleOps
 	{
 
-		public Account account { get; }
+		public Account Account { get; }
 
-		public Stream stream { get; }
-
-		public CancellationToken token { get; }
+		public Stream Stream { get; }
 
 		public UniTask Initialize(Account account, string streamId);
 
@@ -31,15 +29,6 @@ namespace Speckle.ConnectorUnity.Ops
 		public event UnityAction<string, Exception> OnErrorAction;
 
 		public event UnityAction<int> OnTotalChildCountAction;
-	}
-
-	public interface ICanConverter
-	{
-		/// <summary>
-		///   the active converter for this client object
-		/// </summary>
-		ScriptableSpeckleConverter converter { get; set; }
-		
 	}
 
 }

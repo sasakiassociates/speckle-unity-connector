@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 
 namespace Speckle.ConnectorUnity.Models
 {
@@ -19,6 +21,7 @@ namespace Speckle.ConnectorUnity.Models
 		public Transform Parent
 		{
 			get => _parent;
+			set => _parent = value;
 		}
 
 		/// <summary>
@@ -50,15 +53,38 @@ namespace Speckle.ConnectorUnity.Models
 		///   Set parent for all objects in a layer
 		/// </summary>
 		/// <param name="t"></param>
-		public void SetObjectParent(Transform t)
+		/// <param name="recursive"></param>
+		public void ParentObjects(Transform t, bool recursive = false)
 		{
 			if (t == null)
+			{
 				return;
+			}
 
 			_parent = t;
 
 			if (Data.Any())
+			{
 				Data.ForEach(x => x.transform.SetParent(_parent));
+			}
+
+			if (!recursive)
+			{
+				return;
+			}
+
+			foreach (var l in _layers)
+			{
+				l.ParentObjects(t, true);
+			}
+		}
+
+		/// <summary>
+		/// Sets the <see cref="Parent"/> object to the object hosted by this component
+		/// </summary>
+		public void ParentObjects()
+		{
+			ParentObjects(_parent != null ? _parent : transform);
 		}
 
 		public void Add(SpeckleLayer layer)
@@ -72,5 +98,6 @@ namespace Speckle.ConnectorUnity.Models
 			_data ??= new List<GameObject>();
 			_data.Add(@object);
 		}
+
 	}
 }

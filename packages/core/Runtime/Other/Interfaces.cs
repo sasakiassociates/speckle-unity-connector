@@ -7,6 +7,6 @@
 
 	public interface IHaveProgress
 	{
-		public float progress { get; }
+		public float Progress { get; }
 	}
 }

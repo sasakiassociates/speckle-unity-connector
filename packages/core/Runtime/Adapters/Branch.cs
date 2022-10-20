@@ -18,13 +18,14 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public BranchAdapter(Branch value) : base(value)
 		{
-			if (value == null) return;
+			if (value == null)
+				return;
 
 			id = value.id;
 			name = value.name;
 			description = value.description;
-			commitCursor = value.commits.cursor;
-			commitTotalCount = value.commits.totalCount;
+			commitCursor = value.commits?.cursor;
+			commitTotalCount = value.commits?.totalCount ?? 0;
 
 			commits = value.commits != null && value.commits.items.Valid() ?
 				value.commits.items.Select(x => new CommitAdapter(x)).ToList() : new List<CommitAdapter>();
@@ -39,7 +40,7 @@ namespace Speckle.ConnectorUnity.Ops
 			description = this.description,
 			commits = new Commits
 			{
-				items = commits.Select(x => x.source).ToList(),
+				items = commits.Valid() ? commits.Select(x => x.source).ToList() : new List<Commit>(),
 				cursor = commitCursor,
 				totalCount = commitTotalCount,
 			}

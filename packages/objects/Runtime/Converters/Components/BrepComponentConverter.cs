@@ -71,9 +71,9 @@ namespace Speckle.ConnectorUnity.Converter
 			get => _combineMeshes;
 		}
 
-		protected override void ConvertBase(Brep @base, ref SpeckleBrep instance) => this.MeshToNative(@base.displayValue, instance.gameObject);
+		protected override void ConvertBase(Brep obj, ref SpeckleBrep instance) => this.MeshToNative(obj.displayValue, instance.gameObject);
 
-		protected override Base ConvertComponent(SpeckleBrep component) => this.MeshToSpeckle(component.mesh);
+		public override Base ConvertComponent(SpeckleBrep component) => this.MeshToSpeckle(component.mesh);
 
 	}
 }

@@ -114,7 +114,7 @@ namespace Speckle.ConnectorUnity.Converter
 
 		/// <summary>
 		/// Follow up method for handling all conversion data
-		/// Will process speckle data at specific rate set in <see cref="spawnSpeed"/>
+		/// Will process speckle data at specific rate set in <see cref="ScriptableConverterSettings.spawnSpeed"/>
 		/// </summary>
 		public async UniTask PostWorkAsync()
 		{
@@ -205,6 +205,7 @@ namespace Speckle.ConnectorUnity.Converter
 		{
 			tBase = null;
 			tComp = null;
+			
 			if (@base is TBase b && component is TComponent c)
 			{
 				tBase = b;
@@ -224,9 +225,9 @@ namespace Speckle.ConnectorUnity.Converter
 
 		public override bool CanConvertToSpeckle(Component type) => type != null && type.GetType() == typeof(TComponent);
 
-		protected abstract Base ConvertComponent(TComponent component);
+		public abstract Base ConvertComponent(TComponent component);
 
-		protected abstract void ConvertBase(TBase @base, ref TComponent instance);
+		protected abstract void ConvertBase(TBase obj, ref TComponent instance);
 
 		protected override BaseBehaviour GetBaseType(GameObject obj)
 		{

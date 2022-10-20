@@ -18,7 +18,7 @@ namespace Speckle.ConnectorUnity.Ops
 	/// </summary>
 	[AddComponentMenu(SpeckleUnity.NAMESPACE + "/Sender")]
 	[ExecuteAlways]
-	public class Sender : ClientBehaviour
+	public class Sender : ClientBehaviour<SendWorkArgs>
 	{
 		[SerializeField] string _message;
 
@@ -31,10 +31,10 @@ namespace Speckle.ConnectorUnity.Ops
 		/// <param name="message">Commit message to add</param>
 		/// <param name="tokenSource">Cancellation token. Will default to attached source token</param>
 		/// <returns></returns>
-		public async UniTask<ClientWorkArgs> Run(Base @base, string message = null, CancellationTokenSource tokenSource = null)
+		public async UniTask<SendWorkArgs> DoWork(Base @base, string message = null, CancellationTokenSource tokenSource = null)
 		{
 			_data = @base;
-			return await Run(message, tokenSource);
+			return await DoWork(message, tokenSource);
 		}
 
 		/// <summary>
@@ -44,11 +44,12 @@ namespace Speckle.ConnectorUnity.Ops
 		/// <param name="message">Commit message</param>
 		/// <param name="tokenSource">Cancellation token</param>
 		/// <returns></returns>
-		public async UniTask<ClientWorkArgs> Run(SpeckleObjectBehaviour obj, string message = null, CancellationTokenSource tokenSource = null)
+		public async UniTask<SendWorkArgs> DoWork(SpeckleObjectBehaviour obj, string message = null, CancellationTokenSource tokenSource = null)
 		{
-			if (obj != null) _root = obj;
+			if (obj != null)
+				_root = obj;
 
-			return await Run(message, tokenSource);
+			return await DoWork(message, tokenSource);
 		}
 
 		/// <summary>
@@ -57,54 +58,36 @@ namespace Speckle.ConnectorUnity.Ops
 		/// <param name="message">Commit message to add</param>
 		/// <param name="tokenSource">Cancellation token. Will default to attached source token</param>
 		/// <returns></returns>
-		public async UniTask<ClientWorkArgs> Run(string message, CancellationTokenSource tokenSource = null)
+		public async UniTask<SendWorkArgs> DoWork(string message, CancellationTokenSource tokenSource = null)
 		{
-			token = tokenSource?.Token ?? this.GetCancellationTokenOnDestroy();
+			Token = tokenSource?.Token ?? this.GetCancellationTokenOnDestroy();
 			_message = message.Valid() ? message : string.Empty;
-			return await Run();
+			return await base.DoWork();
 		}
 
-		/// <summary>
-		/// A Unity friendly wrapper to send a Base object to the active stream of this client
-		/// </summary>
-		/// <returns><see cref="SendWorkArgs"/> with values of the url of the commit and the operation result </returns>
-		public override async UniTask<ClientWorkArgs> Run()
-		{
-			var args = new SendWorkArgs()
-			{
-				message = "",
-				url = "",
-				client = this,
-				success = false
-			};
+		protected override void SetSubscriptions()
+		{ }
 
+		protected override async UniTask Execute()
+		{
 			try
 			{
 				SpeckleUnity.Console.Log("Send started");
 
-				if (!IsValid())
-				{
-					args.message = "Invalid Client";
-					SpeckleUnity.Console.Warn($"{args.client}-" + args.message);
-					return args;
-				}
-
-				SpeckleUnity.Console.Log("Converting data");
-
 				if (_root == null && _data == null)
 				{
-					args.message = $"No objects were found in {nameof(SpeckleNode)} to send. Stopping call";
-					SpeckleUnity.Console.Warn(args.message);
-					return args;
+					Args.message = $"No objects were found in {nameof(SpeckleNode)} to send. Stopping call";
+					SpeckleUnity.Console.Warn(Args.message);
+					return;
 				}
 
-				_data ??= _root.SceneToData(converter, token);
+				_data ??= _root.SceneToData(Converter, Token);
 
 				if (_data == null)
 				{
-					args.message = "There is no data in this commit to send. Stopping call";
-					SpeckleUnity.Console.Warn(args.message);
-					return args;
+					Args.message = "There is no data in this commit to send. Stopping call";
+					SpeckleUnity.Console.Warn(Args.message);
+					return;
 				}
 
 				var objectId = await SpeckleOps.Send(_client, _data, _stream.id, HandleProgress, HandleError);
@@ -115,16 +98,16 @@ namespace Speckle.ConnectorUnity.Ops
 					{
 						objectId = objectId,
 						streamId = _stream.id,
-						branchName = branch.name,
+						branchName = Branch.name,
 						message = _message.Valid() ? _message : $"Objects from Unity {count}",
 						sourceApplication = SpeckleUnity.APP,
 						totalChildrenCount = (int)count
 					});
 
-				args.success = true;
-				args.commitId = commitId;
-				args.message = $"Commit sent to {branch}! ({objectId})";
-				args.url = SpeckleUnity.GetUrl(false, _client.account.serverInfo.url, _stream.id, StreamWrapperType.Commit, commitId);
+				Args.success = true;
+				Args.commitId = commitId;
+				Args.message = $"Commit sent to {Branch}! ({objectId})";
+				Args.url = SpeckleUnity.GetUrl(false, _client.account.serverInfo.url, _stream.id, StreamWrapperType.Commit, commitId);
 
 				onDataSent?.Invoke(objectId);
 			}
@@ -137,11 +120,9 @@ namespace Speckle.ConnectorUnity.Ops
 				_data = null;
 
 				await UniTask.Yield();
-				
+
 				HandleRefresh();
 			}
-
-			return args;
 		}
 
 		public event UnityAction<string> onDataSent;

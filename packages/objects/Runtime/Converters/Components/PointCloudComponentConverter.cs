@@ -8,10 +8,10 @@ namespace Speckle.ConnectorUnity.Converter
 	public class PointCloudComponentConverter : ComponentConverter<Pointcloud, ParticleSystem>
 	{
 
-		protected override void ConvertBase(Pointcloud @base, ref ParticleSystem instance)
+		protected override void ConvertBase(Pointcloud obj, ref ParticleSystem instance)
 		{ }
 
-		protected override Base ConvertComponent(ParticleSystem component) => null;
+		public override Base ConvertComponent(ParticleSystem component) => null;
 	}
 
 }

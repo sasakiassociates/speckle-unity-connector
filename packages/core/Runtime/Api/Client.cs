@@ -208,6 +208,7 @@ namespace Speckle.ConnectorUnity.Ops
 				SpeckleUnity.Console.Log(e.Message);
 			}
 
+			UniTask.Yield();
 			return res;
 		}
 

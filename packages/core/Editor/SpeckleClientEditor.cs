@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using Speckle.ConnectorUnity.Args;
 using Speckle.ConnectorUnity.GUI;
 using Speckle.ConnectorUnity.Ops;
 using UnityEditor;
@@ -9,7 +10,10 @@ using UnityEngine.UIElements;
 
 namespace Speckle.ConnectorUnity
 {
-	public abstract class SpeckleClientEditor<TClient> : Editor where TClient : ClientBehaviour
+	public abstract class SpeckleClientEditor<TClient, TArgs> : Editor
+		where TClient : ClientBehaviour<TArgs>
+		where TArgs : ClientWorkArgs
+
 	{
 		protected TClient obj;
 		protected DropdownField branches;
@@ -70,7 +74,7 @@ namespace Speckle.ConnectorUnity
 
 		protected virtual void RefreshAll()
 		{
-			Refresh(branches, obj.branches.Format(), branchIndex);
+			Refresh(branches, obj.Branches.Format(), branchIndex);
 		}
 
 		protected virtual void SetBranchChange(int index)
@@ -96,7 +100,7 @@ namespace Speckle.ConnectorUnity
 			branches = root.SetDropDown(
 				"branch",
 				branchIndex,
-				obj.branches.Format(),
+				obj.Branches.Format(),
 				e => branches.DropDownChange(e, SetBranchChange));
 
 			// converters = root.SetDropDown(

@@ -182,16 +182,16 @@ public class Integrations
 
 		await client.Initialize(AccountManager.GetDefaultAccount(), SpT.SIMPLE.streamId);
 
-		Assert.IsNotNull(client.converter);
-		Assert.IsNotNull(client.stream.id == SpT.SIMPLE.streamId);
-		Assert.IsTrue(client.branches.Valid());
-		Assert.IsNotNull(client.branch);
-		Assert.IsTrue(client.commits.Valid().Equals(client.commit != null));
+		Assert.IsNotNull(client.Converter);
+		Assert.IsNotNull(client.Stream.id == SpT.SIMPLE.streamId);
+		Assert.IsTrue(client.Branches.Valid());
+		Assert.IsNotNull(client.Branch);
+		Assert.IsTrue(client.Commits.Valid().Equals(client.Commit != null));
 
 		Assert.IsTrue(client.IsValid());
 
-		client.converter.SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Direct });
-		var args = (ReceiveWorkArgs)await client.Run();
+		client.Converter.SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Direct });
+		var args = await client.DoWork();
 
 		Assert.IsNotNull(args);
 		Assert.IsTrue(args.success);
@@ -199,8 +199,8 @@ public class Integrations
 		Assert.IsTrue(!string.IsNullOrEmpty(args.message));
 		Assert.IsTrue(!string.IsNullOrEmpty(args.referenceObj));
 
-		client.converter.SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Direct });
-		args = (ReceiveWorkArgs)await client.Run();
+		client.Converter.SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Direct });
+		args = await client.DoWork();
 
 		Assert.IsNotNull(args);
 		Assert.IsTrue(args.success);
@@ -218,16 +218,16 @@ public class Integrations
 
 		await client.Initialize(AccountManager.GetDefaultAccount(), SpT.SIMPLE.streamId);
 
-		Assert.IsNotNull(client.converter);
-		Assert.IsNotNull(client.stream.id == SpT.SIMPLE.streamId);
-		Assert.IsTrue(client.branches.Valid());
-		Assert.IsNotNull(client.branch);
-		Assert.IsTrue(client.commits.Valid().Equals(client.commit != null));
+		Assert.IsNotNull(client.Converter);
+		Assert.IsNotNull(client.Stream.id == SpT.SIMPLE.streamId);
+		Assert.IsTrue(client.Branches.Valid());
+		Assert.IsNotNull(client.Branch);
+		Assert.IsTrue(client.Commits.Valid().Equals(client.Commit != null));
 
 		Assert.IsTrue(client.IsValid());
 
-		client.converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue });
-		var args = (ReceiveWorkArgs)await client.Run();
+		client.Converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue });
+		var args = await client.DoWork();
 		Assert.IsNotNull(args);
 
 		Assert.IsTrue(args.success);
@@ -235,8 +235,8 @@ public class Integrations
 		Assert.IsTrue(!string.IsNullOrEmpty(args.message));
 		Assert.IsTrue(!string.IsNullOrEmpty(args.referenceObj));
 
-		client.converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue });
-		args = (ReceiveWorkArgs)await client.Run();
+		client.Converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue });
+		args = await client.DoWork();
 
 		Assert.IsNotNull(args);
 		Assert.IsTrue(args.success);
@@ -254,11 +254,11 @@ public class Integrations
 
 		await client.Initialize(AccountManager.GetDefaultAccount(), SpT.SIMPLE.streamId);
 
-		Assert.IsNotNull(client.converter);
-		Assert.IsNotNull(client.stream.id == SpT.SIMPLE.streamId);
-		Assert.IsTrue(client.branches.Valid());
-		Assert.IsNotNull(client.branch);
-		Assert.IsTrue(client.commits.Valid().Equals(client.commit != null));
+		Assert.IsNotNull(client.Converter);
+		Assert.IsNotNull(client.Stream.id == SpT.SIMPLE.streamId);
+		Assert.IsTrue(client.Branches.Valid());
+		Assert.IsNotNull(client.Branch);
+		Assert.IsTrue(client.Commits.Valid().Equals(client.Commit != null));
 
 		Assert.IsTrue(client.IsValid());
 
@@ -269,7 +269,7 @@ public class Integrations
 			["Child"] = new Base()
 		};
 
-		var args = (SendWorkArgs)await client.Run(@base);
+		var args = await client.DoWork(@base);
 
 		Assert.IsNotNull(args);
 		Assert.IsTrue(args.success);
@@ -279,7 +279,7 @@ public class Integrations
 		Assert.IsTrue(!string.IsNullOrEmpty(args.url));
 
 		Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput
-			                                         { streamId = client.stream.id, id = args.commitId }));
+			                                         { streamId = client.Stream.id, id = args.commitId }));
 
 		// Send using speckle node
 		var obj = new GameObject("Speckle Object").AddComponent<SpeckleObjectBehaviour>();
@@ -290,7 +290,7 @@ public class Integrations
 		layer.Add(baseProp.gameObject);
 		obj.hierarchy.Add(layer);
 
-		args = (SendWorkArgs)await client.Run(obj);
+		args = await client.DoWork(obj);
 
 		Assert.IsNotNull(args);
 		Assert.IsTrue(args.success);
@@ -299,7 +299,7 @@ public class Integrations
 		Assert.IsTrue(!string.IsNullOrEmpty(args.commitId));
 		Assert.IsTrue(!string.IsNullOrEmpty(args.url));
 
-		Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput() { streamId = client.stream.id, id = args.commitId }));
+		Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput() { streamId = client.Stream.id, id = args.commitId }));
 	});
 
 }
@@ -512,12 +512,12 @@ public class Units
 		Assert.IsTrue(await wrapper.LoadCommit(client, SpT.BCHP.commitId));
 		Assert.IsTrue(wrapper.type == StreamWrapperType.Commit);
 	});
-	
+
 	[UnityTest, Category(SpT.C_CLIENT)]
 	public IEnumerator Object_LoadFromStream() => UniTask.ToCoroutine(async () =>
 	{
 		var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
-		
+
 		var res = await client.ObjectGet(SpT.BCHP.streamId, SpT.BCHP.objectId);
 
 		Debug.Log("Object ID: " + res.id);
@@ -528,8 +528,6 @@ public class Units
 
 		Assert.IsNotNull(res);
 		Assert.IsTrue(res.id.Equals(SpT.BCHP.objectId));
-		
-		
 	});
 
 	[UnityTest, Category(SpT.C_MODEL)]

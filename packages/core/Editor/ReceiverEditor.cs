@@ -1,5 +1,6 @@
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using Speckle.ConnectorUnity.Args;
 using Speckle.ConnectorUnity.GUI;
 using Speckle.ConnectorUnity.Ops;
 using UnityEditor;
@@ -9,7 +10,7 @@ using UnityEngine.UIElements;
 namespace Speckle.ConnectorUnity
 {
 	[CustomEditor(typeof(Receiver))]
-	public class ReceiverEditor : SpeckleClientEditor<Receiver>
+	public class ReceiverEditor : SpeckleClientEditor<Receiver,ReceiveWorkArgs>
 	{
 
 		DropdownField commits;
@@ -20,7 +21,7 @@ namespace Speckle.ConnectorUnity
 
 		protected override string treePath
 		{
-			get => GUIHelper.Dir + "Receiver.uxml";
+			get => GUIHelper.Folders.GUI + "Receiver.uxml";
 		}
 
 		protected override void OnEnable()
@@ -47,7 +48,7 @@ namespace Speckle.ConnectorUnity
 			commits = root.SetDropDown(
 				"commit",
 				commitIndex,
-				obj.commits.Format(),
+				obj.Commits.Format(),
 				e => commits.DropDownChange(e, i => { obj.SetCommit(i); }));
 
 			preview = root.Q<StreamPreview>("preview");
@@ -64,14 +65,14 @@ namespace Speckle.ConnectorUnity
 
 		protected override void OnRunClicked()
 		{
-			if (!obj.isWorking)
-				obj.Run().Forget();
+			if (!obj.IsWorking)
+				obj.DoWork().Forget();
 		}
 
 		protected override void SetBranchChange(int index)
 		{
 			base.SetBranchChange(index);
-			Refresh(commits, obj.commits.Format(), commitIndex);
+			Refresh(commits, obj.Commits.Format(), commitIndex);
 		}
 
 		Texture GetPreview() => obj.showPreview ? obj.preview : null;
@@ -85,7 +86,7 @@ namespace Speckle.ConnectorUnity
 		{
 			base.RefreshAll();
 
-			Refresh(commits, obj.commits.Format().ToList(), commitIndex);
+			Refresh(commits, obj.Commits.Format().ToList(), commitIndex);
 		}
 	}
 

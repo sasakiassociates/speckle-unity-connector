@@ -49,7 +49,8 @@ namespace Speckle.ConnectorUnity.Ops
 
 		public StreamAdapter(Stream value) : base(value)
 		{
-			if (value == null) return;
+			if (value == null)
+				return;
 
 			_id = value.id;
 			_name = value.name;
@@ -96,7 +97,8 @@ namespace Speckle.ConnectorUnity.Ops
 			get => _speckleObject?.source;
 			set
 			{
-				if (value == null) return;
+				if (value == null)
+					return;
 
 				_speckleObject = new SpeckleObjectAdapter(value);
 			}
@@ -114,9 +116,9 @@ namespace Speckle.ConnectorUnity.Ops
 					return;
 
 				_branch = new BranchAdapter(value);
-				
+
 				commits = value.commits?.items ?? new List<Commit>();
-				
+
 				SpeckleUnity.Console.Log($"Setting Active {typeof(Branch)} to {_branch.source}");
 				OnBranchSet?.Invoke(_branch.source);
 			}
@@ -134,6 +136,8 @@ namespace Speckle.ConnectorUnity.Ops
 					return;
 
 				_commit = new CommitAdapter(value);
+				branch = new Branch { name = value.branchName };
+
 				SpeckleUnity.Console.Log($"Setting Active {typeof(Commit)} to {_commit.source}");
 				OnCommitSet?.Invoke(_commit.source);
 			}

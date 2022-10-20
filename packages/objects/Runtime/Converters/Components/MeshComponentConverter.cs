@@ -66,9 +66,9 @@ namespace Speckle.ConnectorUnity.Converter
 		public override UniTask ToNativeConversionAsync(Base @base, Component component) => ValidObjects(@base, component, out var b, out var c)
 			? this.MeshToNativeAsync(b, c.gameObject) : UniTask.CompletedTask;
 
-		protected override void ConvertBase(Mesh @base, ref MeshFilter instance) => this.MeshToNative(@base, instance.gameObject);
+		protected override void ConvertBase(Mesh obj, ref MeshFilter instance) => this.MeshToNative(obj, instance.gameObject);
 
-		protected override Base ConvertComponent(MeshFilter component) => this.MeshToSpeckle(component);
+		public override Base ConvertComponent(MeshFilter component) => this.MeshToSpeckle(component);
 
 	}
 }

@@ -34,7 +34,17 @@ namespace Speckle.ConnectorUnity
 				Object.DestroyImmediate(obj);
 		}
 
-		public static bool IsList(this object @object) => @object != null && @object.GetType().IsList();
+		public static bool IsList(this object obj, out List<object> list)
+		{
+			list = new List<object>();
+
+			if (obj.IsList())
+				list = ((IEnumerable)obj).Cast<object>().ToList();
+
+			return list.Any();
+		}
+
+		public static bool IsList(this object obj) => obj != null && obj.GetType().IsList();
 
 		public static bool IsList(this Type type)
 		{
@@ -58,6 +68,16 @@ namespace Speckle.ConnectorUnity
 			@base = null;
 
 			if (value != null && !value.GetType().IsSimpleType() && value is Base o)
+				@base = o;
+
+			return @base != null;
+		}
+
+		public static bool IsBase<TBase>(this object value, out TBase @base) where TBase : Base
+		{
+			@base = default;
+
+			if (value != null && !value.GetType().IsSimpleType() && value is TBase o)
 				@base = o;
 
 			return @base != null;
@@ -125,7 +145,7 @@ namespace Speckle.ConnectorUnity
 			if (parent != null)
 				layer.transform.SetParent(parent);
 
-			layer.SetObjectParent(layer.transform);
+			layer.ParentObjects(layer.transform);
 
 			return layer;
 		}

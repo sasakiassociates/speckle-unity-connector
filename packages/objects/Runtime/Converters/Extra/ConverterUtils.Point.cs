@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Objects.Geometry;
@@ -110,7 +111,7 @@ namespace Speckle.ConnectorUnity.Converter
 			return points;
 		}
 
-		public static Vector3[] ArrayToVector3(this IEnumerable<Point> arr, string units)
+		public static IEnumerable<Vector3> ArrayToVector3(this IReadOnlyCollection<Point> arr, string units)
 		{
 			if (arr == null)
 				throw new Exception("point array is not valid ");

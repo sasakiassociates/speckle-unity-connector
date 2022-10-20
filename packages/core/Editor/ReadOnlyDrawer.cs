@@ -10,9 +10,9 @@ namespace Speckle.ConnectorUnity
 		                            SerializedProperty property,
 		                            GUIContent label )
 		{
-			GUI.enabled = false;
+			UnityEngine.GUI.enabled = false;
 			EditorGUI.PropertyField( position, property, label, true );
-			GUI.enabled = true;
+			UnityEngine.GUI.enabled = true;
 		}
 
 	}

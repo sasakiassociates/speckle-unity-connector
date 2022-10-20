@@ -4,28 +4,32 @@ using Speckle.ConnectorUnity.Converter;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
 
-namespace Speckle.ConnectorUnity.GUI
+namespace Speckle.ConnectorUnity
 {
-	public static class GUIHelper
+	public static partial class GUIHelper
 	{
 
 		const char SEP = ':';
 
 		const string DEFAULT = "empty";
 
-		public static string Dir
+		public static class Folders
 		{
-			get => SpeckleConnector.PackagePath + "Runtime/GUI/";
+			public const string Core = "Packages/com.speckle.core/";
+			public const string GUI = Core + "GUI/";
 		}
 
 		#region Converters
+
 		public static IEnumerable<string> Format(this IEnumerable<ScriptableSpeckleConverter> items)
 		{
 			return items != null ? items.Select(x => x.Name) : new[] { DEFAULT };
 		}
+
 		#endregion
 
 		#region Account
+
 		public static string Format(this Account item) => item != null ? item.userInfo.email + SEP + item.serverInfo.name : string.Empty;
 
 		public static string ParseAccountEmail(this string value) => value.Valid() ? value.Split(SEP).FirstOrDefault() : null;
@@ -36,9 +40,11 @@ namespace Speckle.ConnectorUnity.GUI
 		{
 			return items != null ? items.Select(x => x.Format()).ToArray() : new[] { DEFAULT };
 		}
+
 		#endregion
 
 		#region Stream
+
 		public static IEnumerable<string> Format(this IEnumerable<Stream> items)
 		{
 			return items != null ? items.Select(x => x.Format()).ToArray() : new[] { DEFAULT };
@@ -49,18 +55,22 @@ namespace Speckle.ConnectorUnity.GUI
 		public static string ParseStreamName(this string value) => value.Valid() ? value.Split(SEP).FirstOrDefault() : null;
 
 		public static string ParseStreamId(this string value) => value.Valid() ? value.Split(SEP).Last() : null;
+
 		#endregion
 
 		#region Branch
+
 		public static string Format(this Branch item) => item != null ? item.name : string.Empty;
 
 		public static IEnumerable<string> Format(this IEnumerable<Branch> items)
 		{
 			return items != null ? items.Select(x => x.Format()).ToArray() : new[] { DEFAULT };
 		}
+
 		#endregion
 
 		#region Commit
+
 		public static IEnumerable<string> Format(this IEnumerable<Commit> items)
 		{
 			return items != null ? items.Select(x => x.Format()).ToArray() : new[] { DEFAULT };
@@ -71,6 +81,7 @@ namespace Speckle.ConnectorUnity.GUI
 		public static string ParseCommitId(this string value) => value.Valid() ? value.Split(SEP).FirstOrDefault() : null;
 
 		public static string ParseCommitMsg(this string value) => value.Valid() ? value.Split(SEP).Last() : null;
+
 		#endregion
 
 	}

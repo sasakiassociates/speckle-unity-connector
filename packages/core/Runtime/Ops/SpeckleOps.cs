@@ -18,12 +18,56 @@ namespace Speckle.ConnectorUnity.Ops
 		/// <summary>
 		///   Setup the hierarchy for the commit coming in
 		/// </summary>
-		/// <param name="speckleObject">Object to attach data to</param>
+		/// <param name="parent">Object to attach data to</param>
 		/// <param name="data">The object to convert</param>
 		/// <param name="converter">Speckle Converter to parse objects with</param>
 		/// <param name="token">Cancellation token</param>
 		/// <returns></returns>
-		public static async UniTask DataToScene(this SpeckleObjectBehaviour speckleObject, Base data, ISpeckleConverter converter, CancellationToken token)
+		public static async UniTask ConvertToScene(this SpeckleObjectBehaviour parent, Base data, ISpeckleConverter converter, CancellationToken token)
+		{
+			if (parent == null)
+			{
+				SpeckleUnity.Console.Warn("No valid Parent to use during conversion ");
+				return;
+			}
+
+			parent.hierarchy = new SpeckleObjectHierarchy(parent.transform);
+
+			await ConvertToScene(parent.hierarchy, data, converter, token);
+		}
+
+		/// <summary>
+		///   Setup the hierarchy for the commit coming in
+		/// </summary>
+		/// <param name="parent"></param>
+		/// <param name="data">The object to convert</param>
+		/// <param name="converter">Speckle Converter to parse objects with</param>
+		/// <param name="token">Cancellation token</param>
+		/// <returns></returns>
+		public static async UniTask<SpeckleObjectHierarchy> ConvertToScene(Transform parent, Base data, ISpeckleConverter converter, CancellationToken token)
+		{
+			if (parent == null)
+			{
+				SpeckleUnity.Console.Warn("No valid Parent to use during conversion ");
+				return null;
+			}
+
+			var hierarchy = new SpeckleObjectHierarchy(parent);
+
+			await ConvertToScene(hierarchy, data, converter, token);
+
+			return hierarchy;
+		}
+
+		/// <summary>
+		///   Setup the hierarchy for the commit coming in
+		/// </summary>
+		/// <param name="hierarchy"></param>
+		/// <param name="data">The object to convert</param>
+		/// <param name="converter">Speckle Converter to parse objects with</param>
+		/// <param name="token">Cancellation token</param>
+		/// <returns></returns>
+		public static async UniTask ConvertToScene(SpeckleObjectHierarchy hierarchy, Base data, ISpeckleConverter converter, CancellationToken token)
 		{
 			if (data == null)
 			{
@@ -37,80 +81,121 @@ namespace Speckle.ConnectorUnity.Ops
 				return;
 			}
 
-			speckleObject.hierarchy = new SpeckleObjectHierarchy();
-			var defaultLayer = new GameObject("Default").AddComponent<SpeckleLayer>();
-
-			await speckleObject.DeconstructObject(data, defaultLayer, converter, token);
-			
-			if (defaultLayer.Layers.Any())
+			Debug.Log("Starting To Convert");
+			var layer = hierarchy.parent.GetComponent<SpeckleLayer>();
+			if (layer == null)
 			{
-				defaultLayer.SetObjectParent(speckleObject.transform);
-				speckleObject.hierarchy.Add(defaultLayer);
+				layer = hierarchy.parent.gameObject.AddComponent<SpeckleLayer>();
+			}
+
+			layer.Parent = hierarchy.parent;
+
+			hierarchy.SetDefault(layer);
+
+			await DeconstructObject(hierarchy.DefaultLayer, data, converter, token);
+
+			await UniTask.Yield();
+
+			if (hierarchy.DefaultLayer.Layers.Any())
+			{
+				hierarchy.DefaultLayer.ParentObjects(hierarchy.parent);
 			}
 			else
-				SpeckleUnity.SafeDestroy(defaultLayer.gameObject);
+			{
+				SpeckleUnity.SafeDestroy(hierarchy.DefaultLayer);
+			}
 
-			if (converter is ScriptableSpeckleConverter sc)			
+			if (converter is ScriptableSpeckleConverter sc)
+			{
 				await sc.PostWork();
+			}
+
+			if (converter.Report != null)
+			{
+				if (converter.Report.ConversionErrors.Any())
+				{
+					foreach (var errors in converter.Report.ConversionErrors)
+					{
+						SpeckleUnity.Console.Warn(errors.Message);
+					}
+				}
+			}
 		}
 
-		static async UniTask DeconstructObject(
-			this SpeckleObjectBehaviour speckleObj, Base data, SpeckleLayer defaultLayer, ISpeckleConverter converter, CancellationToken token
-		)
+		static async UniTask DeconstructObject(SpeckleLayer layer, Base @base, ISpeckleConverter converter, CancellationToken token)
 		{
-			if (token.IsCancellationRequested) return;
+			if (token.IsCancellationRequested)
+			{
+				return;
+			}
 
 			// 1: Object is supported, so lets convert the object and it's data 
-			if (converter.CanConvertToNative(data))
+			if (converter.CanConvertToNative(@base))
 			{
-				// NOTE: Object created in scene
-				// NOTE: This is where the game object instance could be captured and meta stored in each object
-				// NOTE: The converter should spawn a series of mono objects that will handle going through the list of objects to convert and send data to
-				var obj = CheckConvertedFormat(converter.ConvertToNative(data));
+				var obj = CheckConvertedFormat(converter.ConvertToNative(@base));
 
 				if (obj != null)
-					defaultLayer.Add(obj);
-				
+				{
+					layer.Add(obj);
+				}
+
 				await UniTask.Yield();
 			}
 
 			// 2: Check for the properties of an object. There might be additional objects that we want to convert as well
-			foreach (var member in data.GetMemberNames())
+			foreach (var member in @base.GetDynamicMembers())
 			{
 				if (token.IsCancellationRequested)
+				{
 					return;
+				}
 
 				// NOTE: we should only have to check for certain props and make sure to not duplicate any
-				var obj = data[member];
+				var propObject = @base[member];
 
-				// 2a: A prop is a list! We create a special list object to store those items in
-				if (obj.IsList())
+				if (propObject.IsBase(out var probBase))
 				{
-					// create the list container 
-					var layer = ListToLayer(member, ((IEnumerable)obj).Cast<object>(), converter, token, speckleObj.transform);
-					// handle the object conversion
-					// code...
+					// 2a: Member is a speckle object
+					await DeconstructObject(layer, probBase, converter, token);
+				}
+				else if (propObject.IsList(out var nestedObjects))
+				{
+					// 2b: A prop is a list, we create a special list object to store those items in
+					var nestedLayer = new GameObject(member).AddComponent<SpeckleLayer>();
 
-					// add to hierarchy 
-					speckleObj.hierarchy.Add(layer);
-					
-					await UniTask.Yield();
+					nestedLayer.transform.SetParent(layer.Parent);
 
-					continue;
+					foreach (var nestedObj in nestedObjects)
+					{
+						if (token.IsCancellationRequested)
+						{
+							return;
+						}
+
+						if (nestedObj == null)
+						{
+							continue;
+						}
+
+						if (nestedObj.IsBase(out var nestedBase))
+						{
+							await DeconstructObject(nestedLayer, nestedBase, converter, token);
+						}
+					}
+
+					nestedLayer.ParentObjects();
+
+					layer.Add(nestedLayer);
+				}
+				else
+				{
+					converter.Report.LogConversionError(new Exception($"Unhandled type {@base.speckle_type} was not converted"));
 				}
 
-				// 3: Member is a speckle object
-				if (obj.IsBase(out var @base))
-				{
-					await speckleObj.DeconstructObject(@base, defaultLayer, converter, token);
-					
-					continue;
-				}
-
-				SpeckleUnity.Console.Warn("Unhandled");
-				
 				await UniTask.Yield();
 			}
+
+			layer.ParentObjects();
 		}
 
 		public static Base SceneToData(this SpeckleObjectBehaviour speckleObj, ISpeckleConverter converter, CancellationToken token)
@@ -143,54 +228,6 @@ namespace Speckle.ConnectorUnity.Ops
 					SpeckleUnity.Console.Warn($"Object converted to unity from speckle is not supported {obj.GetType()}");
 					return null;
 			}
-		}
-
-		static SpeckleLayer ListToLayer(
-			string member,
-			IEnumerable<object> data,
-			ISpeckleConverter converter,
-			CancellationToken token,
-			Transform parent = null,
-			Action<string> onError = null
-		)
-		{
-			var layer = new GameObject(member).AddComponent<SpeckleLayer>();
-
-			foreach (var item in data)
-			{
-				if (token.IsCancellationRequested)
-					return layer;
-
-				if (item == null)
-					continue;
-
-				if (item.IsBase(out var @base) && converter.CanConvertToNative(@base))
-				{
-					// NOTE: Object created in scene
-					// NOTE: this should be thrown back into the deconstruct object phase
-					var obj = CheckConvertedFormat(converter.ConvertToNative(@base));
-
-					if (obj != null)
-						layer.Add(obj);
-				}
-				else if (item.IsList())
-				{
-					var list = ((IEnumerable)item).Cast<object>().ToList();
-					var childLayer = ListToLayer(list.Count.ToString(), list, converter, token, layer.transform, onError);
-					layer.Add(childLayer);
-				}
-				else
-				{
-					onError?.Invoke($"Cannot handle this type of object {item.GetType()}");
-				}
-			}
-
-			if (parent != null)
-				layer.transform.SetParent(parent);
-
-			layer.SetObjectParent(layer.transform);
-
-			return layer;
 		}
 
 		static Base LayerToBase(SpeckleLayer layer, ISpeckleConverter converter, CancellationToken token)
@@ -271,6 +308,58 @@ namespace Speckle.ConnectorUnity.Ops
 				}
 
 			return objs.Any();
+		}
+
+		public static async UniTask<TBase> SearchForType<TBase>(this Base obj, bool recursive, CancellationToken token) where TBase : Base
+		{
+			if (obj is TBase simpleCast) return simpleCast;
+
+			if (token.IsCancellationRequested) return null;
+
+			foreach (var member in obj.GetMemberNames())
+			{
+				if (token.IsCancellationRequested) return null;
+
+				var nestedObj = obj[member];
+
+				// 1. Direct cast for object type 
+				if (nestedObj.IsBase(out TBase memberCast))
+					return memberCast;
+
+				// 2. Check if member is base type
+				if (nestedObj.IsBase(out var nestedBase))
+				{
+					var objectToFind = await nestedBase.SearchForType<TBase>(recursive, token);
+
+					if (objectToFind != default)
+						return objectToFind;
+				}
+				else if (nestedObj.IsList(out List<object> nestedList))
+				{
+					foreach (var listObj in nestedList)
+					{
+						if (listObj.IsBase(out TBase castedListObjectType))
+							return castedListObjectType;
+
+						// if not set to recursive we dont look through any other objects
+						if (!recursive)
+							continue;
+
+						// if its not a base object we turn around
+						if (!listObj.IsBase(out Base nestedListBase))
+							continue;
+
+						var objectToFind = await nestedListBase.SearchForType<TBase>(true, token);
+
+						if (objectToFind != default)
+							return objectToFind;
+					}
+				}
+
+				await UniTask.Yield();
+			}
+
+			return null;
 		}
 
 	}

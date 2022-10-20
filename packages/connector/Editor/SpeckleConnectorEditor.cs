@@ -13,8 +13,8 @@ namespace Speckle.ConnectorUnity
 	public class SpeckleConnectorEditor : Editor
 	{
 
-		(string accountIndex, string streamIndex)  _fields;
-		
+		(string accountIndex, string streamIndex) _fields;
+
 		DropdownField accounts;
 
 		DropdownField converters;
@@ -38,9 +38,9 @@ namespace Speckle.ConnectorUnity
 			obj = (SpeckleConnector)target;
 			obj.onRepaint += RefreshAll;
 
-			tree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(GUIHelper.Dir + "SpeckleConnectorEditor.uxml");
-			streamCard = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(GUIHelper.Dir + "Elements/StreamCard/StreamCard.uxml");
-			
+			tree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/com.speckle.core/GUI/SpeckleConnectorEditor.uxml");
+			streamCard = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(GUIHelper.Folders.GUI + "Elements/StreamCard/StreamCard.uxml");
+
 			_fields.accountIndex = "_accountIndex";
 			_fields.streamIndex = "_streamIndex";
 		}

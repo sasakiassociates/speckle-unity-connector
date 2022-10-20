@@ -89,18 +89,36 @@ namespace Speckle.ConnectorUnity.Ops
 			{
 				// NOTE: this is probably where a unity based transporter could be handy. For now this works just fine
 
-				// only use Task with any client calls to speckle. Not worth the conversion 
-				await Task.Run(async () =>
+				@base = await UniTask.Create(async () =>
 				{
-					@base = await Operations.Receive(objectId: referenceObj,
+					await UniTask.SwitchToThreadPool();
+
+					var b = await Operations.Receive(objectId: referenceObj,
 					                                 cancellationToken: client.token,
 					                                 remoteTransport: transport,
 					                                 onProgressAction: onProgress,
 					                                 onErrorAction: onError,
 					                                 onTotalChildrenCountKnown: onChildCount);
 
-					SpeckleUnity.Console.Log($"Object Recieved:{@base}\nTotal time:{watch.Elapsed}");
-				}, client.token);
+					await UniTask.SwitchToMainThread();
+
+					return b;
+				});
+				
+
+				// only use Task with any client calls to speckle. Not worth the conversion 
+				// await Task.Run(async () =>
+				// {
+				// 	@base = await Operations.Receive(objectId: referenceObj,
+				// 	                                 cancellationToken: client.token,
+				// 	                                 remoteTransport: transport,
+				// 	                                 onProgressAction: onProgress,
+				// 	                                 onErrorAction: onError,
+				// 	                                 onTotalChildrenCountKnown: onChildCount);
+				//
+				// 	await UniTask.Yield();
+				// 	SpeckleUnity.Console.Log($"Object Recieved:{@base}\nTotal time:{watch.Elapsed}");
+				// }, client.token);
 			}
 			catch (Exception e)
 			{
@@ -112,10 +130,12 @@ namespace Speckle.ConnectorUnity.Ops
 
 				watch.Stop();
 				SpeckleUnity.Console.Log($"{nameof(Receive)} command complete!\n{watch.Elapsed}");
-
+				
+				SpeckleUnity.Console.Log($"Object Recieved:{@base}\nTotal time:{watch.Elapsed}");
+				
 				await UniTask.Yield();
-			}
 
+			}
 			return @base;
 		}
 	}

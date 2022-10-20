@@ -5,15 +5,20 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.Args;
 using Speckle.ConnectorUnity.Converter;
-using Speckle.ConnectorUnity.Models;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
+using Speckle.Core.Kits;
+using Speckle.Core.Logging;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace Speckle.ConnectorUnity.Ops
 {
-	public abstract class ClientBehaviour : MonoBehaviour, ISpeckleOps, ISpeckleOpsEvent, IShouldValidate, ICanConverter
+	public abstract class ClientBehaviour<TArgs> : MonoBehaviour,
+		ISpeckleOps,
+		ISpeckleOpsEvent,
+		IShouldValidate
+		where TArgs : ClientWorkArgs
 	{
 
 		[SerializeField] protected SpeckleObjectBehaviour _root;
@@ -26,48 +31,45 @@ namespace Speckle.ConnectorUnity.Ops
 		[SerializeField, HideInInspector] float _progressAmount;
 		[SerializeField, HideInInspector] int _childCountTotal;
 
-		public Account account => _account?.source;
+		public Account Account => _account?.source;
 
-		public Stream stream => _stream?.source;
+		public Stream Stream => _stream?.source;
 
-		public Branch branch => _stream?.branch;
+		public Branch Branch => _stream?.branch;
 
-		public List<Branch> branches => _stream?.branches ?? new List<Branch>();
+		public List<Branch> Branches => _stream?.branches ?? new List<Branch>();
 
-		public List<Commit> commits => _stream?.commits ?? new List<Commit>();
+		public List<Commit> Commits => _stream?.commits ?? new List<Commit>();
 
-		public Commit commit => _stream?.commit;
+		public Commit Commit => _stream?.commit;
 
-		public bool isWorking { get; protected set; }
+		public bool IsWorking { get; protected set; }
 
-		public CancellationToken token
+		public CancellationToken Token
 		{
 			get => _client?.token ?? this.GetCancellationTokenOnDestroy();
 			set
 			{
-				if (_client != null) _client.token = value;
+				if (_client != null)
+					_client.token = value;
 			}
 		}
 
-		public float progress
+		public float Progress
 		{
 			get => _progressAmount;
 			protected set => _progressAmount = value;
 		}
 
-		public int totalChildCount
+		public int TotalChildCount
 		{
 			get => _childCountTotal;
 			protected set => _childCountTotal = value;
 		}
-		
-		public ScriptableSpeckleConverter converter
-		{
-			get => _converter;
-			set => _converter = value;
-		}
 
-		#region public
+		protected TArgs Args { get; set; }
+
+		public ISpeckleConverter Converter { get; protected set; }
 
 		public async UniTask Initialize(Account accountToUse, string streamId)
 		{
@@ -78,7 +80,7 @@ namespace Speckle.ConnectorUnity.Ops
 					SpeckleUnity.Console.Warn(
 						$"Invalid input during {nameof(Initialize)} for {name}\n"
 						+ $"stream :{(streamId.Valid() ? streamId : "invalid")}"
-						+ $"account :{(accountToUse != null ? account.ToString() : "invalid")}");
+						+ $"account :{(accountToUse != null ? Account.ToString() : "invalid")}");
 					return;
 				}
 
@@ -101,30 +103,50 @@ namespace Speckle.ConnectorUnity.Ops
 					return;
 				}
 
-				SpeckleUnity.Console.Log($"{name} is all ready to go! {stream}");
+				SpeckleUnity.Console.Log($"{name} is all ready to go! {Stream}");
 
-				name = this.GetType() + $"-{stream.id}";
+				name = this.GetType() + $"-{Stream.id}";
 
 				OnClientRefresh?.Invoke();
-
-				// // TODO: during the build process this should compile and store these objects. 
-				if (converter == null)
-				{
-					#if UNITY_EDITOR
-					converter = SpeckleUnity.GetDefaultConverter();
-					#endif
-				}
 
 				await PostLoadStream();
 				await PostLoadBranch();
 			}
+			catch (SpeckleException e)
+			{
+				SpeckleUnity.Console.Log(e.Message);
+			}
 			catch (Exception e)
 			{
-				SpeckleUnity.Console.Warn(e.Message);
+				SpeckleUnity.Console.Log(e.Message);
 			}
 		}
 
-		public abstract UniTask<ClientWorkArgs> Run();
+		protected virtual async UniTask PostLoadStream()
+		{
+			if (!Branches.Valid())
+			{
+				SpeckleUnity.Console.Log("No Branches on this stream!");
+				return;
+			}
+
+			await SetBranch("main");
+		}
+
+		protected virtual async UniTask PostLoadBranch()
+		{
+			if (Branch == null)
+			{
+				SpeckleUnity.Console.Log("No branch set on this stream!");
+				return;
+			}
+
+			await SetCommit(0);
+		}
+
+		protected virtual UniTask PostLoadCommit() => UniTask.CompletedTask;
+
+		protected abstract void SetSubscriptions();
 
 		public void SetDefaultActions(
 			UnityAction<ConcurrentDictionary<string, int>> onProgressAction = null,
@@ -132,7 +154,7 @@ namespace Speckle.ConnectorUnity.Ops
 			UnityAction<int> onTotalChildCountAction = null
 		)
 		{
-			OnTotalChildCountAction = onTotalChildCountAction ?? (i => totalChildCount = i);
+			OnTotalChildCountAction = onTotalChildCountAction ?? (i => TotalChildCount = i);
 			OnErrorAction = onErrorAction ?? ((message, exception) => SpeckleUnity.Console.Log($"Error From Client:{message}\n{exception.Message}"));
 			OnProgressAction = onProgressAction
 			                   ?? (args =>
@@ -145,39 +167,43 @@ namespace Speckle.ConnectorUnity.Ops
 					                   total += kvp.Value;
 				                   }
 
-				                   progress = total / args.Keys.Count;
+				                   Progress = total / args.Keys.Count;
 			                   });
 		}
 
-		public int GetBranchIndex() => branches.Valid() && branch != null ? _stream.branches.FindIndex(x => x.name.Equals(branch.name)) : -1;
+		public int GetBranchIndex() => Branches.Valid() && Branch != null ? _stream.branches.FindIndex(x => x.name.Equals(Branch.name)) : -1;
 
-		public int GetCommitIndex() => commits.Valid() && commit != null ? _stream.commits.FindIndex(x => x.id.Equals(commit.id)) : -1;
+		public int GetCommitIndex() => Commits.Valid() && Commit != null ? _stream.commits.FindIndex(x => x.id.Equals(Commit.id)) : -1;
 
 		public async UniTask SetCommit(string commitId)
 		{
-			if (_stream.CommitSet(commitId)) await LoadCommit(commitId);
+			if (_stream.CommitSet(commitId))
+				await LoadCommit(commitId);
 		}
 
 		public async UniTask SetCommit(int commitIndex)
 		{
-			if (_stream.CommitSet(commitIndex)) await LoadCommit(_stream.commits[commitIndex].id);
+			if (_stream.CommitSet(commitIndex))
+				await LoadCommit(_stream.commits[commitIndex].id);
 		}
 
 		public async UniTask SetBranch(string branchName)
 		{
-			if (_stream.BranchSet(branchName)) await LoadBranch(branchName);
+			if (_stream.BranchSet(branchName))
+				await LoadBranch(branchName);
 		}
 
 		public async UniTask SetBranch(int branchIndex)
 		{
-			if (_stream.BranchSet(branchIndex)) await LoadBranch(_stream.branches[branchIndex].name);
+			if (_stream.BranchSet(branchIndex))
+				await LoadBranch(_stream.branches[branchIndex].name);
 		}
 
 		async UniTask LoadCommit(string commitId)
 		{
 			await _stream.LoadCommit(_client, commitId);
 
-			OnCommitSet?.Invoke(commit);
+			OnCommitSet?.Invoke(Commit);
 
 			await PostLoadCommit();
 		}
@@ -186,18 +212,62 @@ namespace Speckle.ConnectorUnity.Ops
 		{
 			await _stream.LoadBranch(_client, branchName);
 
-			OnBranchSet?.Invoke(branch);
+			OnBranchSet?.Invoke(Branch);
 
 			await PostLoadBranch();
 		}
 
+		/// <summary>
+		/// Checks if <see cref="Client"/> and <see cref="Stream"/> are both valid 
+		/// </summary>
+		/// <returns></returns>
 		public bool IsValid() => _client != null && _client.IsValid() && _stream != null && _stream.IsValid();
 
 		public string GetUrl() => IsValid() ? _stream.GetUrl(false, _client.account.serverInfo.url) : string.Empty;
 
-		#endregion
+		public async UniTask<TArgs> DoWork(ISpeckleConverter converter = null)
+		{
+			if (converter != null)
+			{
+				Converter = converter;
+			}
+			else
+			{
+				// // TODO: during the build process this should compile and store these objects. 
+				if (_converter == null)
+				{
+					#if UNITY_EDITOR
+					_converter = SpeckleUnity.GetDefaultConverter();
+					#endif
+				}
 
-		#region protected
+				Converter = _converter;
+			}
+
+			Args = Activator.CreateInstance<TArgs>();
+
+			Progress = 0f;
+
+			if (!IsValid())
+			{
+				Args.message = "Invalid Client";
+				SpeckleUnity.Console.Warn($"{Args.client}-" + Args.message);
+			}
+			else if (converter == null)
+			{
+				Args.message = "No active converter found";
+				SpeckleUnity.Console.Warn($"{Args.client}-" + Args.message);
+			}
+			else
+			{
+				IsWorking = true;
+				await Execute();
+			}
+
+			OnWorkArgsSet?.Invoke(Args);
+
+			return Args;
+		}
 
 		#region inherited event handles
 
@@ -210,39 +280,26 @@ namespace Speckle.ConnectorUnity.Ops
 			// Necessary for calling to main thread
 			await UniTask.Yield();
 			OnTotalChildCountAction?.Invoke(args);
-			SpeckleUnity.Console.Log($"Data with {totalChildCount}");
+			SpeckleUnity.Console.Log($"Data with {TotalChildCount}");
 		});
 
 		protected void HandleRefresh() => OnClientRefresh?.Invoke();
 
 		#endregion
 
-		protected virtual async UniTask PostLoadStream()
-		{
-			if (!branches.Valid())
-			{
-				SpeckleUnity.Console.Log("No Branches on this stream!");
-				return;
-			}
+		public event UnityAction<Commit> OnCommitSet;
 
-			await SetBranch("main");
-		}
+		public event UnityAction<Branch> OnBranchSet;
 
-		protected virtual async UniTask PostLoadBranch()
-		{
-			if (branch == null)
-			{
-				SpeckleUnity.Console.Log("No branch set on this stream!");
-				return;
-			}
+		public event UnityAction OnClientRefresh;
 
-			await SetCommit(0);
-		}
+		public event UnityAction<ConcurrentDictionary<string, int>> OnProgressAction;
 
-		protected virtual UniTask PostLoadCommit() => UniTask.CompletedTask;
+		public event UnityAction<string, Exception> OnErrorAction;
 
-		protected virtual void SetSubscriptions()
-		{ }
+		public event UnityAction<int> OnTotalChildCountAction;
+
+		public event UnityAction<TArgs> OnWorkArgsSet;
 
 		/// <summary>
 		///   Clean up to any client things
@@ -252,13 +309,11 @@ namespace Speckle.ConnectorUnity.Ops
 			_client?.Dispose();
 		}
 
-		#endregion
-
 		#region unity
 
 		protected void OnEnable()
 		{
-			token = this.GetCancellationTokenOnDestroy();
+			Token = this.GetCancellationTokenOnDestroy();
 
 			SetDefaultActions();
 			SetSubscriptions();
@@ -274,23 +329,10 @@ namespace Speckle.ConnectorUnity.Ops
 			CleanUp();
 		}
 
-		#endregion
-
-		#region events
-
-		public event UnityAction<Commit> OnCommitSet;
-
-		public event UnityAction<Branch> OnBranchSet;
-
-		public event UnityAction OnClientRefresh;
-
-		public event UnityAction<ConcurrentDictionary<string, int>> OnProgressAction;
-
-		public event UnityAction<string, Exception> OnErrorAction;
-
-		public event UnityAction<int> OnTotalChildCountAction;
+		protected abstract UniTask Execute();
 
 		#endregion
 
 	}
+
 }

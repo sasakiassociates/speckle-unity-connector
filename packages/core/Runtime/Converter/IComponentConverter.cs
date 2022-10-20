@@ -20,9 +20,11 @@ namespace Speckle.ConnectorUnity.Converter
 		public Type unity_type { get; }
 
 		public bool CanConvertToNative(Base type);
+		
 		public bool CanConvertToSpeckle(Component type);
 
 		public GameObject ToNative(Base @base);
+		
 		public Base ToSpeckle(Component component);
 	}
 }

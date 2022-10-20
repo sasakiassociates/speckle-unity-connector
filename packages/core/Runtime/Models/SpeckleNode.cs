@@ -77,7 +77,7 @@ namespace Speckle.ConnectorUnity.Models
 
 			if (defaultLayer.Layers.Any())
 			{
-				defaultLayer.SetObjectParent(transform);
+				defaultLayer.ParentObjects(transform);
 				hierarchy.Add(defaultLayer);
 			}
 			else
@@ -217,7 +217,7 @@ namespace Speckle.ConnectorUnity.Models
 			if (parent != null)
 				layer.transform.SetParent(parent);
 
-			layer.SetObjectParent(layer.transform);
+			layer.ParentObjects(layer.transform);
 
 			return layer;
 		}

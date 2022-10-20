@@ -8,8 +8,8 @@ namespace Speckle.ConnectorUnity.Converter
 	public class PointComponentConverter : ComponentConverter<Point, SpecklePoint>
 	{
 
-		protected override void ConvertBase(Point @base, ref SpecklePoint instance) => instance.pos = @base.ToVector3();
+		protected override void ConvertBase(Point obj, ref SpecklePoint instance) => instance.pos = obj.ToVector3();
 
-		protected override Base ConvertComponent(SpecklePoint component) => component.pos.ToSpeckle();
+		public override Base ConvertComponent(SpecklePoint component) => component.pos.ToSpeckle();
 	}
 }
