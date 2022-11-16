@@ -11,8 +11,8 @@ using UnityEngine.UIElements;
 namespace Speckle.ConnectorUnity
 {
 	public abstract class SpeckleClientEditor<TClient, TArgs> : Editor
-		where TClient : ClientBehaviour<TArgs>
-		where TArgs : ClientWorkArgs
+		where TClient : OpsBehaviour<TArgs>
+		where TArgs : OpsWorkArgs
 
 	{
 		protected TClient obj;

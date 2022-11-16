@@ -13,11 +13,12 @@ namespace Speckle.ConnectorUnity.Ops
 	public sealed class SpeckleUnityClient : IDisposable, IShouldValidate
 	{
 
-		AccountAdapter _accountAdapter;
+		SpeckleAccount account;
+		float progressAmount;
 
-		public Account account
+		public Account Account
 		{
-			get => _accountAdapter?.source;
+			get => account?.source;
 		}
 
 		public CancellationToken token { get; set; }
@@ -28,8 +29,8 @@ namespace Speckle.ConnectorUnity.Ops
 		{
 			if (obj == null) return;
 
-			_accountAdapter = new AccountAdapter(obj);
-			source = new Client(account);
+			account = new SpeckleAccount(obj);
+			source = new Client(Account);
 		}
 
 		public void Dispose()
@@ -70,7 +71,7 @@ namespace Speckle.ConnectorUnity.Ops
 		/// Checks if this this linked with an account and speckle this 
 		/// </summary>
 		/// <returns></returns>
-		public bool IsValid() => account != null && source != null;
+		public bool IsValid() => Account != null && source != null;
 
 		#region object operations
 
@@ -471,7 +472,25 @@ namespace Speckle.ConnectorUnity.Ops
 			return res;
 		}
 
+		public async UniTask<List<Stream>> StreamsGet(int streamLimit = 10)
+		{
+			List<Stream> res = null;
+			try
+			{
+				if (IsValid())
+					res = await source.StreamsGet(token, streamLimit);
+			}
+			catch (SpeckleException e)
+			{
+				SpeckleUnity.Console.Log(e.Message);
+			}
+
+			return res;
+		}
+
 		public async UniTask<bool> StreamExists(string streamId) => await StreamGet(streamId, 0) != null;
+		
+		
 
 		#endregion
 

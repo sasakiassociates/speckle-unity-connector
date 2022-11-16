@@ -63,7 +63,7 @@ namespace Speckle.ConnectorUnity.Ops
 				return objectId;
 			}
 
-			var transport = new ServerTransport(client.account, streamId);
+			var transport = new ServerTransport(client.Account, streamId);
 
 			try
 			{

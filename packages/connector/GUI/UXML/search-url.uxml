@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Packages/com.speckle.connector/GUI/USS/StylishBlueCube.uss?fileID=7433441132597879392&amp;guid=e9efa2f246848af45831b2eb4d3eefdb&amp;type=3#StylishBlueCube" />
+    <ui:VisualElement name="input-container" style="flex-direction: row; width: auto; height: 20px; margin-top: 5px; margin-bottom: 5px; max-width: none; max-height: none; align-items: center;">
+        <ui:VisualElement name="icon" class="icon" style="background-image: url(&apos;project://database/Packages/com.speckle.connector/GUI/Assets/cloud-search-outline.png?fileID=2800000&amp;guid=2904f3b23067832468b8c77951a6351e&amp;type=3#cloud-search-outline&apos;); -unity-background-scale-mode: scale-to-fit; max-height: none; height: 20px; width: 20px; align-items: stretch; justify-content: flex-start; padding-left: 2px; padding-right: 2px; padding-top: 2px; padding-bottom: 2px;" />
+        <ui:TextField picking-mode="Ignore" name="url" tooltip="Add a stream with a url" binding-path="originalUrlInput" style="flex-grow: 1; flex-shrink: 1; align-items: auto;" />
+        <ui:Button display-tooltip-when-elided="true" name="search-button" style="background-image: url(&apos;project://database/Packages/com.speckle.connector/GUI/Assets/plus-circle-outline.png?fileID=2800000&amp;guid=3ff9e9073fe32eb4b929a6a99f84402a&amp;type=3#plus-circle-outline&apos;); -unity-background-scale-mode: scale-to-fit; flex-grow: 0; height: auto; width: 40px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; flex-shrink: 1; align-items: auto;" />
+    </ui:VisualElement>
+</ui:UXML>

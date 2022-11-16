@@ -1,0 +1,7 @@
+﻿<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Packages/com.speckle.connector/GUI/USS/StylishBlueCube.uss?fileID=7433441132597879392&amp;guid=e9efa2f246848af45831b2eb4d3eefdb&amp;type=3#StylishBlueCube"/>
+    <ui:VisualElement
+            style="flex-grow: 1; background-color: rgb(113, 107, 107); margin-left: 3px; margin-right: 3px; margin-top: 3px; margin-bottom: 3px;">
+        <ui:ListView focusable="true" name="accounts" style="flex-grow: 1;"/>
+    </ui:VisualElement>
+</ui:UXML>

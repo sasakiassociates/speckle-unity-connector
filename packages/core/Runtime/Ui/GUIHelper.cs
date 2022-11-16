@@ -16,7 +16,10 @@ namespace Speckle.ConnectorUnity
 		public static class Folders
 		{
 			public const string Core = "Packages/com.speckle.core/";
-			public const string GUI = Core + "GUI/";
+			public const string GUI_CORE = Core + "GUI/";
+			public const string CONNECTOR = "Packages/com.speckle.connector/";
+			public const string CONNECTOR_GUI = CONNECTOR + "GUI/";
+			public const string CONNECTOR_UXML = CONNECTOR_GUI + "UXML/";
 		}
 
 		#region Converters

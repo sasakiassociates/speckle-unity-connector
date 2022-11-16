@@ -1,6 +1,0 @@
-.streamCard {
-    font-size: 20;
-    -unity-font: url('project://database/Packages/systems.speckle.speckle-unity/GUI/Assets/SpaceGrotesk-VariableFont_wght.ttf?fileID=12800000&guid=824347c9280ff7842a402224ca2cbb43&type=3#SpaceGrotesk-VariableFont_wght');
-    -unity-font-definition: url('project://database/Packages/systems.speckle.speckle-unity/GUI/Assets/SpaceGrotesk-VariableFont_wght%20SDF.asset?fileID=11400000&guid=269451299f184d046aaad4f9d14eacaf&type=2#SpaceGrotesk-VariableFont_wght SDF');
-
-}

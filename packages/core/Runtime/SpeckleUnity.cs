@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.Converter;
+using Speckle.ConnectorUnity.Ops;
 using Speckle.Core.Credentials;
 using Speckle.Core.Kits;
 using Speckle.Core.Logging;
@@ -57,80 +58,19 @@ namespace Speckle.ConnectorUnity
 
 		#endif
 
-		public static bool Check(this UserInfo a, UserInfo b, bool includeId)
+	
+		
+		public static void OpenStreamInBrowser(SpeckleStream stream)
 		{
-			if (a != null && b != null && a.name.Equals(b.name) && a.email.Equals(b.email) && a.company.Equals(b.company))
+			UniTask.Create(async () =>
 			{
-				return!includeId || a.id.Equals(b.id);
-			}
+				// copied from desktop ui
+				await UniTask.Delay(100);
 
-			return false;
+				Application.OpenURL(stream.GetUrl(false));
+			});
 		}
 
-		public static Account GetAccountByUserInfo(UserInfo input, bool includeId = false) =>
-			CheckAccountsFor(account => account.userInfo.Check(input, includeId));
-
-		public static Account GetAccountByToken(string input) => CheckAccountsFor(account => account.token.Equals(input));
-
-		public static Account GetAccountByName(string input) => CheckAccountsFor(account => account.userInfo.name.Equals(input));
-
-		public static Account GetAccountByEmail(string input) => CheckAccountsFor(account => account.userInfo.email.Equals(input));
-
-		static Account CheckAccountsFor(Func<Account, bool> Check)
-		{
-			Account res = null;
-			try
-			{
-				foreach (var account in AccountManager.GetAccounts())
-				{
-					if (account != null && Check(account))
-					{
-						res = account;
-						Co.Log($"Account Found {res.userInfo.name} | {res.serverInfo.name}");
-						break;
-					}
-				}
-			}
-
-			catch (SpeckleException e)
-			{
-				Co.Warn(e.Message);
-			}
-
-			return res;
-		}
-
-		public static async UniTask<Account> GetAccountByTokenAsync(string input) => await CheckAccountsForAsync(account => account.token.Equals(input));
-
-		public static async UniTask<Account> GetAccountByNameAsync(string input) => await CheckAccountsForAsync(account => account.userInfo.name.Equals(input));
-
-		public static async UniTask<Account> GetAccountByEmailAsync(string input) =>
-			await CheckAccountsForAsync(account => account.userInfo.email.Equals(input));
-
-		static async UniTask<Account> CheckAccountsForAsync(Func<Account, bool> Check)
-		{
-			Account res = null;
-			try
-			{
-				await AccountManager.UpdateAccounts();
-				foreach (var account in AccountManager.GetAccounts())
-				{
-					if (account != null && Check(account))
-					{
-						res = account;
-						Co.Log($"Account Found {res.userInfo.name} | {res.serverInfo.name}");
-						break;
-					}
-				}
-			}
-
-			catch (SpeckleException e)
-			{
-				Co.Warn(e.Message);
-			}
-
-			return res;
-		}
 
 		public static string GetUrl(bool isPreview, string serverUrl, string streamId) => $"{serverUrl}/{(isPreview ? "preview" : "streams")}/{streamId}";
 
@@ -161,12 +101,13 @@ namespace Speckle.ConnectorUnity
 			return url;
 		}
 
+
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="url"></param>
 		/// <returns></returns>
-		public static async UniTask<Texture2D> GetPreview(string url)
+		public static async UniTask<Texture2D> GetTexture(string url)
 		{
 			if (!url.Valid())
 				return null;
@@ -182,22 +123,6 @@ namespace Speckle.ConnectorUnity
 			return DownloadHandlerTexture.GetContent(www);
 		}
 
-		public static async UniTask<Account> GetAccountByStreamAsync(string input)
-		{
-			Account res = null;
-			try
-			{
-				res = await new StreamWrapper(input).GetAccount();
-				Co.Log($"Account Found {res.userInfo.name} | {res.serverInfo.name}");
-			}
-
-			catch (SpeckleException e)
-			{
-				Co.Warn(e.Message);
-			}
-
-			return res;
-		}
 
 		public static void LogProgress(ConcurrentDictionary<string, int> args)
 		{

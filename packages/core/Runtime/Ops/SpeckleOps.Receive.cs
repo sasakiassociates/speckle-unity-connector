@@ -81,7 +81,7 @@ namespace Speckle.ConnectorUnity.Ops
 			}
 
 			// NOTE: could a unity transporter help with object creation? 
-			var transport = new ServerTransport(client.account, streamId);
+			var transport = new ServerTransport(client.Account, streamId);
 
 			SpeckleUnity.Console.Log($"Starting recieve!\nstream id:{streamId} object id:{referenceObj}\n{watch.Elapsed}");
 

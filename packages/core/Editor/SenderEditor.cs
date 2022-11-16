@@ -15,7 +15,7 @@ namespace Speckle.ConnectorUnity
 
 		protected override string treePath
 		{
-			get => GUIHelper.Folders.GUI + "Sender.uxml";
+			get => GUIHelper.Folders.GUI_CORE + "Sender.uxml";
 		}
 
 		protected override void OnRunClicked()

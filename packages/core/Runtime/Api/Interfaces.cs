@@ -9,26 +9,75 @@ using UnityEngine.Events;
 
 namespace Speckle.ConnectorUnity.Ops
 {
-	public interface ISpeckleOps
-	{
+  public interface IShouldValidate
+  {
+    public bool IsValid();
+  }
 
-		public Account Account { get; }
+  public interface IHaveProgress
+  {
+    public float Progress { get; }
+  }
 
-		public Stream Stream { get; }
+  public interface IClient :
+    IShouldValidate
+  {
 
-		public UniTask Initialize(Account account, string streamId);
+    public Account Account { get; }
 
-		public event UnityAction OnClientRefresh;
+    public Client Client { get; }
 
-	}
+    public CancellationToken Token { get; }
 
-	public interface ISpeckleOpsEvent : IHaveProgress
-	{
-		public event UnityAction<ConcurrentDictionary<string, int>> OnProgressAction;
+    public UniTask Initialize(Account obj);
 
-		public event UnityAction<string, Exception> OnErrorAction;
+    public void Cancel();
 
-		public event UnityAction<int> OnTotalChildCountAction;
-	}
+    public event UnityAction OnAccountSet;
 
+  }
+
+  public interface IStream : IClient
+  {
+
+    public Stream Stream { get; }
+    
+    public UniTask LoadStream(string streamId);
+
+    public event UnityAction OnStreamSet;
+
+  }
+
+  public interface IOps : IStream
+  {
+    public UniTask DoWork();
+  }
+  
+  public interface IOpsWork<TArgs>
+  {
+
+    public event UnityAction<TArgs> OnClientUpdate;
+  }
+  
+  public interface IOpsEvent : IHaveProgress
+  {
+    public event UnityAction<ConcurrentDictionary<string, int>> OnProgressAction;
+
+    public event UnityAction<string, Exception> OnErrorAction;
+
+    public event UnityAction<int> OnTotalChildCountAction;
+  }
+
+  public interface ISpeckleConnector
+  {
+    public UniTask CreateSender();
+
+    public UniTask CreateReceiver();
+
+    public void SetSelectedStream(int index);
+
+    public event UnityAction OnSenderAdded;
+    
+    public event UnityAction OnReceiverAdded;
+  }
 }

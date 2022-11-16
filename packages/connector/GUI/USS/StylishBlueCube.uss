@@ -1,0 +1,103 @@
+:root {
+    --default-blue: rgb(4, 126, 251);
+    --light-blue: rgb(123, 188, 255);
+    --dark-blue: rgb(49, 59, 207);
+    --icon-size: 20px;
+    --avatar-size: 30px;
+}
+
+.icon {
+    margin: 2px;
+    padding: 2px;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    flex-shrink: 0;
+    margin-right: 5px;
+}
+
+.text__wrapper {
+}
+
+.font__header {
+    font-size: 18px;
+}
+
+.font__small {
+    font-size: 8px;
+}
+
+.font__title {
+    font-size: 12px;
+    padding: 1px;
+}
+
+.font__bold {
+    -unity-font-style: bold;
+}
+
+.speckle-icon {
+    margin: 2px;
+    padding: 2px;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    flex-shrink: 0;
+}
+
+.speckle-icon > .speckle-editor {
+    margin-right: 5px;
+}
+
+.speckle-icon.selected Image {
+    --unity-image-tint-color: var(--light-blue);
+}
+
+.speckle-avatar {
+    margin: 2px;
+    padding: 2px;
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+}
+
+.speckle-toggle {
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+    width: var(--icon-size);
+    height: var(--icon-size);
+}
+
+.speckle-toggle > .unity-toggle__input > .unity-toggle__checkmark {
+    background-image: url('project://database/Packages/com.speckle.connector/GUI/Assets/folder-outline.png?fileID=2800000&guid=9aa29e591bf406947ad1ddafca0dac7c&type=3#folder-outline');
+    margin: 0;
+    padding: 0;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    flex-shrink: 0;
+}
+
+.speckle-toggle > .unity-toggle__input:checked > .unity-toggle__checkmark {
+    background-image: url('project://database/Packages/com.speckle.connector/GUI/Assets/folder-outline-blue.png?fileID=2800000&guid=74ad06551c32947409927510d16b76d4&type=3#folder-outline-blue');
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+    width: var(--icon-size);
+    height: var(--icon-size);
+}
+
+.speckle-toggle__show > .unity-toggle__input > .unity-toggle__checkmark {
+    background-image: url('project://database/Packages/com.speckle.connector/GUI/Assets/eye.png?fileID=2800000&guid=7d232548ddb28f24fbc1483282663b73&type=3#eye');
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+    width: var(--icon-size);
+    height: var(--icon-size);
+}
+
+.speckle-toggle__show > .unity-toggle__input:checked > .unity-toggle__checkmark {
+    background-image: url('project://database/Packages/com.speckle.connector/GUI/Assets/eye-blue.png?fileID=2800000&guid=3b7f1a155ebd5f3448414ce6ff88198f&type=3#eye-blue');
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+    width: var(--icon-size);
+    height: var(--icon-size);
+}
