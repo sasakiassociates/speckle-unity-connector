@@ -21,8 +21,6 @@ namespace Speckle.ConnectorUnity
     ListView streamList;
 
     [SerializeField] VisualTreeAsset streamCard;
-    
-
 
     protected override string fileName => "connector-card";
 

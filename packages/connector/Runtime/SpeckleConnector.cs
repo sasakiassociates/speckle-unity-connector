@@ -96,7 +96,6 @@ namespace Speckle.ConnectorUnity
     }
 
 
-
     protected override void OnEnable()
     {
       base.OnEnable();
@@ -104,6 +103,8 @@ namespace Speckle.ConnectorUnity
       Initialize();
     }
 
+    
+    
     async UniTaskVoid LoadStreams()
     {
       Debug.Log("Loading streams");

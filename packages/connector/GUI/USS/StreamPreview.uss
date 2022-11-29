@@ -7,3 +7,4 @@
 .texture-preview-element > .unity-image {
     flex-grow: 1;
 }
+

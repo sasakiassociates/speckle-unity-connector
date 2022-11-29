@@ -1,4 +1,4 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Packages/com.speckle.connector/Runtime/UI/Elements/stream-element.uss?fileID=7433441132597879392&amp;guid=60be2a44c98045ff9b54bab3baf6d4c1&amp;type=3#stream-element" />
-    <Speckle.ConnectorUnity.Elements.SpeckleStreamListItem style="flex-grow: 0; align-items: stretch;" />
+    <Speckle.ConnectorUnity.Elements.SpeckleStreamListItem ShowDescription="true" ShowUrlButton="false"  style="flex-grow: 1; align-items: stretch;" />
 </ui:UXML>

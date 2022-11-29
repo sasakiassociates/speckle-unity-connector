@@ -1,13 +1,7 @@
-:root {
-    --speckle-colors-default-white: rgb(255, 255, 255);
-    --speckle-colors-default-blue: rgb(4, 126, 251);
-    --speckle-colors-light-blue: rgb(123, 188, 255);
-    --speckle-colors-dark-blue: rgb(49, 59, 207);
-    --speckle-colors-icon-size: 20px;
-    --speckle-colors-avatar-size: 30px;
-}
+﻿@import url("StylishBlueCube.uss");
 
-.stream-element {
+
+.stream-list-item {
     margin: 0;
     padding: 0;
     flex-shrink: 1;
@@ -17,33 +11,8 @@
     justify-content: flex-start;
 }
 
-.speckle-object__container {
-    flex-direction: column;
-}
 
-.speckle-object__model {
-    margin: 0;
-    padding: 0;
-    flex-shrink: 1;
-    flex-grow: 1;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: space-around;
-}
 
-.speckle-object__container #title {
-    padding: 0 2px 0 1px;
-}
-
-.speckle-object__container #sub {
-    flex-direction: row;
-    align-items: center;
-}
-
-.speckle-object__container #sub .unity-label {
-    margin: 0;
-    padding: 0;
-}
 
 .stream-element Button#openInWeb {
     min-width: 30px;

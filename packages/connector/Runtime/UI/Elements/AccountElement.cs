@@ -7,14 +7,35 @@ using UnityEngine.UIElements;
 
 namespace Speckle.ConnectorUnity.Elements
 {
+  public abstract class RuntimeBindableElement<TObject> : BindableElement, INotifyValueChanged<TObject>
+  {
+
+    protected TObject m_value;
+
+    public void SetValueWithoutNotify(TObject newValue)
+    {
+      if (newValue == null)
+      {
+        Debug.LogWarning($"Null object passed for {name}");
+        return;
+      }
+
+      m_value = newValue;
+    }
+
+    public TObject value
+    {
+      get;
+      set;
+    }
+  }
+
   public class AccountElement : BindableElement
   {
     public new class UxmlTraits : BindableElement.UxmlTraits
-    {
-    }
+    { }
     public new class UxmlFactory : UxmlFactory<AccountElement, UxmlTraits>
-    {
-    }
+    { }
 
     public static string ussClassName = "account-element";
     public static string ussGroupClass = "speckle-model-object";
