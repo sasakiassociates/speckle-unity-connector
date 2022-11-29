@@ -182,7 +182,7 @@ public class Integrations
 
     await client.Initialize(AccountManager.GetDefaultAccount(), SpT.SIMPLE.streamId);
 
-    Assert.IsNotNull(client.Converter);
+    Assert.IsNotNull(client.converter);
     Assert.IsNotNull(client.Stream.id == SpT.SIMPLE.streamId);
     Assert.IsTrue(client.Branches.Valid());
     Assert.IsNotNull(client.Branch);
@@ -190,7 +190,7 @@ public class Integrations
 
     Assert.IsTrue(client.IsValid());
 
-    client.Converter.SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Direct });
+    client.converter.SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Direct });
     await client.DoWork();
 
     Assert.IsNotNull(client.Args);
@@ -198,7 +198,7 @@ public class Integrations
     Assert.IsTrue(!string.IsNullOrEmpty(client.Args.message));
     Assert.IsTrue(!string.IsNullOrEmpty(client.Args.referenceObj));
 
-    client.Converter.SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Direct });
+    client.converter.SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Direct });
     await client.DoWork();
 
     Assert.IsNotNull(client.Args);
@@ -217,7 +217,7 @@ public class Integrations
     await client.Initialize(AccountManager.GetDefaultAccount());
 
 
-    Assert.IsNotNull(client.Converter);
+    Assert.IsNotNull(client.converter);
     Assert.IsNotNull(client.Stream.id == SpT.SIMPLE.streamId);
     Assert.IsTrue(client.Branches.Valid());
     Assert.IsNotNull(client.Branch);
@@ -225,7 +225,7 @@ public class Integrations
 
     Assert.IsTrue(client.IsValid());
 
-    client.Converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue });
+    client.converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue });
     await client.DoWork();
     Assert.IsNotNull(client.Args);
 
@@ -233,7 +233,7 @@ public class Integrations
     Assert.IsTrue(!string.IsNullOrEmpty(client.Args.message));
     Assert.IsTrue(!string.IsNullOrEmpty(client.Args.referenceObj));
 
-    client.Converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue });
+    client.converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue });
     await client.DoWork();
 
     Assert.IsNotNull(client.Args);
@@ -251,7 +251,7 @@ public class Integrations
 
     await client.Initialize(AccountManager.GetDefaultAccount(), SpT.SIMPLE.streamId);
 
-    Assert.IsNotNull(client.Converter);
+    Assert.IsNotNull(client.converter);
     Assert.IsNotNull(client.Stream.id == SpT.SIMPLE.streamId);
     Assert.IsTrue(client.Branches.Valid());
     Assert.IsNotNull(client.Branch);

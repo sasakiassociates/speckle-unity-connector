@@ -81,7 +81,7 @@ namespace Speckle.ConnectorUnity.Ops
           return;
         }
 
-        _data ??= root.SceneToData(Converter, Token);
+        _data ??= root.SceneToData(converter, Token);
 
         if (_data == null)
         {

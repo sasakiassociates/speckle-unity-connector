@@ -99,7 +99,7 @@ namespace Speckle.ConnectorUnity.Ops
           root.Purge();
 
         // TODO: Handle separating the operation call from the conversion
-        await root.ConvertToScene(@base, Converter, Token);
+        await root.ConvertToScene(@base, converter, Token);
 
         Args.success = true;
         Args.message = $"Completed {nameof(Execute)}";

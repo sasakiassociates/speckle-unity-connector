@@ -19,7 +19,6 @@ namespace Speckle.ConnectorUnity.Ops
   {
 
     [SerializeField] protected SpeckleObjectBehaviour root;
-    [SerializeField] protected ScriptableConverter converter;
 
     [SerializeField, HideInInspector] protected SpeckleStream stream;
 
@@ -54,7 +53,7 @@ namespace Speckle.ConnectorUnity.Ops
 
     public TArgs Args { get; protected set; }
 
-    public ISpeckleConverter Converter { get; protected set; }
+    [field: SerializeField] public ISpeckleConverter converter { get; protected set; }
 
     public async UniTask LoadStream(string streamId)
     {
@@ -210,7 +209,7 @@ namespace Speckle.ConnectorUnity.Ops
         Args.message = "Invalid Client";
         SpeckleUnity.Console.Warn($"{name}-" + Args.message);
       }
-      else if (Converter == null)
+      else if (converter == null)
       {
         Args.message = "No active converter found";
         SpeckleUnity.Console.Warn($"{name}-" + Args.message);
@@ -224,29 +223,21 @@ namespace Speckle.ConnectorUnity.Ops
       OnClientUpdate?.Invoke(Args);
     }
 
-    public async UniTask DoWork(ISpeckleConverter converter)
+    public async UniTask DoWork(ISpeckleConverter newConverter)
     {
-      if (converter != null)
-      {
-        Converter = converter;
-      }
-      else
-      {
-        // // TODO: during the build process this should compile and store these objects. 
-        if (this.converter == null)
-        {
-					#if UNITY_EDITOR
-					converter = SpeckleUnity.GetDefaultConverter();
-					#endif
-        }
+      converter = newConverter ?? converter;
 
-        Converter = this.converter;
+      // // TODO: during the build process this should compile and store these objects. 
+      if (converter == null)
+      {
+        SpeckleUnity.Console.Error($"No Converter attached to {name}. Stopping work");
+        return;
       }
 
       await DoWork();
     }
 
-		#region inherited event handles
+  #region inherited event handles
 
     protected void HandleProgress(ConcurrentDictionary<string, int> args) => OnProgressAction?.Invoke(args);
 
@@ -262,7 +253,7 @@ namespace Speckle.ConnectorUnity.Ops
 
     protected void HandleRefresh() => OnClientRefresh?.Invoke();
 
-		#endregion
+  #endregion
 
     public event UnityAction<Commit> OnCommitSet;
 
