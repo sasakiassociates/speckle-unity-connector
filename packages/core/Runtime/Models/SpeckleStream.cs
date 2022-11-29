@@ -49,7 +49,7 @@ namespace Speckle.ConnectorUnity.Ops
 
     public SpeckleStream(Stream value) : base(value)
     {
-      if (value == null)
+      if(value == null)
         return;
 
       id = value.id;
@@ -77,13 +77,13 @@ namespace Speckle.ConnectorUnity.Ops
       {
         var res = StreamWrapperType.Undefined;
 
-        if (Object.Valid())
+        if(Object.Valid())
           res = StreamWrapperType.Object;
-        else if (Commit.Valid())
+        else if(Commit.Valid())
           res = StreamWrapperType.Commit;
-        else if (Branch.Valid())
+        else if(Branch.Valid())
           res = StreamWrapperType.Branch;
-        else if (Id.Valid())
+        else if(Id.Valid())
           res = StreamWrapperType.Stream;
 
         return res;
@@ -97,7 +97,7 @@ namespace Speckle.ConnectorUnity.Ops
       get => speckleObject?.source;
       set
       {
-        if (value == null)
+        if(value == null)
           return;
 
         speckleObject = new SpeckleObjectAdapter(value);
@@ -112,7 +112,7 @@ namespace Speckle.ConnectorUnity.Ops
       get => branch?.source;
       set
       {
-        if (value == null)
+        if(value == null)
           return;
 
         branch = new SpeckleBranch(value);
@@ -133,11 +133,11 @@ namespace Speckle.ConnectorUnity.Ops
       get => commit?.source;
       set
       {
-        if (value == null)
+        if(value == null)
           return;
 
         commit = new SpeckleCommit(value);
-        Branch = new Branch { name = value.branchName };
+        Branch = new Branch {name = value.branchName};
 
         SpeckleUnity.Console.Log($"Setting Active {nameof(Commit)} to {commit.id}");
         OnCommitSet?.Invoke(commit.source);
@@ -152,7 +152,7 @@ namespace Speckle.ConnectorUnity.Ops
       get => branches.Valid() ? branches.Select(x => x.source).ToList() : new List<Branch>();
       set
       {
-        if (value == null || !value.Valid())
+        if(value == null || !value.Valid())
           return;
 
         branches = value.Select(x => new SpeckleBranch(x)).ToList();
@@ -167,7 +167,7 @@ namespace Speckle.ConnectorUnity.Ops
       get => commits.Valid() ? commits.Select(x => x.source).ToList() : new List<Commit>();
       set
       {
-        if (value == null || !value.Valid())
+        if(value == null || !value.Valid())
           return;
 
         commits = value.Select(x => new SpeckleCommit(x)).ToList();
@@ -190,9 +190,9 @@ namespace Speckle.ConnectorUnity.Ops
     {
       Branch res = null;
 
-      if (branches.Valid() && input.Valid())
-        foreach (var b in branches)
-          if (b.name.Valid() && b.name.Equals(input))
+      if(branches.Valid() && input.Valid())
+        foreach(var b in branches)
+          if(b.name.Valid() && b.name.Equals(input))
             res = b.source;
 
       return res;
@@ -236,9 +236,9 @@ namespace Speckle.ConnectorUnity.Ops
     {
       Commit res = null;
 
-      if (commits.Valid() && commitId.Valid())
-        foreach (var b in commits)
-          if (b.id.Valid() && b.id.Equals(commitId))
+      if(commits.Valid() && commitId.Valid())
+        foreach(var b in commits)
+          if(b.id.Valid() && b.id.Equals(commitId))
             res = b.source;
 
       return res;
@@ -282,7 +282,7 @@ namespace Speckle.ConnectorUnity.Ops
     public string GetUrl(bool isPreview)
     {
       string url = $"{(isPreview ? "preview" : "streams")}/{Id}";
-      switch (type)
+      switch(type)
       {
         case StreamWrapperType.Stream:
           return url;
@@ -316,7 +316,7 @@ namespace Speckle.ConnectorUnity.Ops
     public async UniTask<bool> ModifyInfo(SpeckleUnityClient client, StreamUpdateInput input)
     {
       var res = false;
-      if (client.IsValid() && input != null)
+      if(client.IsValid() && input != null)
         res = await client.StreamUpdate(input);
 
       return res;
@@ -330,7 +330,7 @@ namespace Speckle.ConnectorUnity.Ops
     /// <returns></returns>
     public async UniTask<bool> LoadObject(SpeckleUnityClient client, string value)
     {
-      if (client.IsValid())
+      if(client.IsValid())
         Object = await client.ObjectGet(Id, value);
 
       return Object != null;
@@ -345,7 +345,7 @@ namespace Speckle.ConnectorUnity.Ops
     /// <returns></returns>
     public async UniTask<bool> LoadBranches(SpeckleUnityClient client, int branchLimit = 10, int commitLimit = 5)
     {
-      if (client.IsValid())
+      if(client.IsValid())
         Branches = await client.BranchesGet(Id, branchLimit, commitLimit);
 
       return Branches.Valid();
@@ -360,7 +360,7 @@ namespace Speckle.ConnectorUnity.Ops
     /// <returns></returns>
     public async UniTask<bool> LoadBranch(SpeckleUnityClient client, string branchName, int commitLimit = 10)
     {
-      if (client.IsValid())
+      if(client.IsValid())
       {
         Branch = await client.BranchGet(Id, branchName, commitLimit);
       }
@@ -376,7 +376,7 @@ namespace Speckle.ConnectorUnity.Ops
     /// <returns></returns>
     public async UniTask<bool> LoadCommit(SpeckleUnityClient client, string input)
     {
-      if (client.IsValid())
+      if(client.IsValid())
         Commit = await client.CommitGet(Id, input);
 
       return Commit != null && Commit.id == input;
@@ -390,7 +390,7 @@ namespace Speckle.ConnectorUnity.Ops
     /// <returns></returns>
     public async UniTask<bool> LoadCommits(SpeckleUnityClient client, int limit = 10)
     {
-      if (client.IsValid())
+      if(client.IsValid())
         Commits = await client.source.StreamGetCommits(client.token, Id, limit);
 
       return Commits.Valid();
@@ -413,10 +413,10 @@ namespace Speckle.ConnectorUnity.Ops
       int limit = 10
     )
     {
-      if (client.IsValid())
+      if(client.IsValid())
       {
         var res = await client.StreamActivity(Id, before, after, cursor, actionType, limit);
-        if (res.Valid())
+        if(res.Valid())
         {
           activity = new Activity()
           {
@@ -470,4 +470,5 @@ namespace Speckle.ConnectorUnity.Ops
     public bool IsValid() => Id.Valid();
 
   }
+
 }
