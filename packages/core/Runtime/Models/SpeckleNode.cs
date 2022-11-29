@@ -83,7 +83,7 @@ namespace Speckle.ConnectorUnity.Models
 			else
 				SpeckleUnity.SafeDestroy(defaultLayer.gameObject);
 
-			if (converter is ScriptableSpeckleConverter sc)
+			if (converter is ScriptableConverter sc)
 			{
 				Debug.Log("Doing post work");
 				await sc.PostWork();

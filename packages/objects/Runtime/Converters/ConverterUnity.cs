@@ -7,7 +7,7 @@ using Mesh = Objects.Geometry.Mesh;
 namespace Speckle.ConnectorUnity.Converter
 {
 	[CreateAssetMenu(fileName = "UnityConverter", menuName = SpeckleUnity.NAMESPACE + "Defualt Converter", order = -1)]
-	public class ConverterUnity : ScriptableSpeckleConverter
+	public class ConverterUnity : ScriptableConverter
 	{
 
 		public override List<ComponentConverter> StandardConverters() => new List<ComponentConverter>

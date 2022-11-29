@@ -11,7 +11,7 @@ using Object = UnityEngine.Object;
 namespace Speckle.ConnectorUnity.Converter
 {
 
-	public abstract class ScriptableSpeckleConverter : ScriptableObject, ISpeckleConverter
+	public abstract class ScriptableConverter : ScriptableObject, ISpeckleConverter
 	{
 
 		[SerializeField] string _description;

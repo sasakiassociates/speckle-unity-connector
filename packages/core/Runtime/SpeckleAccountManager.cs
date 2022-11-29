@@ -4,6 +4,7 @@ using Speckle.Core.Logging;
 using System;
 namespace Speckle.ConnectorUnity
 {
+
   public static class SpeckleAccountManager
   {
     public static Account GetDefaultAccount()

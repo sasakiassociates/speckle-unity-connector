@@ -105,7 +105,7 @@ namespace Speckle.ConnectorUnity.Ops
 				SpeckleUnity.SafeDestroy(hierarchy.DefaultLayer);
 			}
 
-			if (converter is ScriptableSpeckleConverter sc)
+			if (converter is ScriptableConverter sc)
 			{
 				await sc.PostWork();
 			}

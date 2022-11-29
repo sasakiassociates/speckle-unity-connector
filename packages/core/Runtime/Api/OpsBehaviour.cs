@@ -19,7 +19,7 @@ namespace Speckle.ConnectorUnity.Ops
   {
 
     [SerializeField] protected SpeckleObjectBehaviour root;
-    [SerializeField] protected ScriptableSpeckleConverter converter;
+    [SerializeField] protected ScriptableConverter converter;
 
     [SerializeField, HideInInspector] protected SpeckleStream stream;
 

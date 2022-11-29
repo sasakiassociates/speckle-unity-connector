@@ -24,7 +24,7 @@ namespace Speckle.ConnectorUnity
 
 		#region Converters
 
-		public static IEnumerable<string> Format(this IEnumerable<ScriptableSpeckleConverter> items)
+		public static IEnumerable<string> Format(this IEnumerable<ScriptableConverter> items)
 		{
 			return items != null ? items.Select(x => x.Name) : new[] { DEFAULT };
 		}
