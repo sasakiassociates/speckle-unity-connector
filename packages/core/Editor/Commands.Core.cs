@@ -2,9 +2,9 @@
 using Speckle.ConnectorUnity.Models;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
 using UnityEditor;
 using UnityEngine;
+using Su = Speckle.ConnectorUnity.SpeckleUnity;
 
 namespace Speckle.ConnectorUnity
 {
@@ -17,14 +17,15 @@ namespace Speckle.ConnectorUnity
       SafeGetAssetFolder();
       SafeGetConverterManager();
     }
-    [MenuItem(SpeckleUnity.NAMESPACE + "Default Speckle Folder", false, 0)]
+    [MenuItem(Su.NAMESPACE + "Default Speckle Folder", false, 0)]
     public static void CreateSpeckleAssetFolder()
     {
       Selection.activeObject = AssetDatabase.LoadAssetAtPath(SafeGetAssetFolder(), typeof(Object));
     }
-#region Converters
 
-    [MenuItem(SpeckleUnity.NAMESPACE + "Scriptable Converter Manager", false, 50)]
+  #region Converters
+
+    [MenuItem(Su.NAMESPACE + "Scriptable Converter Manager", false, 50)]
     public static void GetScriptableConverterManager()
     {
       SafeGetAssetFolder();
@@ -32,7 +33,7 @@ namespace Speckle.ConnectorUnity
       Selection.activeObject = AssetDatabase.LoadAssetAtPath<ConverterManager>(SafeGetConverterManager());
 
     }
-    [MenuItem(SpeckleUnity.NAMESPACE + "Search and Add Converters", false, 51)]
+    [MenuItem(Su.NAMESPACE + "Search and Add Converters", false, 51)]
     public static void SearchAndAddConverters()
     {
       SafeGetAssetFolder();
@@ -45,7 +46,7 @@ namespace Speckle.ConnectorUnity
 
     }
 
-    [MenuItem(SpeckleUnity.NAMESPACE + "Create Stream Object", false, 101)]
+    [MenuItem(Su.NAMESPACE + "Create Stream Object", false, 101)]
     public static void CreateSpeckleStreamObject()
     {
       var item = ScriptableObject.CreateInstance<SpeckleStreamObject>();
@@ -54,12 +55,12 @@ namespace Speckle.ConnectorUnity
 
       if (string.IsNullOrEmpty(path))
       {
-        if (!AssetDatabase.IsValidFolder(Folders.StreamsPath))
+        if (!AssetDatabase.IsValidFolder(Su.Folders.StreamsPath))
         {
-          AssetDatabase.CreateFolder(Folders.ParentName + "/" + Folders.BaseName, Folders.StreamsName);
+          AssetDatabase.CreateFolder(Su.Folders.ParentName + "/" + Su.Folders.BaseName, Su.Folders.StreamsName);
         }
-        
-        path = Folders.StreamsPath;
+
+        path = Su.Folders.StreamsPath;
       }
       else if (path.Contains("."))
       {
@@ -69,11 +70,12 @@ namespace Speckle.ConnectorUnity
 
       AssetDatabase.CreateAsset(item, path + nameof(SpeckleStreamObject) + ".asset");
       AssetDatabase.SaveAssets();
-
       Selection.activeObject = item;
     }
+    
 
-#endregion
+  #endregion
+
     public static List<ScriptableConverter> FindAllConverters()
     {
       var items = new List<ScriptableConverter>();
@@ -92,7 +94,7 @@ namespace Speckle.ConnectorUnity
 
     public static string SafeGetConverterManager()
     {
-      var guids = AssetDatabase.FindAssets($"t:{typeof(ConverterManager)}", new[] { Folders.BasePath });
+      var guids = AssetDatabase.FindAssets($"t:{typeof(ConverterManager)}", new[] { Su.Folders.BasePath });
       string path;
 
       if (guids != null && guids.Any())
@@ -101,7 +103,7 @@ namespace Speckle.ConnectorUnity
       }
       else
       {
-        path = Folders.BasePath + nameof(ConverterManager) + ".asset";
+        path = Su.Folders.BasePath + nameof(ConverterManager) + ".asset";
         var item = ScriptableObject.CreateInstance<ConverterManager>();
         AssetDatabase.CreateAsset(item, path);
         AssetDatabase.SaveAssets();
@@ -115,29 +117,15 @@ namespace Speckle.ConnectorUnity
 
     public static string SafeGetAssetFolder()
     {
-      if (!AssetDatabase.IsValidFolder(Folders.BasePath))
+      if (!AssetDatabase.IsValidFolder(Su.Folders.BasePath))
       {
-        AssetDatabase.CreateFolder(Folders.ParentName, Folders.BaseName);
+        AssetDatabase.CreateFolder(Su.Folders.ParentName, Su.Folders.BaseName);
       }
 
-      return Folders.BasePath;
+      return Su.Folders.BasePath;
     }
 
-    static class Folders
-    {
-      internal const string ParentName = "Assets";
-
-      internal const string BaseName = "Speckle";
-
-      internal const string StreamsName = "Streams";
-
-      public const string BasePath = ParentName + "/" + BaseName + "/";
-
-      public const string StreamsPath = BasePath + StreamsName + "/";
-
-
-
-    }
+ 
   }
 
 }

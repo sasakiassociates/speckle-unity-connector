@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using Su = Speckle.ConnectorUnity.SpeckleUnity;
 
 namespace Speckle.ConnectorUnity
 {

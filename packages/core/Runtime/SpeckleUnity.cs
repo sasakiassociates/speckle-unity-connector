@@ -12,55 +12,36 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Co = Speckle.ConnectorUnity.SpeckleUnity.Console;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace Speckle.ConnectorUnity
 {
 
   public static partial class SpeckleUnity
   {
-   
-
     public const string APP = HostApplications.Unity.Name;
 
     public const string NAMESPACE = "Speckle/";
 
-  
-
     public static class Categories
     {
       public const string COMPS = NAMESPACE + "Components/";
+
       public const string CONVERTERS = NAMESPACE + "Converters/";
     }
 
-    /// <summary>
-    /// Not really set yet
-    /// </summary>
-    public static ScriptableConverter DefaultConverter { get; set; }
-
-    #if UNITY_EDITOR
-    public static List<T> GetAllInstances<T>() where T : ScriptableObject
+    public static class Folders
     {
-      var guids = AssetDatabase.FindAssets("t:" + typeof(T).Name);
-      var items = new List<T>();
-      foreach (var g in guids)
-      {
-        var path = AssetDatabase.GUIDToAssetPath(g);
-        items.Add(AssetDatabase.LoadAssetAtPath<T>(path));
-      }
+      public const string ParentName = "Assets";
 
-      return items;
+      public const string BaseName = "Speckle";
+
+      public const string StreamsName = "Streams";
+
+      public const string BasePath = ParentName + "/" + BaseName + "/";
+
+      public const string StreamsPath = BasePath + StreamsName + "/";
+
+
     }
-
-    public static ScriptableConverter GetDefaultConverter()
-    {
-      var items = GetAllInstances<ScriptableConverter>();
-      return items.FirstOrDefault(x => x.Name.ToLower().Equals("converter-unity"));
-    }
-
-    #endif
 
 
 
