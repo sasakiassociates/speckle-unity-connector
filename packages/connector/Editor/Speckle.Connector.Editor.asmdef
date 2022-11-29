@@ -1,26 +1,27 @@
 {
-  "name": "com.speckle.connector.editor",
-  "rootNamespace": "Speckle.ConnectorUnity",
-  "references": [
-    "Speckle.Connector",
-    "Speckle.Core",
-    "Speckle.Objects",
-    "UniTask.Editor",
-    "UniTask",
-    "UnityEditor.UI",
-    "UnityEngine.UI",
-    "UnityEngine.TestRunner",
-    "UnityEditor.TestRunner"
-  ],
-  "includePlatforms": [
-    "Editor"
-  ],
-  "excludePlatforms": [],
-  "allowUnsafeCode": false,
-  "overrideReferences": false,
-  "precompiledReferences": [],
-  "autoReferenced": true,
-  "defineConstraints": [],
-  "versionDefines": [],
-  "noEngineReferences": false
+    "name": "com.speckle.connector.editor",
+    "rootNamespace": "Speckle.ConnectorUnity",
+    "references": [
+        "Speckle.Connector",
+        "Speckle.Core",
+        "Speckle.Objects",
+        "UniTask.Editor",
+        "UniTask",
+        "UnityEditor.UI",
+        "UnityEngine.UI",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "Speckle.Core.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
