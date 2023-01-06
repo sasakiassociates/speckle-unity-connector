@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Threading;
-using Cysharp.Threading.Tasks;
-using Speckle.ConnectorUnity.Converter;
+﻿using Cysharp.Threading.Tasks;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
+using System;
+using System.Collections.Concurrent;
+using System.Threading;
 using UnityEngine.Events;
 
 namespace Speckle.ConnectorUnity.Ops
 {
+
   public interface IShouldValidate
   {
     public bool IsValid();
@@ -33,7 +33,7 @@ namespace Speckle.ConnectorUnity.Ops
 
     public void Cancel();
 
-    public event UnityAction OnAccountSet;
+    public event UnityAction OnInitialize;
 
   }
 
@@ -41,7 +41,7 @@ namespace Speckle.ConnectorUnity.Ops
   {
 
     public Stream Stream { get; }
-    
+
     public UniTask LoadStream(string streamId);
 
     public event UnityAction OnStreamSet;
@@ -52,13 +52,13 @@ namespace Speckle.ConnectorUnity.Ops
   {
     public UniTask DoWork();
   }
-  
+
   public interface IOpsWork<TArgs>
   {
 
     public event UnityAction<TArgs> OnClientUpdate;
   }
-  
+
   public interface IOpsEvent : IHaveProgress
   {
     public event UnityAction<ConcurrentDictionary<string, int>> OnProgressAction;
@@ -77,7 +77,8 @@ namespace Speckle.ConnectorUnity.Ops
     public void SetSelectedStream(int index);
 
     public event UnityAction OnSenderAdded;
-    
+
     public event UnityAction OnReceiverAdded;
   }
+
 }
