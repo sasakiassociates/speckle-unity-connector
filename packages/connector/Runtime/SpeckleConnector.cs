@@ -2,7 +2,6 @@ using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.Args;
 using Speckle.ConnectorUnity.Ops;
 using Speckle.Core.Credentials;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -30,7 +29,7 @@ namespace Speckle.ConnectorUnity
 
     public event UnityAction OnReceiverAdded;
 
-    public event UnityAction<List<SpeckleStream>> OnStreamsLoaded;
+    public event UnityAction OnStreamsLoaded;
 
     public static SpeckleConnector instance { get; set; }
 
@@ -84,14 +83,14 @@ namespace Speckle.ConnectorUnity
         // Application.OpenURL(activeStream.GetUrl(false));
       });
     }
-    
+
     protected override void OnEnable()
     {
       base.OnEnable();
 
       instance = this;
 
-      OnAccountSet += LoadStreams;
+      OnInitialize += LoadStreams;
 
 
       if(!accounts.Valid())
@@ -112,7 +111,12 @@ namespace Speckle.ConnectorUnity
 
     protected override void OnDisable()
     {
-      OnAccountSet -= LoadStreams;
+      OnInitialize -= LoadStreams;
+    }
+
+    protected override void ClearData()
+    {
+      streams = new List<SpeckleStream>();
     }
 
     void LoadStreams()
@@ -129,7 +133,7 @@ namespace Speckle.ConnectorUnity
           streams.Add(new SpeckleStream(stream));
         }
 
-        OnStreamsLoaded?.Invoke(streams);
+        OnStreamsLoaded?.Invoke();
 
       });
 
