@@ -42,11 +42,12 @@ namespace Speckle.ConnectorUnity
 
     public void SetSelectedStream(int index)
     {
-      if(streams.Valid(index))
+      if(!streams.Valid(index))
       {
         SpeckleUnity.Console.Log($"index value{index} for is out of range from stream list");
         return;
       }
+
       selectedStream = streams[index];
 
     }
