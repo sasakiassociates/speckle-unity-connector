@@ -1,0 +1,226 @@
+﻿:root {
+    /*Colors*/
+    --speckle-colors-default-blue: rgb(4, 126, 251);
+    --speckle-colors-light-blue: rgb(123, 188, 255);
+    --speckle-colors-dark-blue: rgb(49, 59, 207);
+    --speckle-colors-white: rgb(255, 255, 255);
+
+    /*Texture Sizes*/
+    --speckle-sizes-icon: 20px;
+    --speckle-sizes-avatar: 30px;
+
+    /*Control Sizes*/
+    --speckle-sizes-toggle: 20px;
+    --speckle-sizes-button: 20px;
+
+    /*Text sizes*/
+    --speckle-sizes-header1: 22px;
+    --speckle-sizes-header2: 26px;
+    --speckle-sizes-header3: 18px;
+    --speckle-sizes-header4: 14px;
+    --speckle-sizes-title: 12px;
+    --speckle-sizes-body: 10px;
+    --speckle-sizes-body-small: 8px;
+
+    /*SVG Assets*/
+    --speckle-assets-avatar: url('project://database/Packages/com.speckle.connector/GUI/Assets/account-circle.svg?fileID=7388822144124034973&guid=6e639686eb2406c4798f3e2c335e43d9&type=3#account-circle');
+    --speckle-assets-openInNew: url('project://database/Packages/com.speckle.connector/GUI/Assets/open-in-new.svg?fileID=7388822144124034973&guid=6f13a3af8bc8a084c95559631cbaf5b7&type=3#open-in-new');
+    --speckle-assets-refresh: url('project://database/Packages/com.speckle.connector/GUI/Assets/refresh.svg');
+    --speckle-assets-account: url('project://database/Packages/com.speckle.connector/GUI/Assets/account.svg');
+    --speckle-assets-check-circle-outline: url('project://database/Packages/com.speckle.connector/GUI/Assets/check-circle-outline.svg');
+    --speckle-assets-accounts: url('project://database/Packages/com.speckle.connector/GUI/Assets/account-multiple.svg');
+    --speckle-assets-arrow-left: url('project://database/Packages/com.speckle.connector/GUI/Assets/arrow-left.svg');
+}
+
+
+/*CONTAINERS */
+
+.speckle-container {
+}
+
+.speckle-container-rows {
+    flex-direction: row;
+}
+
+.speckle-container-columns {
+    flex-direction: column;
+}
+
+
+/*MODELS*/
+
+.speckle-model {
+}
+
+.speckle-model-account {
+
+}
+
+.speckle-model-stream {
+}
+
+.speckle-model-object {
+    margin: 0;
+    padding: 0;
+    flex-shrink: 1;
+    flex-grow: 0;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: space-around;
+}
+
+/*ELEMENTS*/
+.speckle-element {
+}
+
+
+/*CONTROL ELEMENTS*/
+
+.speckle-element-avatar {
+    margin: 2px;
+    padding: 2px;
+    width: var(--speckle-sizes-avatar);
+    height: var(--speckle-sizes-avatar);
+    flex-shrink: 1;
+    flex-grow: 0;
+}
+
+.speckle-element-button {
+    -unity-background-image-tint-color: var(--speckle-colors-white);
+}
+
+
+.speckle-element-button:hover {
+    -unity-background-image-tint-color: var(--speckle-colors-light-blue);
+}
+
+
+.speckle-element-button:active {
+    -unity-background-image-tint-color: var(--speckle-colors-default-blue);
+}
+
+.speckle-element-toggle {
+    margin: 5px;
+    flex-shrink: 0;
+    width: var(--speckle-sizes-toggle);
+    height: var(--speckle-sizes-toggle);
+}
+
+.speckle-element-toggle > .unity-toggle__input > .unity-toggle__checkmark {
+    width: var(--speckle-sizes-icon);
+    height: var(--speckle-sizes-icon);
+    flex-grow: 1;
+    -unity-background-image-tint-color: var(--speckle-colors-white);
+}
+
+.speckle-element-toggle:hover > .unity-toggle__input > .unity-toggle__checkmark {
+    -unity-background-image-tint-color: var(--speckle-colors-light-blue);
+}
+
+.speckle-element-toggle > .unity-toggle__input:checked > .unity-toggle__checkmark {
+    -unity-background-image-tint-color: var(--speckle-colors-default-blue);
+}
+
+
+.speckle-element-icon {
+    margin: 5px;
+    width: var(--speckle-sizes-icon);
+    height: var(--speckle-sizes-icon);
+    flex-shrink: 0;
+    background-color: rgba(1, 1, 1, 0);
+}
+
+.speckle-element-icon.selected Image {
+    --unity-image-tint-color: var(--speckle-colors-light-blue);
+}
+
+.speckle-element-progressbar {
+}
+
+.speckle-element-label {
+
+}
+
+.speckle-element-list {
+
+}
+
+.speckle-element-logo {
+
+}
+
+/*TEXTURE ELEMENTS*/
+
+
+.speckle-element-texture {
+
+}
+
+.speckle-element-texture-preview {
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+
+/*TEXT ELEMENTS*/
+
+.speckle-element-text-header1 {
+    font-size: var(--speckle-sizes-header1);
+}
+
+.speckle-element-text-header2 {
+    font-size: var(--speckle-sizes-header2);
+}
+
+.speckle-element-text-header3 {
+    font-size: var(--speckle-sizes-header3);
+}
+
+.speckle-element-text-header4 {
+    font-size: var(--speckle-sizes-header4);
+}
+
+.speckle-element-text-body {
+    font-size: var(--speckle-sizes-body);
+}
+
+.speckle-element-text-title {
+    font-size: var(--speckle-sizes-title);
+}
+
+.speckle-element-text-subtitle {
+    font-size: var(--speckle-sizes-subtitle);
+}
+
+
+.speckle-element-progressbar {
+}
+
+.speckle-element-toggle {
+}
+
+.speckle-element-button.speckle-element-icon {
+    border-width: 0;
+    margin: 5px;
+}
+
+
+/*NAMES*/
+#openInWeb {
+
+}
+
+#info {
+
+}
+
+
+#controls {
+
+}
+
+
+.speckle-control {
+
+}
+

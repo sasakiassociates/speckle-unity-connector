@@ -1,0 +1,17 @@
+@import url("speckle-styles.uss");
+
+.speckle-model-account {
+    margin: 0;
+    padding: 0;
+    /*flex-shrink: 1;*/
+    /*flex-grow: 1;*/
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+.speckle-element-avatar > .unity-image {
+    flex-grow: 1;
+    -unity-background-scale-mode: scale-to-fit;
+    background-image: var(--speckle-assets-avatar);
+}

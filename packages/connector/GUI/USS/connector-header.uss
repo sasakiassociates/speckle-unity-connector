@@ -1,0 +1,16 @@
+﻿@import url("speckle-styles.uss");
+
+.speckle-connector-header {
+    margin: 0;
+    padding: 3px;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.speckle-element-logo > {
+    height: var(--speckle-sizes-avatar);
+}
+
+.speckle-connector-header > .speckle-element-text-header4 > .unity-label {
+    -unity-font-style: bold;
+}
