@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.Ops;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
 using Speckle.Core.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -31,7 +30,7 @@ namespace Speckle.ConnectorUnity.Models
 
     CancellationTokenSource sourceToken;
 
-    public event UnityAction OnAccountSet;
+    public event UnityAction OnInitialize;
     public event UnityAction OnStreamSet;
     public event UnityAction<Texture> OnPreviewSet;
     public event UnityAction<Commit> OnCommitSet;
@@ -74,19 +73,19 @@ namespace Speckle.ConnectorUnity.Models
 
     public async UniTask SetCommit(string commitId)
     {
-      if (stream.CommitSet(commitId))
+      if(stream.CommitSet(commitId))
         await LoadCommit(commitId);
     }
 
     public async UniTask SetBranch(string branchName)
     {
-      if (stream.BranchSet(branchName))
+      if(stream.BranchSet(branchName))
         await LoadBranch(branchName);
     }
 
     public async UniTask SetObject(string objectId)
     {
-      if (stream.IsValid() && objectId.Valid())
+      if(stream.IsValid() && objectId.Valid())
         await LoadObject(objectId);
     }
 
@@ -108,7 +107,7 @@ namespace Speckle.ConnectorUnity.Models
 
         originalUrlInput = streamUrl;
 
-        if (!wrapper.IsValid)
+        if(!wrapper.IsValid)
         {
           SpeckleUnity.Console.Warn("Stream url is not valid!" + (streamUrl.Valid() ? $"Input={streamUrl}" : "Invalid Input"));
         }
@@ -117,9 +116,9 @@ namespace Speckle.ConnectorUnity.Models
           var obj = await wrapper.GetAccount();
           Initialize(obj);
 
-          if (await TryLoadStream(wrapper.StreamId))
+          if(await TryLoadStream(wrapper.StreamId))
           {
-            switch (wrapper.Type)
+            switch(wrapper.Type)
             {
               case StreamWrapperType.Undefined:
                 SpeckleUnity.Console.Warn("Stream Input type is undefined");
@@ -140,14 +139,14 @@ namespace Speckle.ConnectorUnity.Models
           }
         }
       }
-      catch (SpeckleException e)
+      catch(SpeckleException e)
       {
         SpeckleUnity.Console.Warn(e.Message);
       }
 
       finally
       {
-        OnAccountSet?.Invoke();
+        OnInitialize?.Invoke();
       }
     }
 
@@ -158,7 +157,7 @@ namespace Speckle.ConnectorUnity.Models
       {
         Cancel();
 
-        if (obj == null)
+        if(obj == null)
         {
           SpeckleUnity.Console.Warn($"Invalid Account being passed into {name}");
         }
@@ -170,13 +169,13 @@ namespace Speckle.ConnectorUnity.Models
           sourceToken = CancellationTokenSource.CreateLinkedTokenSource(client.token);
         }
       }
-      catch (SpeckleException e)
+      catch(SpeckleException e)
       {
         SpeckleUnity.Console.Warn(e.Message);
       }
       finally
       {
-        OnAccountSet?.Invoke();
+        OnInitialize?.Invoke();
       }
 
       return UniTask.CompletedTask;
@@ -201,7 +200,7 @@ namespace Speckle.ConnectorUnity.Models
         await TryLoadStream(streamId);
         await LoadBranch("main");
       }
-      catch (Exception e)
+      catch(Exception e)
       {
         SpeckleUnity.Console.Warn(e.Message);
       }
@@ -259,7 +258,7 @@ namespace Speckle.ConnectorUnity.Models
 
     async UniTask<bool> TryLoadStream(string streamId)
     {
-      if (sourceToken != null && sourceToken.Token.CanBeCanceled)
+      if(sourceToken != null && sourceToken.Token.CanBeCanceled)
       {
         sourceToken.Cancel();
         sourceToken.Dispose();
@@ -267,7 +266,7 @@ namespace Speckle.ConnectorUnity.Models
 
       sourceToken = new CancellationTokenSource();
 
-      if (Account == null)
+      if(Account == null)
       {
         SpeckleUnity.Console.Warn($"Invalid {nameof(Core.Credentials.Account)}\n" + $"{(Account != null ? Account.ToString() : "invalid")}");
         return false;
@@ -275,7 +274,7 @@ namespace Speckle.ConnectorUnity.Models
 
       client = new SpeckleUnityClient(account.source);
 
-      if (!client.IsValid())
+      if(!client.IsValid())
       {
         SpeckleUnity.Console.Warn($"{name} did not complete {nameof(LoadStream)} properly. Seems like the client is invalid");
         return false;
@@ -283,7 +282,7 @@ namespace Speckle.ConnectorUnity.Models
 
       client.token = sourceToken.Token;
 
-      if (!streamId.Valid())
+      if(!streamId.Valid())
       {
         SpeckleUnity.Console.Warn("Invalid Stream input\n" + $"stream :{(streamId.Valid() ? streamId : "invalid")}");
         return false;
@@ -291,7 +290,7 @@ namespace Speckle.ConnectorUnity.Models
 
       stream = new SpeckleStream(await client.StreamGet(streamId));
 
-      if (!stream.IsValid())
+      if(!stream.IsValid())
       {
         SpeckleUnity.Console.Warn($"{name} did not complete {nameof(LoadStream)} properly. Seems like the stream is invalid");
         return false;
@@ -304,7 +303,7 @@ namespace Speckle.ConnectorUnity.Models
     {
       await stream.LoadObject(client, objectId);
 
-      if (updatePreview)
+      if(updatePreview)
         await UpdatePreview();
     }
 
@@ -314,7 +313,7 @@ namespace Speckle.ConnectorUnity.Models
 
       OnCommitSet?.Invoke(Commit);
 
-      if (updatePreview)
+      if(updatePreview)
         await UpdatePreview();
     }
 
@@ -324,13 +323,13 @@ namespace Speckle.ConnectorUnity.Models
 
       OnBranchSet?.Invoke(Branch);
 
-      if (updatePreview)
+      if(updatePreview)
         await UpdatePreview();
     }
 
     async UniTask UpdatePreview()
     {
-      if (!IsValid())
+      if(!IsValid())
       {
         Debug.Log("Invalid for Preview");
         await UniTask.Yield();
