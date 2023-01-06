@@ -15,9 +15,10 @@ namespace Speckle.ConnectorUnity.Ops
     [SerializeField, HideInInspector] protected SpeckleAccount account;
     [SerializeField, HideInInspector] protected SpeckleUnityClient client;
 
-    CancellationTokenSource sourceToken;
+    CancellationTokenSource _sourceToken;
 
-    public event UnityAction OnAccountSet;
+
+    public event UnityAction OnInitialize;
 
     public Account Account => account?.source;
 
@@ -30,14 +31,14 @@ namespace Speckle.ConnectorUnity.Ops
     {
       get
       {
-        sourceToken ??= new CancellationTokenSource();
-        return sourceToken.Token;
+        _sourceToken ??= new CancellationTokenSource();
+        return _sourceToken.Token;
       }
     }
 
     protected virtual void OnEnable()
     {
-      sourceToken = new CancellationTokenSource();
+      _sourceToken = new CancellationTokenSource();
     }
 
     protected virtual void OnDisable() => Cancel();
@@ -59,6 +60,7 @@ namespace Speckle.ConnectorUnity.Ops
       try
       {
         Cancel();
+        ClearData();
 
         if(obj == null)
         {
@@ -70,7 +72,7 @@ namespace Speckle.ConnectorUnity.Ops
           account = new SpeckleAccount(obj);
           client = new SpeckleUnityClient(obj);
           client.token = new CancellationToken();
-          sourceToken = CancellationTokenSource.CreateLinkedTokenSource(client.token);
+          _sourceToken = CancellationTokenSource.CreateLinkedTokenSource(client.token);
         }
       }
       catch(SpeckleException e)
@@ -79,13 +81,18 @@ namespace Speckle.ConnectorUnity.Ops
       }
       finally
       {
-        OnAccountSet?.Invoke();
+        OnInitialize?.Invoke();
       }
 
       return UniTask.CompletedTask;
 
     }
 
+    /// <summary>
+    ///  Method for objects to use when <see cref="Initialize()"/> is called 
+    /// </summary>
+    protected virtual void ClearData()
+    { }
 
     /// <summary>
     ///   Clean up to any client things
@@ -94,12 +101,12 @@ namespace Speckle.ConnectorUnity.Ops
     {
       client?.Dispose();
 
-      if(sourceToken != null && sourceToken.IsCancellationRequested)
+      if(_sourceToken != null && _sourceToken.IsCancellationRequested)
       {
-        sourceToken.Cancel();
+        _sourceToken.Cancel();
       }
 
-      sourceToken?.Dispose();
+      _sourceToken?.Dispose();
     }
 
 
