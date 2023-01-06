@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.Elements;
+using Speckle.ConnectorUnity.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,9 +16,9 @@ namespace Speckle.ConnectorUnity
   public class SpeckleConnectorEditor : SpeckleEditor<SpeckleConnector>
   {
 
-
-    [SerializeField] VisualTreeAsset streamCard;
-    [SerializeField] VisualTreeAsset accountCard;
+    [SerializeField] bool showOpenInNew = true;
+    [SerializeField] bool showOperations = true;
+    [SerializeField] bool showDescriptions = false;
 
     int _selectedIndex;
     Button _refresh;
@@ -50,22 +51,126 @@ namespace Speckle.ConnectorUnity
       _state = ConnectorState.ShowingStreams;
       Tree.CloneTree(Root);
 
-      _listContainer = Root.Q<VisualElement>("list-container", "speckle-element-list");
+      _listContainer = Root.Q<VisualElement>(className: SpeckleUss.Classes.Control.LIST);
       _list = _listContainer.Q<ListView>();
 
       var accountControls = Root.Q<VisualElement>("account-controls");
       _refresh = accountControls.Q<Button>("refresh");
-      _refresh.clickable.clicked += ProcessRefreshAction;
+      _refresh.clickable.clicked += ProcessRefresh;
 
       _submit = accountControls.Q<Toggle>("submit");
-      _submit.RegisterValueChangedCallback(ProcessSubmitAction);
+      _submit.RegisterValueChangedCallback(ProcessSubmit);
 
       ResetList();
 
       return Root;
     }
 
-    void ProcessRefreshAction()
+    void ResetList()
+    {
+      IList source = default;
+      string bindingPath;
+      Action<VisualElement, int> bindItem;
+      Func<VisualElement> makeItem;
+      _selectedIndex = -1;
+
+      void BindStreamItem(VisualElement e, int index)
+      {
+        if(!TryCheckElement(e, out SpeckleStreamListItem element))
+        {
+          Debug.Log("Element not found");
+          return;
+        }
+
+        element.SetValueWithoutNotify(Obj.streams[index]);
+
+        // if this is a fresh list no need to worry about checking list buttons
+        if(_selectedIndex < 0)
+        {
+          return;
+        }
+
+        if(element.sendButton != null) element.sendButton.clicked -= ProcessCreateSender;
+        if(element.receiveButton != null) element.receiveButton.clickable.clicked -= ProcessCreateReceiver;
+        if(element.openInNewButton != null) element.openInNewButton.clickable.clicked -= ProcessOpenInNew;
+
+        if(_selectedIndex == index)
+        {
+          element.showUrlButton = showOpenInNew;
+          element.showOperations = showOperations;
+          element.showDescription = showDescriptions;
+
+          element.sendButton.clicked += ProcessCreateSender;
+          element.receiveButton.clickable.clicked += ProcessCreateReceiver;
+          element.openInNewButton.clickable.clicked += ProcessOpenInNew;
+
+        }
+        else
+        {
+          element.showUrlButton = false;
+          element.showOperations = false;
+          element.showDescription = false;
+        }
+
+
+
+      }
+
+      void BindAccountItem(VisualElement e, int index)
+      {
+        if(!TryCheckElement(e, out AccountElement element))
+        {
+          Debug.Log("Element not found");
+          return;
+        }
+
+        element.SetValueWithoutNotify(Obj.accounts[index]);
+      }
+
+      switch(_state)
+      {
+        case ConnectorState.ShowingAccounts:
+          source = Obj.accounts;
+          bindingPath = "accounts";
+          bindItem = BindAccountItem;
+          makeItem = () => new AccountElement();
+          break;
+        case ConnectorState.ShowingStreams:
+          source = Obj.streams;
+          bindingPath = "streams";
+          bindItem = BindStreamItem;
+          makeItem = () => new SpeckleStreamListItem();
+          break;
+        default:
+          Debug.LogWarning("Unhandled state being sent " + _state);
+          return;
+      }
+      _list?.ClearSelection();
+      _listContainer.Remove(_list);
+
+      _list = new ListView(source)
+      {
+        // build stream list 
+        makeItem = makeItem,
+        bindItem = bindItem,
+        bindingPath = bindingPath,
+        selectionType = SelectionType.Single,
+        itemsSource = source
+      };
+
+      _list.onSelectionChange += ProcessSelectionFromList;
+
+      _listContainer.Add(_list);
+
+      _list.Rebuild();
+      _list.RefreshItems();
+
+    }
+
+
+  #region handlers for control events
+
+    void ProcessRefresh()
     {
       switch(_state)
       {
@@ -84,7 +189,7 @@ namespace Speckle.ConnectorUnity
       ResetList();
     }
 
-    void ProcessSubmitAction(ChangeEvent<bool> evt)
+    void ProcessSubmit(ChangeEvent<bool> evt)
     {
       if(evt.newValue)
       {
@@ -105,6 +210,57 @@ namespace Speckle.ConnectorUnity
       ResetList();
     }
 
+
+
+    void ProcessOpenInNew()
+    {
+      Debug.Log("Open in New");
+    }
+
+    void ProcessCreateSender() => CreateOperation(false);
+
+    void ProcessCreateReceiver() => CreateOperation(true);
+
+    void CreateOperation(bool receive)
+    {
+      Debug.Log(!receive ? "Create Sender" : "Create Receiver");
+
+      if(receive)
+      {
+        Obj.CreateReceiver().Forget();
+      }
+      else
+      {
+        Obj.CreateSender().Forget();
+      }
+
+      _list.ClearSelection();
+      _selectedIndex = -1;
+    }
+
+
+    void ProcessSelectionFromList(IEnumerable<object> _)
+    {
+      _selectedIndex = _list.selectedIndex;
+
+      if(_state == ConnectorState.ShowingStreams)
+      {
+        Debug.Log("Stream Selected");
+        Obj.SetSelectedStream(_selectedIndex);
+      }
+      _list.Rebuild();
+
+    }
+
+  #endregion
+
+
+
+
+
+
+  #region utils
+
     bool TryCheckElement<TElement>(VisualElement e, out TElement element) where TElement : VisualElement
     {
       element = null;
@@ -122,144 +278,8 @@ namespace Speckle.ConnectorUnity
       return element != null;
     }
 
-    void ResetList()
-    {
-      IList source = default;
-      VisualTreeAsset item = default;
-      string bindingPath;
-      Action<VisualElement, int> bindItem;
-      _selectedIndex = -1;
+  #endregion
 
-      switch(_state)
-      {
-        case ConnectorState.ShowingAccounts:
-          source = Obj.accounts;
-          item = accountCard;
-          bindingPath = "accounts";
-          bindItem = BindAccountItem;
-          break;
-        case ConnectorState.ShowingStreams:
-          source = Obj.streams;
-          item = streamCard;
-          bindingPath = "streams";
-          bindItem = BindStreamItem;
-          break;
-        default:
-          Debug.LogWarning("Unhandled state being sent " + _state);
-          return;
-      }
-      _list?.ClearSelection();
-      _listContainer.Remove(_list);
-
-      _list = new ListView(source)
-      {
-        // build stream list 
-        makeItem = item.CloneTree,
-        bindItem = bindItem,
-        bindingPath = bindingPath,
-        selectionType = SelectionType.Single,
-        itemsSource = source
-      };
-
-      _list.onSelectionChange += ProcessSelectionFromList;
-
-      _listContainer.Add(_list);
-
-      _list.Rebuild();
-      _list.RefreshItems();
-
-    }
-
-    void ProcessSelectionFromList(IEnumerable<object> _)
-    {
-      _selectedIndex = _list.selectedIndex;
-    }
-
-
-    void BindStreamItem(VisualElement e, int index)
-    {
-      if(!TryCheckElement(e, out SpeckleStreamListItem element))
-      {
-        Debug.Log("Element not found");
-        return;
-      }
-
-      element.SetValueWithoutNotify(Obj.streams[index]);
-
-    }
-
-    void BindAccountItem(VisualElement e, int index)
-    {
-      if(!TryCheckElement(e, out AccountElement element))
-      {
-        Debug.Log("Element not found");
-        return;
-      }
-
-      element.SetValueWithoutNotify(Obj.accounts[index]);
-    }
-
-
-
-    //
-    // void SetupList()
-    // {
-    //   VisualElement makeItem()
-    //   {
-    //     var card = new VisualElement();
-    //     streamCard.CloneTree(card);
-    //     return card;
-    //   }
-    //
-    //   void bindItem(VisualElement e, int i)
-    //   {
-    //     var stream = obj.Streams[i];
-    //
-    //     // e.Q<Label>("title").text = stream.Name;
-    //     // e.Q<Label>("id").text = stream.Id;
-    //     // e.Q<Label>("description").text = stream.Description;
-    //
-    //     var isActive = FindInt(_fields.streamIndex) == i;
-    //
-    //     e.style.backgroundColor = isActive ? new StyleColor(Color.white) : new StyleColor(Color.clear);
-    //
-    //     var ops = e.Q<VisualElement>("operation-container");
-    //     if (ops == null)
-    //     {
-    //       Debug.Log("No container found");
-    //       return;
-    //     }
-    //
-    //     ops.visible = isActive;
-    //
-    //     // unbind all objects first just in case
-    //     ops.Q<Button>("open-button").clickable.clickedWithEventInfo -= obj.OpenStreamInBrowser;
-    //     ops.Q<Button>("send-button").clickable.clickedWithEventInfo -= obj.CreateSender;
-    //     ops.Q<Button>("receive-button").clickable.clickedWithEventInfo -= obj.CreateReceiver;
-    //
-    //     if (isActive)
-    //     {
-    //       ops.Q<Button>("open-button").clickable.clickedWithEventInfo += obj.OpenStreamInBrowser;
-    //       ops.Q<Button>("send-button").clickable.clickedWithEventInfo += obj.CreateSender;
-    //       ops.Q<Button>("receive-button").clickable.clickedWithEventInfo += obj.CreateReceiver;
-    //     }
-    //   }
-    //
-    //   streamList = root.Q<ListView>("stream-list");
-    //
-    //   streamList.bindItem = bindItem;
-    //   streamList.makeItem = makeItem;
-    //   streamList.fixedItemHeight = 50f;
-    //
-    //   SetAndRefreshList();
-    //
-    //   // Handle updating all list view items after selection 
-    //   streamList.RegisterCallback<ClickEvent>(_ => streamList.RefreshItems());
-    //
-    //   // Pass new selection back to object
-    //   streamList.onSelectedIndicesChange += i => obj.SetStream(i.FirstOrDefault());
-    // }
-    //
   }
 
 }
