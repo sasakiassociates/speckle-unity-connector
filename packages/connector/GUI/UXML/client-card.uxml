@@ -1,7 +1,0 @@
-﻿<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Packages/com.speckle.connector/GUI/USS/StylishBlueCube.uss?fileID=7433441132597879392&amp;guid=e9efa2f246848af45831b2eb4d3eefdb&amp;type=3#StylishBlueCube" />
-    <ui:BindableElement binding-path="client" name="client" >
-        <ui:ProgressBar binding-path="amount" name="progress-bar" title="progress">
-        </ui:ProgressBar>
-    </ui:BindableElement>
-</ui:UXML>
