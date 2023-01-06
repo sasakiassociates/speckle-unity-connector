@@ -14,15 +14,13 @@
 }
 
 .speckle-control-submit > .unity-toggle__input > .unity-toggle__checkmark {
-    /*width: var(--speckle-sizes-icon);*/
-    /*height: var(--speckle-sizes-icon);*/
-    /*flex-grow: 1;*/
+    -unity-background-scale-mode: scale-to-fit;
     background-image: var(--speckle-assets-accounts);
-    
+
 }
 
 .speckle-control-submit > .unity-toggle__input:checked > .unity-toggle__checkmark {
-    background-image: var(--speckle-assets-check-circle-outline);
+    background-image: var(--speckle-assets-arrow-left);
     -unity-background-image-tint-color: var(--speckle-colors-white);
     flex-grow: 1;
 }
