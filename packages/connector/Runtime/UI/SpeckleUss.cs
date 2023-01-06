@@ -1,78 +1,92 @@
-﻿using System;
-using UnityEngine.UIElements;
+﻿using UnityEngine.UIElements;
 
 namespace Speckle.ConnectorUnity.UI
 {
 
   public static class SpeckleUss
   {
-    public const string EXT = "speckle";
+    public const string MAIN = "speckle";
+    const string ELEM = "__";
+    const string MOD = "--";
+    const string EXT = "-";
 
     public static class Classes
     {
-      public const string CONTAINER = EXT + "-container";
-      public const string ELEMENT = EXT + "-element";
-      public const string MODEL = EXT + "-model";
-      public const string CONTROL = EXT + "-control";
-
-
+      public const string CONTAINER = MAIN + "-container";
+      public const string MODEL = MAIN + "-model";
+      public const string CONTROL = MAIN + "-control";
 
       public class Containers
       {
-        public const string ROWS = CONTAINER + "-rows";
-        public const string COLUMNS = CONTAINER + "-columns";
+        const string NS = CONTAINER + ELEM;
+
+        public const string ROWS = NS + "rows";
+        public const string COLUMNS = NS + "columns";
+        public const string STREAM_INFO = NS + "stream" + EXT + "info";
+        public const string CONTROLS = NS + "controls";
       }
 
       public static class Models
       {
-        public const string STREAM = MODEL + "-stream";
-        public const string ACCOUNT = MODEL + "-account";
-        public const string OBJECT = MODEL + "-object";
+        const string NS = MODEL + ELEM;
 
-      }
-
-      public static class Elements
-      {
-
-        public const string BUTTON = ELEMENT + "-button";
-        public const string LABEL = ELEMENT + "-label";
-        public const string TOGGLE = ELEMENT + "-toggle";
-        public const string PROGRESSBAR = ELEMENT + "-progressbar";
-        public const string ICON = ELEMENT + "-icon";
-        public const string IMAGE = ELEMENT + "-image";
-        public const string AVATAR = ELEMENT + "-avatar";
-
-        public const string LIST = ELEMENT + "-list";
-
-        public const string TEXTURE = ELEMENT + "-texture";
-
-        public static class Texture
-        {
-          public const string PREVIEW = TEXTURE + "-preview";
-        }
-
-        public const string TEXT = ELEMENT + "-text";
-
-        public static class Text
-        {
-          public const string TITLE = TEXT + "-title";
-          public const string SUBTITLE = TEXT + "-subtitle";
-          public const string BODY = TEXT + "-body";
-
-          public const string HEADER1 = TEXT + "-header1";
-          public const string HEADER2 = TEXT + "-header2";
-          public const string HEADER3 = TEXT + "-header3";
-          public const string HEADER4 = TEXT + "-header4";
-        }
-
+        public const string STREAM = NS + "stream";
+        public const string STREAM_LIST_ITEM = STREAM + EXT + "list" + EXT + "item";
+        public const string ACCOUNT = NS + "account";
+        public const string OBJECT = NS + "object";
       }
 
       public static class Control
       {
 
-        public const string REFRESH = CONTROL + "-refresh";
-        public const string CHANGE_ACCOUNT = CONTROL + "-changeAccount";
-        public const string SELECT_ACCOUNT = CONTROL + "-selectAccount";
+        const string NS = CONTROL + ELEM;
+
+        public const string BUTTON = NS + "button";
+        public const string BUTTON_ICON = BUTTON + EXT + "icon";
+
+        public const string TOGGLE = NS + "toggle";
+        public const string PROGRESSBAR = NS + "progressbar";
+        public const string LIST = NS + "list";
+
+        public const string REFRESH = NS + "refresh";
+        public const string SEND = NS + "sender";
+        public const string RECEIVE = NS + "receiver";
+        public const string OPEN_NEW = NS + "openInNew";
+        public const string SELECT_ACCOUNT = NS + "selectAccount";
+      }
+
+      public static class Elements
+      {
+        public const string NAMESPACE = MAIN + "-element";
+        const string SPACE = NAMESPACE + ELEM;
+
+        public const string LABEL = SPACE + "label";
+
+
+        public static class Texture
+        {
+          const string NS = SPACE + "texture" + EXT;
+
+          public const string PREVIEW = NS + "preview";
+          public const string ICON = NS + "icon";
+          public const string IMAGE = NS + "image";
+          public const string AVATAR = NS + "avatar";
+        }
+
+        public static class Text
+        {
+          const string NS = SPACE + "text" + EXT;
+
+          public const string TITLE = NS + "title";
+          public const string SUBTITLE = NS + "subtitle";
+          public const string BODY = NS + "body";
+
+          public const string HEADER1 = NS + "header1";
+          public const string HEADER2 = NS + "header2";
+          public const string HEADER3 = NS + "header3";
+          public const string HEADER4 = NS + "header4";
+        }
+
       }
 
 
@@ -80,27 +94,36 @@ namespace Speckle.ConnectorUnity.UI
 
     public static class Names
     {
-      public const string OPEN_IN_WEB_BUTTON = "openInWeb";
+      public const string OPEN_IN_WEB_BUTTON = "openInNew";
       public const string INFO = "info";
       public const string CONTROLS = "controls";
       public const string REFRESH = "refresh";
-      public const string CHANGE_ACCOUNT = "changeAccount";
-      public const string SELECT_ACCOUNT = "selectAccount";
+      public const string SEND = "sender";
+      public const string RECEIVE = "receiver";
     }
 
 
     public static class Prefabs
     {
 
+
+      public static Button iconButton
+      {
+        get
+        {
+          var item = new Button();
+          item.AddToClassList(Classes.Control.BUTTON);
+          item.AddToClassList(Classes.Elements.Texture.ICON);
+          return item;
+        }
+      }
+
       public static Button buttonWithIcon
       {
         get
         {
-          var item = new Button()
-          {
-            name = Classes.Elements.BUTTON,
-            style = {flexGrow = 1, flexShrink = 1}
-          };
+          var item = new Button();
+          item.AddToClassList(Classes.Control.BUTTON_ICON);
           item.Add(emptyIcon);
           return item;
         }
@@ -110,8 +133,8 @@ namespace Speckle.ConnectorUnity.UI
       {
         get
         {
-          var item = new VisualElement() {style = {minHeight = 20, minWidth = 20}};
-          item.AddToClassList(Classes.Elements.ICON);
+          var item = new VisualElement();
+          item.AddToClassList(Classes.Elements.Texture.ICON);
           return item;
         }
       }
