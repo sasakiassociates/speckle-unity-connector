@@ -38,6 +38,8 @@ namespace Speckle.ConnectorUnity
       return AccountManager.GetAccounts().Where(x => x != null).Select(x => new SpeckleAccount(x));
     }
 
+    public void LoadAccounts() => accounts = GetAccounts().ToList();
+
     public void SetSelectedStream(int index)
     {
       if(streams.Valid(index))
