@@ -55,6 +55,7 @@ namespace Speckle.ConnectorUnity
 
       var accountControls = Root.Q<VisualElement>("account-controls");
       _refresh = accountControls.Q<Button>("refresh");
+      _refresh.clickable.clicked += ProcessRefreshAction;
 
       _submit = accountControls.Q<Toggle>("submit");
       _submit.RegisterValueChangedCallback(ProcessSubmitAction);
@@ -62,6 +63,25 @@ namespace Speckle.ConnectorUnity
       ResetList();
 
       return Root;
+    }
+
+    void ProcessRefreshAction()
+    {
+      switch(_state)
+      {
+
+        case ConnectorState.ShowingStreams:
+          Obj.Initialize().Forget();
+          break;
+        case ConnectorState.ShowingAccounts:
+          Obj.LoadAccounts();
+          break;
+        default:
+          Debug.LogWarning("Unhandled state being sent " + _state);
+          return;
+      }
+
+      ResetList();
     }
 
     void ProcessSubmitAction(ChangeEvent<bool> evt)
@@ -83,46 +103,6 @@ namespace Speckle.ConnectorUnity
       }
 
       ResetList();
-    }
-
-    void ProcessSelectionFromList(IEnumerable<object> _)
-    {
-      _selectedIndex = _list.selectedIndex;
-
-      switch(_state)
-      {
-        case ConnectorState.ShowingAccounts:
-
-          break;
-        case ConnectorState.ShowingStreams:
-          break;
-        default:
-          return;
-      }
-    }
-
-
-    void BindStreamItem(VisualElement e, int index)
-    {
-      if(!TryCheckElement(e, out SpeckleStreamListItem element))
-      {
-        Debug.Log("Element not found");
-        return;
-      }
-
-      element.SetValueWithoutNotify(Obj.streams[index]);
-
-    }
-
-    void BindAccountItem(VisualElement e, int index)
-    {
-      if(!TryCheckElement(e, out AccountElement element))
-      {
-        Debug.Log("Element not found");
-        return;
-      }
-
-      element.SetValueWithoutNotify(Obj.accounts[index]);
     }
 
     bool TryCheckElement<TElement>(VisualElement e, out TElement element) where TElement : VisualElement
@@ -165,6 +145,7 @@ namespace Speckle.ConnectorUnity
           bindItem = BindStreamItem;
           break;
         default:
+          Debug.LogWarning("Unhandled state being sent " + _state);
           return;
       }
       _list?.ClearSelection();
@@ -186,10 +167,38 @@ namespace Speckle.ConnectorUnity
 
       _list.Rebuild();
       _list.RefreshItems();
-      Debug.Log("Rebuilding List");
-
 
     }
+
+    void ProcessSelectionFromList(IEnumerable<object> _)
+    {
+      _selectedIndex = _list.selectedIndex;
+    }
+
+
+    void BindStreamItem(VisualElement e, int index)
+    {
+      if(!TryCheckElement(e, out SpeckleStreamListItem element))
+      {
+        Debug.Log("Element not found");
+        return;
+      }
+
+      element.SetValueWithoutNotify(Obj.streams[index]);
+
+    }
+
+    void BindAccountItem(VisualElement e, int index)
+    {
+      if(!TryCheckElement(e, out AccountElement element))
+      {
+        Debug.Log("Element not found");
+        return;
+      }
+
+      element.SetValueWithoutNotify(Obj.accounts[index]);
+    }
+
 
 
     //
