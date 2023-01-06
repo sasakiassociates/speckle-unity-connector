@@ -1,6 +1,5 @@
 ﻿using Speckle.ConnectorUnity.Ops;
 using Speckle.ConnectorUnity.UI;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -15,8 +14,9 @@ namespace Speckle.ConnectorUnity.Elements
 
     public new class UxmlTraits : BindableElement.UxmlTraits
     {
-      UxmlBoolAttributeDescription m_showDescription = new UxmlBoolAttributeDescription {name = "Show Description", defaultValue = false};
-      UxmlBoolAttributeDescription m_showOpenUrlButton = new UxmlBoolAttributeDescription {name = "Show Url Button", defaultValue = false};
+      UxmlBoolAttributeDescription _showDescription = new UxmlBoolAttributeDescription {name = "Show Description", defaultValue = false};
+      UxmlBoolAttributeDescription _showOpenInNew = new UxmlBoolAttributeDescription {name = "Show Open In New", defaultValue = false};
+      UxmlBoolAttributeDescription _showOperations = new UxmlBoolAttributeDescription {name = "Show Operations", defaultValue = false};
 
 
       public override IEnumerable<UxmlChildElementDescription> uxmlChildElementsDescription
@@ -30,63 +30,65 @@ namespace Speckle.ConnectorUnity.Elements
 
         var el = ve as SpeckleStreamListItem;
 
-        el.showDescription = m_showDescription.GetValueFromBag(bag, cc);
-        el.showUrlButton = m_showOpenUrlButton.GetValueFromBag(bag, cc);
+        el.showDescription = _showDescription.GetValueFromBag(bag, cc);
+        el.showUrlButton = _showOpenInNew.GetValueFromBag(bag, cc);
+        el.showOperations = _showOperations.GetValueFromBag(bag, cc);
 
       }
     }
 
-    internal static class prop
+    internal static class Prop
     {
-      internal const string Stream_Name = "name";
-      internal const string Stream_Id = "id";
+      internal const string STREAM_NAME = "name";
+      internal const string STREAM_ID = "id";
     }
 
 
 
+    SpeckleStream _value;
+
     Label _streamName;
     Label _streamId;
     Label _streamDescription;
-    SpeckleStream _value;
-    VisualElement _infoContainer;
+    VisualElement _streamInfoContainer;
     VisualElement _controlsContainer;
-    Button _showUrlButton;
+    Button _openInNewButton;
+    Button _receiveButton;
+    Button _sendButton;
 
 
     public SpeckleStreamListItem()
     {
-      AddToClassList(SpeckleUss.Classes.Models.STREAM);
+      AddToClassList(SpeckleUss.Classes.Models.STREAM_LIST_ITEM);
+      AddToClassList(SpeckleUss.Classes.Containers.ROWS);
 
-      _infoContainer = new VisualElement
-      {
-        name = SpeckleUss.Names.INFO,
-        style = {flexGrow = 1}
-      };
-      _infoContainer.AddToClassList(SpeckleUss.Classes.Containers.ROWS);
+    #if UNITY_EDITOR
+      this.styleSheets.Add(UnityEditor.AssetDatabase.LoadAssetAtPath<StyleSheet>(GUIHelper.Folders.CONNECTOR_USS + "stream-list-item-card.uss"));
+    #endif
 
-      _streamName = new Label(prop.Stream_Name) {name = prop.Stream_Name, bindingPath = prop.Stream_Name};
+      var infoContainer = SpeckleUss.Prefabs.containerRow;
+
+      _streamName = new Label(Prop.STREAM_NAME) {name = Prop.STREAM_NAME, bindingPath = Prop.STREAM_NAME};
       _streamName.AddToClassList(SpeckleUss.Classes.Elements.Text.TITLE);
-      
-      _infoContainer.Add(_streamName);
 
-      _streamId = new Label(prop.Stream_Id) {name = prop.Stream_Id, bindingPath = prop.Stream_Id};
+      infoContainer.Add(_streamName);
+
+      _streamId = new Label(Prop.STREAM_ID) {name = Prop.STREAM_ID, bindingPath = Prop.STREAM_ID};
       _streamId.AddToClassList(SpeckleUss.Classes.Elements.Text.SUBTITLE);
+      infoContainer.Add(_streamId);
 
-      var sub = SpeckleUss.Prefabs.subTitle;
-      sub.Add(new Label("("));
-      sub.Add(_streamId);
-      sub.Add(new Label(")"));
+      _streamInfoContainer = SpeckleUss.Prefabs.containerColumn;
+      _streamInfoContainer.AddToClassList(SpeckleUss.Classes.Containers.STREAM_INFO);
+      _streamInfoContainer.Add(infoContainer);
 
-      _infoContainer.Add(sub);
+      Add(_streamInfoContainer);
 
-      _controlsContainer = new VisualElement() {name = SpeckleUss.Names.CONTROLS};
-      _controlsContainer.AddToClassList(SpeckleUss.Classes.CONTAINER);
+      _controlsContainer = SpeckleUss.Prefabs.containerRow;
+      _controlsContainer.AddToClassList(SpeckleUss.Classes.Containers.CONTROLS);
 
-      var group = SpeckleUss.Prefabs.containerRow;
-      group.Add(_infoContainer);
-      group.Add(_controlsContainer);
+      Add(_controlsContainer);
 
-      Add(group);
+
     }
 
 
@@ -100,15 +102,59 @@ namespace Speckle.ConnectorUnity.Elements
 
           _streamDescription = new Label("Stream Description") {bindingPath = "description"};
           _streamDescription.AddToClassList(SpeckleUss.Classes.Elements.Text.BODY);
-          _infoContainer.Add(_streamDescription);
+          _streamInfoContainer.Add(_streamDescription);
           return;
 
         }
 
         if(_streamDescription != null)
         {
-          _infoContainer.Remove(_streamDescription);
+          _streamInfoContainer.Remove(_streamDescription);
           _streamDescription = null;
+        }
+      }
+    }
+
+    public bool showOperations
+    {
+      set
+      {
+        if(value)
+        {
+          if(_sendButton == null)
+          {
+            _sendButton = SpeckleUss.Prefabs.buttonWithIcon;
+
+            //TODO: edit this so only one type is used 
+            _sendButton.name = SpeckleUss.Names.SEND;
+            _sendButton.AddToClassList(SpeckleUss.Classes.Control.SEND);
+
+            _sendButton.clickable.clicked += SendAction;
+            _controlsContainer.Add(_sendButton);
+          }
+          if(_receiveButton == null)
+          {
+            _receiveButton = SpeckleUss.Prefabs.buttonWithIcon;
+            //TODO: edit this so only one type is used 
+            _receiveButton.AddToClassList(SpeckleUss.Classes.Control.RECEIVE);
+            _receiveButton.name = SpeckleUss.Names.RECEIVE;
+
+            _receiveButton.clickable.clicked += ReceiveAction;
+            _controlsContainer.Add(_receiveButton);
+          }
+          return;
+        }
+
+        if(_sendButton != null)
+        {
+          _controlsContainer.Remove(_sendButton);
+          _sendButton = null;
+        }
+
+        if(_receiveButton != null)
+        {
+          _controlsContainer.Remove(_receiveButton);
+          _receiveButton = null;
         }
       }
     }
@@ -119,20 +165,21 @@ namespace Speckle.ConnectorUnity.Elements
       {
         if(value)
         {
-          if(_showUrlButton != null) return;
+          if(_openInNewButton != null) return;
 
-          _showUrlButton = SpeckleUss.Prefabs.buttonWithIcon;
-          _showUrlButton.name = SpeckleUss.Names.OPEN_IN_WEB_BUTTON;
-          _showUrlButton.clickable.clicked += ButtonClick;
-          _controlsContainer.Add(_showUrlButton);
+          _openInNewButton = SpeckleUss.Prefabs.buttonWithIcon;
+          _openInNewButton.AddToClassList(SpeckleUss.Classes.Control.OPEN_NEW);
+          _openInNewButton.name = SpeckleUss.Names.OPEN_IN_WEB_BUTTON;
+          _openInNewButton.clickable.clicked += OpenInWebAction;
+          _controlsContainer.Insert(0, _openInNewButton);
 
           return;
         }
 
-        if(_showUrlButton != null)
+        if(_openInNewButton != null)
         {
-          _controlsContainer.Remove(_showUrlButton);
-          _showUrlButton = null;
+          _controlsContainer.Remove(_openInNewButton);
+          _openInNewButton = null;
         }
       }
     }
@@ -172,9 +219,19 @@ namespace Speckle.ConnectorUnity.Elements
       _streamId.text = _value.Id;
     }
 
-    void ButtonClick()
+    void OpenInWebAction()
     {
       SpeckleUnity.OpenStreamInBrowser(value);
+    }
+
+    void SendAction()
+    {
+      Debug.Log("Send Action");
+    }
+
+    void ReceiveAction()
+    {
+      Debug.Log("Receive Action");
     }
 
 
