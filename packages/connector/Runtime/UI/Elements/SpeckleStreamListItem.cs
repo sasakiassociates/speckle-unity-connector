@@ -52,9 +52,9 @@ namespace Speckle.ConnectorUnity.Elements
     Label _streamDescription;
     VisualElement _streamInfoContainer;
     VisualElement _controlsContainer;
-    Button _openInNewButton;
-    Button _receiveButton;
-    Button _sendButton;
+    public Button openInNewButton;
+    public Button receiveButton;
+    public Button sendButton;
 
 
     public SpeckleStreamListItem()
@@ -121,40 +121,40 @@ namespace Speckle.ConnectorUnity.Elements
       {
         if(value)
         {
-          if(_sendButton == null)
+          if(sendButton == null)
           {
-            _sendButton = SpeckleUss.Prefabs.buttonWithIcon;
+            sendButton = SpeckleUss.Prefabs.buttonWithIcon;
 
             //TODO: edit this so only one type is used 
-            _sendButton.name = SpeckleUss.Names.SEND;
-            _sendButton.AddToClassList(SpeckleUss.Classes.Control.SEND);
+            sendButton.name = SpeckleUss.Names.SEND;
+            sendButton.AddToClassList(SpeckleUss.Classes.Control.SEND);
 
-            _sendButton.clickable.clicked += SendAction;
-            _controlsContainer.Add(_sendButton);
+            sendButton.clickable.clicked += SendAction;
+            _controlsContainer.Add(sendButton);
           }
-          if(_receiveButton == null)
+          if(receiveButton == null)
           {
-            _receiveButton = SpeckleUss.Prefabs.buttonWithIcon;
+            receiveButton = SpeckleUss.Prefabs.buttonWithIcon;
             //TODO: edit this so only one type is used 
-            _receiveButton.AddToClassList(SpeckleUss.Classes.Control.RECEIVE);
-            _receiveButton.name = SpeckleUss.Names.RECEIVE;
+            receiveButton.AddToClassList(SpeckleUss.Classes.Control.RECEIVE);
+            receiveButton.name = SpeckleUss.Names.RECEIVE;
 
-            _receiveButton.clickable.clicked += ReceiveAction;
-            _controlsContainer.Add(_receiveButton);
+            receiveButton.clickable.clicked += ReceiveAction;
+            _controlsContainer.Add(receiveButton);
           }
           return;
         }
 
-        if(_sendButton != null)
+        if(sendButton != null)
         {
-          _controlsContainer.Remove(_sendButton);
-          _sendButton = null;
+          _controlsContainer.Remove(sendButton);
+          sendButton = null;
         }
 
-        if(_receiveButton != null)
+        if(receiveButton != null)
         {
-          _controlsContainer.Remove(_receiveButton);
-          _receiveButton = null;
+          _controlsContainer.Remove(receiveButton);
+          receiveButton = null;
         }
       }
     }
@@ -165,21 +165,21 @@ namespace Speckle.ConnectorUnity.Elements
       {
         if(value)
         {
-          if(_openInNewButton != null) return;
+          if(openInNewButton != null) return;
 
-          _openInNewButton = SpeckleUss.Prefabs.buttonWithIcon;
-          _openInNewButton.AddToClassList(SpeckleUss.Classes.Control.OPEN_NEW);
-          _openInNewButton.name = SpeckleUss.Names.OPEN_IN_WEB_BUTTON;
-          _openInNewButton.clickable.clicked += OpenInWebAction;
-          _controlsContainer.Insert(0, _openInNewButton);
+          openInNewButton = SpeckleUss.Prefabs.buttonWithIcon;
+          openInNewButton.AddToClassList(SpeckleUss.Classes.Control.OPEN_NEW);
+          openInNewButton.name = SpeckleUss.Names.OPEN_IN_WEB_BUTTON;
+          openInNewButton.clickable.clicked += OpenInWebAction;
+          _controlsContainer.Insert(0, openInNewButton);
 
           return;
         }
 
-        if(_openInNewButton != null)
+        if(openInNewButton != null)
         {
-          _controlsContainer.Remove(_openInNewButton);
-          _openInNewButton = null;
+          _controlsContainer.Remove(openInNewButton);
+          openInNewButton = null;
         }
       }
     }
