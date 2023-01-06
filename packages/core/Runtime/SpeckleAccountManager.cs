@@ -21,7 +21,7 @@ namespace Speckle.ConnectorUnity
 
     public static bool Check(this UserInfo a, UserInfo b, bool includeId)
     {
-      if (a != null && b != null && a.name.Equals(b.name) && a.email.Equals(b.email) && a.company.Equals(b.company))
+      if (a != null && b != null && a.name.Equals(b.name) && a.email.Equals(b.email) )
       {
         return!includeId || a.id.Equals(b.id);
       }
