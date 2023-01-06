@@ -1,12 +1,15 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.Elements;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Speckle.ConnectorUnity
 {
+
 
   [CustomEditor(typeof(SpeckleConnector))]
   public class SpeckleConnectorEditor : SpeckleEditor<SpeckleConnector>
@@ -16,19 +19,35 @@ namespace Speckle.ConnectorUnity
     [SerializeField] VisualTreeAsset streamCard;
     [SerializeField] VisualTreeAsset accountCard;
 
+    int _selectedIndex;
     Button _refresh;
     Toggle _submit;
+    ConnectorState _state = ConnectorState.ShowingStreams;
 
     VisualElement _listContainer;
+
     ListView _list;
-    
+
+    enum ConnectorState
+    {
+      ShowingStreams,
+      ShowingAccounts
+    }
+
     protected override string fileName => "connector-card";
+
+    protected override void OnEnable()
+    {
+      base.OnEnable();
+      Obj.OnInitialize += ResetList;
+      Obj.OnStreamsLoaded += ResetList;
+    }
 
     protected override VisualElement BuildRoot()
     {
-      // creates the root 
       base.BuildRoot();
-    
+
+      _state = ConnectorState.ShowingStreams;
       Tree.CloneTree(Root);
 
       _listContainer = Root.Q<VisualElement>("list-container", "speckle-element-list");
@@ -38,43 +57,50 @@ namespace Speckle.ConnectorUnity
       _refresh = accountControls.Q<Button>("refresh");
 
       _submit = accountControls.Q<Toggle>("submit");
-      _submit.RegisterValueChangedCallback(ToggleAccountSelection);
+      _submit.RegisterValueChangedCallback(ProcessSubmitAction);
 
-      ShowStreamList();
+      ResetList();
 
       return Root;
     }
 
-    void ToggleAccountSelection(ChangeEvent<bool> evt)
+    void ProcessSubmitAction(ChangeEvent<bool> evt)
     {
       if(evt.newValue)
       {
-        ShowAccountList();
+        _state = ConnectorState.ShowingAccounts;
       }
       else
       {
-        ShowStreamList();
+        _state = ConnectorState.ShowingStreams;
+
+        // if an account is selected make sure to send that back before rebuilding the list
+        if(_selectedIndex >= 0)
+        {
+          Obj.Initialize(Obj.accounts[_selectedIndex].source).Forget();
+          return;
+        }
+      }
+
+      ResetList();
+    }
+
+    void ProcessSelectionFromList(IEnumerable<object> _)
+    {
+      _selectedIndex = _list.selectedIndex;
+
+      switch(_state)
+      {
+        case ConnectorState.ShowingAccounts:
+
+          break;
+        case ConnectorState.ShowingStreams:
+          break;
+        default:
+          return;
       }
     }
 
-    void ShowAccountList()
-    {
-
-
-      // populate list with accounts
-      ResetList(accountCard, Obj.accounts, "accounts", BindAccountItem);
-
-      Debug.Log($"accounts count = {(Obj.accounts.Valid() ? Obj.accounts.Count : 0)}");
-
-
-    }
-
-    void ShowStreamList()
-    {
-      ResetList(streamCard, Obj.streams, "streams", BindStreamItem);
-
-      Debug.Log($"stream count = {(Obj.streams.Valid() ? Obj.streams.Count : 0)}");
-    }
 
     void BindStreamItem(VisualElement e, int index)
     {
@@ -85,6 +111,7 @@ namespace Speckle.ConnectorUnity
       }
 
       element.SetValueWithoutNotify(Obj.streams[index]);
+
     }
 
     void BindAccountItem(VisualElement e, int index)
@@ -115,9 +142,32 @@ namespace Speckle.ConnectorUnity
       return element != null;
     }
 
-    void ResetList(VisualTreeAsset item, IList source, string bindingPath, Action<VisualElement, int> bindItem)
+    void ResetList()
     {
-      _list.ClearSelection();
+      IList source = default;
+      VisualTreeAsset item = default;
+      string bindingPath;
+      Action<VisualElement, int> bindItem;
+      _selectedIndex = -1;
+
+      switch(_state)
+      {
+        case ConnectorState.ShowingAccounts:
+          source = Obj.accounts;
+          item = accountCard;
+          bindingPath = "accounts";
+          bindItem = BindAccountItem;
+          break;
+        case ConnectorState.ShowingStreams:
+          source = Obj.streams;
+          item = streamCard;
+          bindingPath = "streams";
+          bindItem = BindStreamItem;
+          break;
+        default:
+          return;
+      }
+      _list?.ClearSelection();
       _listContainer.Remove(_list);
 
       _list = new ListView(source)
@@ -130,12 +180,17 @@ namespace Speckle.ConnectorUnity
         itemsSource = source
       };
 
+      _list.onSelectionChange += ProcessSelectionFromList;
+
       _listContainer.Add(_list);
 
       _list.Rebuild();
       _list.RefreshItems();
+      Debug.Log("Rebuilding List");
+
 
     }
+
 
     //
     // void SetupList()
