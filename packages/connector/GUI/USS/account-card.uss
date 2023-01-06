@@ -1,6 +1,6 @@
 @import url("speckle-styles.uss");
 
-.speckle-model-account {
+.speckle-model__account {
     margin: 0;
     padding: 0;
     /*flex-shrink: 1;*/
@@ -10,7 +10,7 @@
     justify-content: flex-start;
 }
 
-.speckle-element-avatar > .unity-image {
+.speckle-element__texture-avatar > .unity-image {
     flex-grow: 1;
     -unity-background-scale-mode: scale-to-fit;
     background-image: var(--speckle-assets-avatar);

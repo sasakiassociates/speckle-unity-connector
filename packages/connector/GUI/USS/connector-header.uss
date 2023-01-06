@@ -7,10 +7,6 @@
     flex-shrink: 0;
 }
 
-.speckle-element-logo > {
-    height: var(--speckle-sizes-avatar);
-}
-
-.speckle-connector-header > .speckle-element-text-header4 > .unity-label {
+.speckle-connector-header > .speckle-element__text-header4 > .unity-label {
     -unity-font-style: bold;
 }

@@ -23,11 +23,11 @@ namespace Speckle.ConnectorUnity.Elements
       AddToClassList(SpeckleUss.Classes.Models.ACCOUNT);
 
     #if UNITY_EDITOR
-          this.styleSheets.Add(UnityEditor.AssetDatabase.LoadAssetAtPath<StyleSheet>(GUIHelper.Folders.CONNECTOR_USS  + "account-card.uss"));
+      this.styleSheets.Add(UnityEditor.AssetDatabase.LoadAssetAtPath<StyleSheet>(GUIHelper.Folders.CONNECTOR_USS + "account-card.uss"));
     #endif
-      
+
       var texture = new TexturePreviewElement();
-      texture.AddToClassList(SpeckleUss.Classes.Elements.AVATAR);
+      texture.AddToClassList(SpeckleUss.Classes.Elements.Texture.AVATAR);
       Add(texture);
 
       var group = SpeckleUss.Prefabs.containerColumn;

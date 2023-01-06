@@ -1,20 +1,28 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Template name="connector-header" src="project://database/Packages/com.speckle.connector/GUI/UXML/connector-header.uxml?fileID=9197481963319205126&amp;guid=bd5c36324195316439603d916ff7b1b6&amp;type=3#connector-header" />
-    <ui:Template name="account-card" src="project://database/Packages/com.speckle.connector/GUI/UXML/account-card.uxml?fileID=9197481963319205126&amp;guid=334c40f2a8213484f8d1236852de8cb1&amp;type=3#account-card" />
-    <Style src="project://database/Packages/com.speckle.connector/GUI/USS/connector-header.uss?fileID=7433441132597879392&amp;guid=15c56526a9904b37937f54b7cbf8fa6c&amp;type=3#connector-header" />
-    <Style src="project://database/Packages/com.speckle.connector/GUI/USS/connector-card.uss?fileID=7433441132597879392&amp;guid=43d0f567c32e467aa1baf7a6e6dc09fa&amp;type=3#connector-card" />
-    <Style src="project://database/Packages/com.speckle.connector/GUI/USS/account-container-card.uss?fileID=7433441132597879392&amp;guid=873fc55a04564d4c9fbdf710561af629&amp;type=3#account-container-card" />
-    <ui:Instance template="connector-header" name="connector-header" />
-    <ui:VisualElement name="account-container" class="speckle-container-rows" style="padding-left: 3px; padding-right: 3px;">
-        <ui:Instance template="account-card" name="account-card" binding-path="account" />
-        <ui:VisualElement name="account-controls" style="flex-direction: row; flex-grow: 1; align-items: center; justify-content: flex-end; padding-right: 0;">
-            <ui:Button display-tooltip-when-elided="true" name="refresh" class="speckle-element-icon speckle-element-button speckle-control-refresh" />
+    <ui:Template name="connector-header"
+                 src="project://database/Packages/com.speckle.connector/GUI/UXML/connector-header.uxml?fileID=9197481963319205126&amp;guid=bd5c36324195316439603d916ff7b1b6&amp;type=3#connector-header"/>
+    <ui:Template name="account-card"
+                 src="project://database/Packages/com.speckle.connector/GUI/UXML/account-card.uxml?fileID=9197481963319205126&amp;guid=334c40f2a8213484f8d1236852de8cb1&amp;type=3#account-card"/>
+    <Style src="project://database/Packages/com.speckle.connector/GUI/USS/connector-header.uss?fileID=7433441132597879392&amp;guid=15c56526a9904b37937f54b7cbf8fa6c&amp;type=3#connector-header"/>
+    <Style src="project://database/Packages/com.speckle.connector/GUI/USS/connector-card.uss?fileID=7433441132597879392&amp;guid=43d0f567c32e467aa1baf7a6e6dc09fa&amp;type=3#connector-card"/>
+    <Style src="project://database/Packages/com.speckle.connector/GUI/USS/account-container-card.uss?fileID=7433441132597879392&amp;guid=873fc55a04564d4c9fbdf710561af629&amp;type=3#account-container-card"/>
+    <ui:Instance template="connector-header" name="connector-header"/>
+    <ui:VisualElement name="account-container" class="speckle-container__rows"
+                      style="padding-left: 3px; padding-right: 3px;">
+        <ui:Instance template="account-card" name="account-card" binding-path="account"/>
+        <ui:VisualElement name="account-controls"
+                          style="flex-direction: row; flex-grow: 1; align-items: center; justify-content: flex-end; padding-right: 0;">
+            <ui:Button display-tooltip-when-elided="true" name="refresh"
+                       class="speckle-control__button-icon speckle-control__refresh">
+                <ui:VisualElement class="speckle-element__texture-icon"/>
+            </ui:Button>
             <ui:Toggle display-tooltip-when-elided="true" name="submit" value="false"
-                       class="speckle-element-toggle speckle-element-icon speckle-control-submit"
+                       class="speckle-control__toggle speckle-element__icon speckle-control__submit"
                        style="justify-content: center; -unity-background-scale-mode: scale-to-fit;"/>
         </ui:VisualElement>
     </ui:VisualElement>
-    <ui:VisualElement name="list-container" class="speckle-element-list" style="flex-grow: 1; background-color: rgb(113, 107, 107); margin-left: 3px; margin-right: 3px; margin-top: 3px; margin-bottom: 3px;">
-        <ui:ListView focusable="true" binding-path="streams" show-bound-collection-size="false" style="flex-grow: 1;" />
+    <ui:VisualElement name="list-container" class="speckle-control__list"
+                      style="flex-grow: 1; background-color: rgb(113, 107, 107); margin-left: 3px; margin-right: 3px; margin-top: 3px; margin-bottom: 3px;">
+        <ui:ListView focusable="true" binding-path="streams" show-bound-collection-size="false" style="flex-grow: 1;"/>
     </ui:VisualElement>
 </ui:UXML>
