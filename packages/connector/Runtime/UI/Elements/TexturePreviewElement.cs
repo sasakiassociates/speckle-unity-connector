@@ -1,59 +1,55 @@
-﻿using System;
+﻿using Speckle.ConnectorUnity.UI;
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+
 namespace Speckle.ConnectorUnity.Elements
 {
-	 public class TexturePreviewElement : BindableElement, INotifyValueChanged<Texture>
+
+  public class TexturePreviewElement : BindableElement, INotifyValueChanged<Texture>
+  {
+    public new class UxmlTraits : BindableElement.UxmlTraits
+    { }
+
+    public new class UxmlFactory : UxmlFactory<TexturePreviewElement, UxmlTraits>
+    { }
+
+    Image _preview;
+    Texture _value;
+
+    public TexturePreviewElement()
     {
-        public new class UxmlTraits : BindableElement.UxmlTraits { }
-        public new class UxmlFactory : UxmlFactory<TexturePreviewElement, UxmlTraits> { }
-
-        public const string ussClassName = "texture-preview-element";
-
-        Image m_Preview;
-        Texture m_Value;
-
-        public TexturePreviewElement()
-        {
-            AddToClassList(ussClassName);
-            m_Preview = new Image();
-            Add(m_Preview);
-        }
-        
-        public void SetValueWithoutNotify(Texture newValue)
-        {
-            Debug.Log("Seting value without notifying");
-
-            if (newValue != null)
-            {
-                m_Value = newValue;
-                m_Preview.image = m_Value;
-            }
-            else throw new ArgumentException($"Expected object of type {typeof(Texture2D)}");
-        }
-
-        public Texture value
-        {
-            get => m_Value;
-            set
-            {
-                Debug.Log("Setting Texture");
-                
-                if (value == null)
-                    return;
-                
-                Debug.Log("Setting new texture");
-
-                var previous = this.value;
-                SetValueWithoutNotify(value);
-
-                using (var evt = ChangeEvent<Texture>.GetPooled(previous, value))
-                {
-                    evt.target = this;
-                    SendEvent(evt);
-                }
-            }
-        }
+      AddToClassList(SpeckleUss.Classes.Elements.Texture.PREVIEW);
+      _preview = new Image();
+      Add(_preview);
     }
+
+    public void SetValueWithoutNotify(Texture newValue)
+    {
+      if(newValue != null)
+      {
+        _value = newValue;
+        _preview.image = _value;
+      }
+      else throw new ArgumentException($"Expected object of type {typeof(Texture2D)}");
+    }
+
+    public Texture value
+    {
+      get => _value;
+      set
+      {
+        if(value == null) return;
+
+        var previous = this.value;
+        SetValueWithoutNotify(value);
+
+        using var evt = ChangeEvent<Texture>.GetPooled(previous, value);
+        evt.target = this;
+        SendEvent(evt);
+      }
+    }
+  }
+
 }

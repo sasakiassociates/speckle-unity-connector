@@ -1,4 +1,3 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" editor-extension-mode="False">
-    <Style src="project://database/Packages/com.speckle.connector/Runtime/UI/Elements/account-element.uss?fileID=7433441132597879392&amp;guid=f61ac21b19f44d6993f27b752462c5ba&amp;type=3#account-element" />
     <Speckle.ConnectorUnity.Elements.AccountElement />
 </ui:UXML>

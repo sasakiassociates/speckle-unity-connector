@@ -1,4 +1,4 @@
-﻿@import url("StylishBlueCube.uss");
+﻿@import url("stylish-blue-cube.uss");
 
 
 .stream-list-item {
@@ -10,8 +10,6 @@
     align-items: stretch;
     justify-content: flex-start;
 }
-
-
 
 
 .stream-element Button#openInWeb {
@@ -33,7 +31,7 @@
 }
 
 .stream-element Button#openInWeb #icon {
-    background-image: url('project://database/Packages/com.speckle.connector/GUI/Assets/open-in-new.svg?fileID=7388822144124034973&guid=6f13a3af8bc8a084c95559631cbaf5b7&type=3#open-in-new');
+    background-image: var(--speckle-assets-openInNew);
     -unity-background-scale-mode: scale-to-fit;
 }
 

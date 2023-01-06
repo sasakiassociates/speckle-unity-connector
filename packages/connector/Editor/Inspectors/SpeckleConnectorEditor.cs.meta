@@ -5,6 +5,8 @@ MonoImporter:
   serializedVersion: 2
   defaultReferences:
   - streamCard: {fileID: 9197481963319205126, guid: 4e6ee5f3584c6994fac8a3ffb54f2a6a, type: 3}
+  - accountCard: {fileID: 9197481963319205126, guid: 334c40f2a8213484f8d1236852de8cb1, type: 3}
+  - accountSelectionCard: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

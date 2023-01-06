@@ -32,35 +32,35 @@ public class StreamScriptableEditor : SpeckleEditor<SpeckleStreamObject>
 
   public override VisualElement CreateInspectorGUI()
   {
-    if (tree == null)
+    if (Tree == null)
       return base.CreateInspectorGUI();
 
-    root = new VisualElement();
-    tree.CloneTree(root);
+    Root = new VisualElement();
+    Tree.CloneTree(Root);
 
-    _searchButton = root.Q<Button>("search-button");
+    _searchButton = Root.Q<Button>("search-button");
     _searchButton.clickable.clicked += Search;
 
-    _streamContainer = root.Q<VisualElement>("stream-info-container");
+    _streamContainer = Root.Q<VisualElement>("stream-info-container");
 
-    var _showToggle = root.Q<Toggle>("show-stream");
+    var _showToggle = Root.Q<Toggle>("show-stream");
 
     _showToggle.RegisterValueChangedCallback(e => { _streamContainer.visible = e.newValue; });
 
-    var streamPreview = root.Q<TexturePreviewElement>("stream-preview");
-    obj.OnPreviewSet += e => streamPreview.value = e;
+    var streamPreview = Root.Q<TexturePreviewElement>("stream-preview");
+    Obj.OnPreviewSet += e => streamPreview.value = e;
 
-    return root;
+    return Root;
   }
 
   void BranchChangeCallback(ChangeEvent<string> e)
   {
-    obj.SetBranch(e.newValue).Forget();
+    Obj.SetBranch(e.newValue).Forget();
   }
 
   void CommitChangeCallback(ChangeEvent<string> e)
   {
-    obj.SetCommit(e.newValue).Forget();
+    Obj.SetCommit(e.newValue).Forget();
   }
 
   static void CompileDropDown(DropdownField field, List<string> values, string activeValue)
@@ -88,7 +88,7 @@ public class StreamScriptableEditor : SpeckleEditor<SpeckleStreamObject>
   void Search()
   {
     Debug.Log("Starting Search");
-    obj.Initialize(obj.OriginalUrlInput).ContinueWith(() => { Debug.Log("Continue with call"); }).Forget();
+    Obj.Initialize(Obj.OriginalUrlInput).ContinueWith(() => { Debug.Log("Continue with call"); }).Forget();
   }
 
 }

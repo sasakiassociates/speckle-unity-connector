@@ -11,16 +11,14 @@ namespace Speckle.ConnectorUnity
     public static void CreateSpeckleConnectorObject()
     {
       var item = Object.FindObjectOfType<SpeckleConnector>();
-      
-      if (item == null)
+
+      if(item == null)
       {
         item = new GameObject("Speckle Connector").AddComponent<SpeckleConnector>();
       }
 
       Selection.activeObject = item;
     }
-
-
   }
 
 }

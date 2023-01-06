@@ -1,110 +1,112 @@
 ﻿using Speckle.ConnectorUnity.Ops;
+using Speckle.ConnectorUnity.UI;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
-using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Speckle.ConnectorUnity.Elements
 {
-  public abstract class RuntimeBindableElement<TObject> : BindableElement, INotifyValueChanged<TObject>
+
+  public class AccountElement : BindableElement, INotifyValueChanged<SpeckleAccount>
   {
+    SpeckleAccount _value;
 
-    protected TObject m_value;
-
-    public void SetValueWithoutNotify(TObject newValue)
-    {
-      if (newValue == null)
-      {
-        Debug.LogWarning($"Null object passed for {name}");
-        return;
-      }
-
-      m_value = newValue;
-    }
-
-    public TObject value
-    {
-      get;
-      set;
-    }
-  }
-
-  public class AccountElement : BindableElement
-  {
     public new class UxmlTraits : BindableElement.UxmlTraits
     { }
+
     public new class UxmlFactory : UxmlFactory<AccountElement, UxmlTraits>
     { }
 
-    public static string ussClassName = "account-element";
-    public static string ussGroupClass = "speckle-model-object";
-    public static string ussContainerClass = "container";
-    public static string ussTitleClass = "title";
-    public static string ussSubGroupClass = "sub";
-    public static string ussTextureClass = "speckle-avatar";
-
-    const string USER_NAME = "userName";
-    const string USER_EMAIL = "userEmail";
-    const string SERVER_URL = "serverUrl";
-    const string SERVER_NAME = "serverName";
-
     public AccountElement()
     {
-      AddToClassList(ussClassName);
+      AddToClassList(SpeckleUss.Classes.Models.ACCOUNT);
 
+    #if UNITY_EDITOR
+          this.styleSheets.Add(UnityEditor.AssetDatabase.LoadAssetAtPath<StyleSheet>(GUIHelper.Folders.CONNECTOR_USS  + "account-card.uss"));
+    #endif
+      
       var texture = new TexturePreviewElement();
-      texture.AddToClassList(ussTextureClass);
+      texture.AddToClassList(SpeckleUss.Classes.Elements.AVATAR);
       Add(texture);
 
-      var group = new VisualElement();
-      group.AddToClassList(ussGroupClass);
-
+      var group = SpeckleUss.Prefabs.containerColumn;
       group.Add(CreateGroup(SERVER_NAME, SERVER_URL));
       group.Add(CreateGroup(USER_NAME, USER_EMAIL));
 
       Add(group);
     }
 
-    public void SetUserInfo(UserInfo info)
-    {
-      SetValue(USER_NAME, info.name);
-      SetValue(USER_EMAIL, info.email);
-    }
+    const string USER_NAME = "userName";
+    const string USER_EMAIL = "userEmail";
+    const string SERVER_URL = "serverUrl";
+    const string SERVER_NAME = "serverName";
 
-    public void SetServerInfo(ServerInfo info)
-    {
-      SetValue(SERVER_NAME, info.name);
-      SetValue(SERVER_URL, info.url);
-    }
 
-    public void SetAccount(Account obj)
+    public SpeckleAccount value
     {
-      if (obj == null)
+      get => _value;
+      set
       {
-        Debug.Log($"Invalid {typeof(Account)} for {name} to use");
+        if(value.Equals(this.value))
+          return;
+
+        var previous = this.value;
+        SetValueWithoutNotify(value);
+
+        using var evt = ChangeEvent<SpeckleAccount>.GetPooled(previous, value);
+        evt.target = this;
+        SendEvent(evt);
+      }
+    }
+
+    public UserInfo userInfo
+    {
+      set
+      {
+        SafeSetValue(USER_NAME, value.name);
+        SafeSetValue(USER_EMAIL, value.email);
+      }
+    }
+
+    public ServerInfo serverInfo
+    {
+      set
+      {
+        SafeSetValue(SERVER_NAME, value.name);
+        SafeSetValue(SERVER_URL, value.url);
+      }
+    }
+
+    public void SetValueWithoutNotify(SpeckleAccount newValue)
+    {
+      if(newValue == null)
+      {
+        Debug.LogWarning($"Invalid Stream to use for {name}");
         return;
       }
-      SetServerInfo(obj.serverInfo);
-      SetUserInfo(obj.userInfo);
+
+      _value = newValue;
+
+      serverInfo = _value.serverInfo;
+      userInfo = _value.userInfo;
     }
 
-    void SetValue(string label, string value)
+    void SafeSetValue(string label, string input)
     {
-      if (this.Q<Label>(label) == null)
+      if(this.Q<Label>(label) == null)
       {
         Debug.Log($"{name} does not have a label named {label}");
         return;
       }
 
-      this.Q<Label>(label).text = value;
+      this.Q<Label>(label).text = input;
     }
 
 
     VisualElement CreateGroup(string mainProp, string subProp)
     {
-      var container = new VisualElement();
-      container.AddToClassList(ussContainerClass);
+      var container = SpeckleUss.Prefabs.containerRow;
 
       var mainItem = new Label(mainProp)
       {
@@ -112,12 +114,12 @@ namespace Speckle.ConnectorUnity.Elements
         bindingPath = mainProp
       };
 
-      mainItem.AddToClassList(ussTitleClass);
+      mainItem.AddToClassList(SpeckleUss.Classes.Elements.Text.TITLE);
 
       container.Add(mainItem);
 
-      var sub = new VisualElement();
-      sub.AddToClassList(ussSubGroupClass);
+      var sub = SpeckleUss.Prefabs.containerRow;
+      sub.AddToClassList(SpeckleUss.Classes.Elements.Text.SUBTITLE);
 
       var subItem = new Label(subProp)
       {
@@ -134,5 +136,7 @@ namespace Speckle.ConnectorUnity.Elements
       return container;
     }
 
+
   }
+
 }

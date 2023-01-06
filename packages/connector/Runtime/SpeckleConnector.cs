@@ -21,26 +21,27 @@ namespace Speckle.ConnectorUnity
   {
 
     [SerializeField] SpeckleStream selectedStream;
+
     [field: SerializeField] public List<SpeckleStream> streams { get; private set; } = new List<SpeckleStream>();
-    
-    public List<Account> accounts { get; private set; }
+
+    [field: SerializeField] public List<SpeckleAccount> accounts { get; private set; } = new List<SpeckleAccount>();
 
     public event UnityAction OnSenderAdded;
-    
+
     public event UnityAction OnReceiverAdded;
 
     public event UnityAction<List<SpeckleStream>> OnStreamsLoaded;
-    
-    public static SpeckleConnector Instance { get; set; }
 
-    public static IEnumerable<Account> GetAccounts()
+    public static SpeckleConnector instance { get; set; }
+
+    public static IEnumerable<SpeckleAccount> GetAccounts()
     {
-      return AccountManager.GetAccounts();
+      return AccountManager.GetAccounts().Where(x => x != null).Select(x => new SpeckleAccount(x));
     }
 
     public void SetSelectedStream(int index)
     {
-      if (streams.Valid(index))
+      if(streams.Valid(index))
       {
         SpeckleUnity.Console.Log($"index value{index} for is out of range from stream list");
         return;
@@ -48,12 +49,12 @@ namespace Speckle.ConnectorUnity
       selectedStream = streams[index];
 
     }
-    
+
     public async UniTask CreateSender()
     {
       var ops = await Create<Sender, SendWorkArgs>();
 
-      if (ops == null)
+      if(ops == null)
       {
         SpeckleUnity.Console.Log($"{typeof(Sender)} was not created from {nameof(SpeckleConnector)}-{name}");
         return;
@@ -65,7 +66,7 @@ namespace Speckle.ConnectorUnity
     {
       var ops = await Create<Receiver, ReceiveWorkArgs>();
 
-      if (ops == null)
+      if(ops == null)
       {
         SpeckleUnity.Console.Log($"{typeof(Receiver)} was not created from {nameof(SpeckleConnector)}-{name}");
         return;
@@ -83,40 +84,55 @@ namespace Speckle.ConnectorUnity
         // Application.OpenURL(activeStream.GetUrl(false));
       });
     }
-
-    void Awake()
-    {
-      Instance = this;
-      accounts = GetAccounts().ToList();
-      OnAccountSet += () =>
-      {
-        Debug.Log("Account set");
-        LoadStreams().Forget();
-      };
-    }
-
-
+    
     protected override void OnEnable()
     {
       base.OnEnable();
-      
-      Initialize();
+
+      instance = this;
+
+      OnAccountSet += LoadStreams;
+
+
+      if(!accounts.Valid())
+      {
+        accounts = GetAccounts().ToList();
+      }
+
+      if(!account.Valid())
+      {
+        Initialize();
+      }
+      else if(!streams.Valid())
+      {
+        LoadStreams();
+      }
+
     }
 
-    
-    
-    async UniTaskVoid LoadStreams()
+    protected override void OnDisable()
+    {
+      OnAccountSet -= LoadStreams;
+    }
+
+    void LoadStreams()
     {
       Debug.Log("Loading streams");
-      var accountStreams = await client.StreamsGet();
-      streams = new List<SpeckleStream>();
 
-      foreach (var stream in accountStreams)
+      UniTask.Create(async () =>
       {
-        streams.Add(new SpeckleStream(stream));
-      }
-      
-      OnStreamsLoaded?.Invoke(streams);
+        var accountStreams = await client.StreamsGet();
+        streams = new List<SpeckleStream>();
+
+        foreach(var stream in accountStreams)
+        {
+          streams.Add(new SpeckleStream(stream));
+        }
+
+        OnStreamsLoaded?.Invoke(streams);
+
+      });
+
     }
 
     async UniTask<TOperator> Create<TOperator, TArgs>()
@@ -124,7 +140,7 @@ namespace Speckle.ConnectorUnity
       where TOperator : OpsBehaviour<TArgs>
     {
 
-      if (!IsValid() || selectedStream == null || !selectedStream.IsValid())
+      if(!IsValid() || selectedStream == null || !selectedStream.IsValid())
       {
         SpeckleUnity.Console.Log("No Active stream ready to be sent to Receiver");
         return null;
@@ -135,9 +151,9 @@ namespace Speckle.ConnectorUnity
       ops.Initialize(Account);
       await ops.LoadStream(selectedStream.Id);
 
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
       Selection.activeObject = ops;
-#endif
+    #endif
 
       return ops;
     }

@@ -1,63 +1,142 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Cysharp.Threading.Tasks;
-using Speckle.ConnectorUnity.GUI;
+using Speckle.ConnectorUnity.Elements;
+using System.Collections;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Speckle.ConnectorUnity
 {
+
   [CustomEditor(typeof(SpeckleConnector))]
   public class SpeckleConnectorEditor : SpeckleEditor<SpeckleConnector>
   {
 
-    (string accountIndex, string streamIndex) _fields;
-    DropdownField accounts;
-    DropdownField converters;
-    Image img;
-    Button refresh;
-    ListView streamList;
 
     [SerializeField] VisualTreeAsset streamCard;
+    [SerializeField] VisualTreeAsset accountCard;
 
+    Button _refresh;
+    Toggle _submit;
+
+    VisualElement _listContainer;
+    ListView _list;
+    
     protected override string fileName => "connector-card";
 
-    // protected override void OnEnable()
-    // {
-    //   base.OnEnable();
-    //   //
-    //   // obj.onRepaint += RefreshAll;
-    //
-    //   // streamCard = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(GUIHelper.Folders.GUI_CORE + "Elements/StreamCard/StreamCard.uxml");
-    //   //
-    //   // _fields.accountIndex = "_accountIndex";
-    //   // _fields.streamIndex = "_streamIndex";
-    // }
-    //
-    // void OnDisable()
-    // {
-    //   // obj.onRepaint -= RefreshAll;
-    // }
-
-    // TODO: set a loading state for the gui 
-    event Action onConnectorLoading;
-
-    public override VisualElement CreateInspectorGUI()
+    protected override VisualElement BuildRoot()
     {
-      if (tree == null)
-        return base.CreateInspectorGUI();
-      
-      root = new VisualElement();
-      tree.CloneTree(root);
+      // creates the root 
+      base.BuildRoot();
+    
+      Tree.CloneTree(Root);
 
-      var listview =root.Q<ListView>();
-      listview.selectionType = SelectionType.Single;
-      listview.makeItem = streamCard.CloneTree;
+      _listContainer = Root.Q<VisualElement>("list-container", "speckle-element-list");
+      _list = _listContainer.Q<ListView>();
 
-      return root;
+      var accountControls = Root.Q<VisualElement>("account-controls");
+      _refresh = accountControls.Q<Button>("refresh");
+
+      _submit = accountControls.Q<Toggle>("submit");
+      _submit.RegisterValueChangedCallback(ToggleAccountSelection);
+
+      ShowStreamList();
+
+      return Root;
     }
+
+    void ToggleAccountSelection(ChangeEvent<bool> evt)
+    {
+      if(evt.newValue)
+      {
+        ShowAccountList();
+      }
+      else
+      {
+        ShowStreamList();
+      }
+    }
+
+    void ShowAccountList()
+    {
+
+
+      // populate list with accounts
+      ResetList(accountCard, Obj.accounts, "accounts", BindAccountItem);
+
+      Debug.Log($"accounts count = {(Obj.accounts.Valid() ? Obj.accounts.Count : 0)}");
+
+
+    }
+
+    void ShowStreamList()
+    {
+      ResetList(streamCard, Obj.streams, "streams", BindStreamItem);
+
+      Debug.Log($"stream count = {(Obj.streams.Valid() ? Obj.streams.Count : 0)}");
+    }
+
+    void BindStreamItem(VisualElement e, int index)
+    {
+      if(!TryCheckElement(e, out SpeckleStreamListItem element))
+      {
+        Debug.Log("Element not found");
+        return;
+      }
+
+      element.SetValueWithoutNotify(Obj.streams[index]);
+    }
+
+    void BindAccountItem(VisualElement e, int index)
+    {
+      if(!TryCheckElement(e, out AccountElement element))
+      {
+        Debug.Log("Element not found");
+        return;
+      }
+
+      element.SetValueWithoutNotify(Obj.accounts[index]);
+    }
+
+    bool TryCheckElement<TElement>(VisualElement e, out TElement element) where TElement : VisualElement
+    {
+      element = null;
+
+      // is the item we want 
+      if(e is TElement cast)
+      {
+        element = cast;
+      }
+      else
+      {
+        element = e.Q<TElement>();
+      }
+
+      return element != null;
+    }
+
+    void ResetList(VisualTreeAsset item, IList source, string bindingPath, Action<VisualElement, int> bindItem)
+    {
+      _list.ClearSelection();
+      _listContainer.Remove(_list);
+
+      _list = new ListView(source)
+      {
+        // build stream list 
+        makeItem = item.CloneTree,
+        bindItem = bindItem,
+        bindingPath = bindingPath,
+        selectionType = SelectionType.Single,
+        itemsSource = source
+      };
+
+      _listContainer.Add(_list);
+
+      _list.Rebuild();
+      _list.RefreshItems();
+
+    }
+
     //
     // void SetupList()
     // {
@@ -117,36 +196,6 @@ namespace Speckle.ConnectorUnity
     //   streamList.onSelectedIndicesChange += i => obj.SetStream(i.FirstOrDefault());
     // }
     //
-    // void SetAndRefreshList()
-    // {
-    //   streamList.ClearSelection();
-    //   streamList.itemsSource = obj.Streams;
-    //   streamList.RefreshItems();
-    // }
-    //
-    // async UniTask AccountChange(ChangeEvent<string> evt)
-    // {
-    //   var index = accounts.DropDownChange(evt);
-    //
-    //   if (index < 0)
-    //     return;
-    //
-    //   await obj.SetAccount(index);
-    //   RefreshAll();
-    // }
-    //
-    // int FindInt(string propName) => serializedObject.FindProperty(propName).intValue;
-    //
-    // void RefreshAll()
-    // {
-    //   Refresh(accounts, obj.Accounts.Format(), _fields.accountIndex);
-    //   SetAndRefreshList();
-    // }
-    //
-    // void Refresh(DropdownField dropdown, IEnumerable<string> items, string prop)
-    // {
-    //   dropdown.choices = items?.ToList();
-    //   dropdown.index = FindInt(prop);
-    // }
   }
+
 }

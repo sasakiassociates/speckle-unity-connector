@@ -20,6 +20,7 @@ namespace Speckle.ConnectorUnity
 			public const string CONNECTOR = "Packages/com.speckle.connector/";
 			public const string CONNECTOR_GUI = CONNECTOR + "GUI/";
 			public const string CONNECTOR_UXML = CONNECTOR_GUI + "UXML/";
+			public const string CONNECTOR_USS = CONNECTOR_GUI + "USS/";
 		}
 
 		#region Converters

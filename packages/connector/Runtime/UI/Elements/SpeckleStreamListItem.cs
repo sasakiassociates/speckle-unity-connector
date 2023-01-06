@@ -36,8 +36,6 @@ namespace Speckle.ConnectorUnity.Elements
       }
     }
 
-
-
     internal static class prop
     {
       internal const string Stream_Name = "name";
@@ -57,38 +55,41 @@ namespace Speckle.ConnectorUnity.Elements
 
     public SpeckleStreamListItem()
     {
-      AddToClassList(SpeckleUss.classes.models.stream);
+      AddToClassList(SpeckleUss.Classes.Models.STREAM);
 
       _infoContainer = new VisualElement
       {
-        name = SpeckleUss.names.info,
+        name = SpeckleUss.Names.INFO,
         style = {flexGrow = 1}
       };
-      _infoContainer.AddToClassList(SpeckleUss.classes.containers.stacked);
+      _infoContainer.AddToClassList(SpeckleUss.Classes.Containers.ROWS);
 
-      _streamName = new Label(prop.Stream_Name) {name = SpeckleUss.classes.elements.title, bindingPath = prop.Stream_Name};
-      _streamId = new Label(prop.Stream_Id) {bindingPath = prop.Stream_Id};
+      _streamName = new Label(prop.Stream_Name) {name = prop.Stream_Name, bindingPath = prop.Stream_Name};
+      _streamName.AddToClassList(SpeckleUss.Classes.Elements.Text.TITLE);
+      
+      _infoContainer.Add(_streamName);
 
-      var sub = SpeckleUss.prefabs.subTitle;
+      _streamId = new Label(prop.Stream_Id) {name = prop.Stream_Id, bindingPath = prop.Stream_Id};
+      _streamId.AddToClassList(SpeckleUss.Classes.Elements.Text.SUBTITLE);
+
+      var sub = SpeckleUss.Prefabs.subTitle;
       sub.Add(new Label("("));
       sub.Add(_streamId);
       sub.Add(new Label(")"));
 
-      _infoContainer.Add(_streamName);
       _infoContainer.Add(sub);
 
-      _controlsContainer = new VisualElement() {name = SpeckleUss.names.controls};
-      _controlsContainer.AddToClassList(SpeckleUss.classes.container);
+      _controlsContainer = new VisualElement() {name = SpeckleUss.Names.CONTROLS};
+      _controlsContainer.AddToClassList(SpeckleUss.Classes.CONTAINER);
 
-      var group = new VisualElement() {style = {flexDirection = FlexDirection.Row}};
-      group.AddToClassList(SpeckleUss.classes.container);
+      var group = SpeckleUss.Prefabs.containerRow;
       group.Add(_infoContainer);
       group.Add(_controlsContainer);
 
       Add(group);
     }
-    
-    
+
+
     public bool showDescription
     {
       set
@@ -98,7 +99,7 @@ namespace Speckle.ConnectorUnity.Elements
           if(_streamDescription != null) return;
 
           _streamDescription = new Label("Stream Description") {bindingPath = "description"};
-          _streamDescription.AddToClassList(SpeckleUss.classes.elements.body);
+          _streamDescription.AddToClassList(SpeckleUss.Classes.Elements.Text.BODY);
           _infoContainer.Add(_streamDescription);
           return;
 
@@ -120,8 +121,8 @@ namespace Speckle.ConnectorUnity.Elements
         {
           if(_showUrlButton != null) return;
 
-          _showUrlButton = SpeckleUss.prefabs.buttonWithIcon;
-          _showUrlButton.name = SpeckleUss.names.openInWebButton;
+          _showUrlButton = SpeckleUss.Prefabs.buttonWithIcon;
+          _showUrlButton.name = SpeckleUss.Names.OPEN_IN_WEB_BUTTON;
           _showUrlButton.clickable.clicked += ButtonClick;
           _controlsContainer.Add(_showUrlButton);
 

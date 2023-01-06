@@ -1,10 +1,9 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:VisualElement name="connector-header"
-                      style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; flex-direction: row; padding-left: 3px; padding-right: 3px; padding-top: 3px; padding-bottom: 3px;">
-        <ui:VisualElement name="connector-logo"
-                          style="background-image: url(&apos;project://database/Packages/com.speckle.connector/GUI/Assets/logo-blue-2.png?fileID=2800000&amp;guid=e93e1737453746540a5a87f6e0623398&amp;type=3#logo-blue-2&apos;); -unity-background-scale-mode: scale-to-fit; max-height: none; min-width: auto; flex-grow: 0; height: 30px; width: 125px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; justify-content: center;"/>
-        <ui:VisualElement name="connector-title" class="font__header" style="justify-content: center;">
-            <ui:Label text="for Unity " display-tooltip-when-elided="true" style="justify-content: center;"/>
+    <Style src="project://database/Packages/com.speckle.connector/GUI/USS/connector-header.uss?fileID=7433441132597879392&amp;guid=15c56526a9904b37937f54b7cbf8fa6c&amp;type=3#connector-header" />
+    <ui:VisualElement name="connector-header" class="speckle-connector-header speckle-container-rows" style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; flex-direction: row; padding-left: 3px; padding-right: 3px; padding-top: 3px; padding-bottom: 3px;">
+        <ui:VisualElement name="logo" class="speckle-element-logo" style="background-image: url(&apos;project://database/Packages/com.speckle.connector/GUI/Assets/logo-blue-2.png?fileID=2800000&amp;guid=e93e1737453746540a5a87f6e0623398&amp;type=3#logo-blue-2&apos;); -unity-background-scale-mode: scale-to-fit; max-height: none; min-width: auto; flex-grow: 0; height: 30px; width: 125px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; justify-content: center;" />
+        <ui:VisualElement name="connector-title" class="speckle-element-text-header4" style="justify-content: center;">
+            <ui:Label text="For Unity!" display-tooltip-when-elided="true" style="justify-content: center;" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

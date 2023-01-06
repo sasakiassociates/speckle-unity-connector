@@ -5,8 +5,10 @@ using Speckle.Core.Logging;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Events;
+
 namespace Speckle.ConnectorUnity.Ops
 {
+
   public abstract class ClientBehaviour : MonoBehaviour, IClient
   {
 
@@ -58,19 +60,20 @@ namespace Speckle.ConnectorUnity.Ops
       {
         Cancel();
 
-        if (obj == null)
+        if(obj == null)
         {
           SpeckleUnity.Console.Warn($"Invalid Account being passed into {name}");
         }
         else
         {
+          Debug.Log($"Account selected {obj}");
           account = new SpeckleAccount(obj);
           client = new SpeckleUnityClient(obj);
           client.token = new CancellationToken();
           sourceToken = CancellationTokenSource.CreateLinkedTokenSource(client.token);
         }
       }
-      catch (SpeckleException e)
+      catch(SpeckleException e)
       {
         SpeckleUnity.Console.Warn(e.Message);
       }
@@ -91,7 +94,7 @@ namespace Speckle.ConnectorUnity.Ops
     {
       client?.Dispose();
 
-      if (sourceToken != null && sourceToken.IsCancellationRequested)
+      if(sourceToken != null && sourceToken.IsCancellationRequested)
       {
         sourceToken.Cancel();
       }
@@ -107,4 +110,5 @@ namespace Speckle.ConnectorUnity.Ops
     public virtual bool IsValid() => client != null && client.IsValid();
 
   }
+
 }

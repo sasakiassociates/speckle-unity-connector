@@ -1,0 +1,28 @@
+@import url('project://database/Packages/com.speckle.connector/GUI/USS/speckle-styles.uss?fileID=7433441132597879392&guid=3cfa792e400f4ff48e18d458ee906e1a&type=3#speckle-styles');
+
+#account-container {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.speckle-control-refresh {
+    background-image: var(--speckle-assets-refresh);
+}
+
+.speckle-control-submit {
+    background-color: rgba(1, 1, 1, 0);
+}
+
+.speckle-control-submit > .unity-toggle__input > .unity-toggle__checkmark {
+    /*width: var(--speckle-sizes-icon);*/
+    /*height: var(--speckle-sizes-icon);*/
+    /*flex-grow: 1;*/
+    background-image: var(--speckle-assets-accounts);
+    
+}
+
+.speckle-control-submit > .unity-toggle__input:checked > .unity-toggle__checkmark {
+    background-image: var(--speckle-assets-check-circle-outline);
+    -unity-background-image-tint-color: var(--speckle-colors-white);
+    flex-grow: 1;
+}
