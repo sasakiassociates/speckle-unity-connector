@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Speckle.ConnectorUnity.Ops
@@ -313,7 +313,7 @@ namespace Speckle.ConnectorUnity.Ops
     /// <param name="client"></param>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async UniTask<bool> ModifyInfo(SpeckleUnityClient client, StreamUpdateInput input)
+    public async UniTask<bool> ModifyInfo(SpeckleClient client, StreamUpdateInput input)
     {
       var res = false;
       if(client.IsValid() && input != null)
@@ -328,7 +328,7 @@ namespace Speckle.ConnectorUnity.Ops
     /// <param name="client"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    public async UniTask<bool> LoadObject(SpeckleUnityClient client, string value)
+    public async UniTask<bool> LoadObject(SpeckleClient client, string value)
     {
       if(client.IsValid())
         Object = await client.ObjectGet(Id, value);
@@ -343,7 +343,7 @@ namespace Speckle.ConnectorUnity.Ops
     /// <param name="branchLimit"></param>
     /// <param name="commitLimit"></param>
     /// <returns></returns>
-    public async UniTask<bool> LoadBranches(SpeckleUnityClient client, int branchLimit = 10, int commitLimit = 5)
+    public async UniTask<bool> LoadBranches(SpeckleClient client, int branchLimit = 10, int commitLimit = 5)
     {
       if(client.IsValid())
         Branches = await client.BranchesGet(Id, branchLimit, commitLimit);
@@ -358,7 +358,7 @@ namespace Speckle.ConnectorUnity.Ops
     /// <param name="branchName"></param>
     /// <param name="commitLimit"></param>
     /// <returns></returns>
-    public async UniTask<bool> LoadBranch(SpeckleUnityClient client, string branchName, int commitLimit = 10)
+    public async UniTask<bool> LoadBranch(SpeckleClient client, string branchName, int commitLimit = 10)
     {
       if(client.IsValid())
       {
@@ -374,7 +374,7 @@ namespace Speckle.ConnectorUnity.Ops
     /// <param name="client"></param>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async UniTask<bool> LoadCommit(SpeckleUnityClient client, string input)
+    public async UniTask<bool> LoadCommit(SpeckleClient client, string input)
     {
       if(client.IsValid())
         Commit = await client.CommitGet(Id, input);
@@ -388,7 +388,7 @@ namespace Speckle.ConnectorUnity.Ops
     /// <param name="client"></param>
     /// <param name="limit"></param>
     /// <returns></returns>
-    public async UniTask<bool> LoadCommits(SpeckleUnityClient client, int limit = 10)
+    public async UniTask<bool> LoadCommits(SpeckleClient client, int limit = 10)
     {
       if(client.IsValid())
         Commits = await client.source.StreamGetCommits(client.token, Id, limit);
@@ -407,7 +407,7 @@ namespace Speckle.ConnectorUnity.Ops
     /// <param name="limit"></param>
     /// <returns></returns>
     public async UniTask<bool> LoadActivity(
-      SpeckleUnityClient client,
+      SpeckleClient client,
       DateTime? before = null, DateTime? after = null, DateTime? cursor = null,
       string actionType = null,
       int limit = 10
@@ -430,6 +430,17 @@ namespace Speckle.ConnectorUnity.Ops
       return activity != null;
     }
 
+    /// <summary>
+    /// Simple check if the id is set to this stream
+    /// </summary>
+    /// <returns></returns>
+    public bool IsValid() => Id.Valid();
+
+    public override string ToString()
+    {
+      return source != null ? source.ToString() : "Invalid Stream(check the source!)";
+    }
+
     public bool Equals(SpeckleStream obj) => Equals(obj.source);
 
     public bool Equals(Stream obj) => source != null && obj != null && Id.Equals(obj.id) && Name.Equals(obj.name);
@@ -445,6 +456,8 @@ namespace Speckle.ConnectorUnity.Ops
       favoritedDate = this.FavoritedDate,
       isPublic = this.IsPublic
     };
+
+
 
     void Clear()
     {
@@ -462,12 +475,6 @@ namespace Speckle.ConnectorUnity.Ops
       activity = null;
       Object = null;
     }
-
-    /// <summary>
-    /// Simple check if the id is set to this stream
-    /// </summary>
-    /// <returns></returns>
-    public bool IsValid() => Id.Valid();
 
   }
 

@@ -1,11 +1,11 @@
-﻿using System.Threading;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.Args;
 using Speckle.ConnectorUnity.Models;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
 using Speckle.Core.Logging;
 using Speckle.Core.Models;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -46,7 +46,7 @@ namespace Speckle.ConnectorUnity.Ops
     /// <returns></returns>
     public async UniTask DoWork(SpeckleObjectBehaviour obj, string message = null, CancellationTokenSource tokenSource = null)
     {
-      if (obj != null)
+      if(obj != null)
         root = obj;
 
       await DoWork(message, tokenSource);
@@ -65,8 +65,7 @@ namespace Speckle.ConnectorUnity.Ops
     }
 
     protected override void SetSubscriptions()
-    {
-    }
+    { }
 
     protected override async UniTask Execute()
     {
@@ -74,16 +73,16 @@ namespace Speckle.ConnectorUnity.Ops
       {
         SpeckleUnity.Console.Log("Send started");
 
-        if (root == null && _data == null)
+        if(root == null && _data == null)
         {
           Args.message = $"No objects were found in {nameof(SpeckleNode)} to send. Stopping call";
           SpeckleUnity.Console.Warn(Args.message);
           return;
         }
 
-        _data ??= root.SceneToData(converter, Token);
+        _data ??= root.SceneToData(converter, token);
 
-        if (_data == null)
+        if(_data == null)
         {
           Args.message = "There is no data in this commit to send. Stopping call";
           SpeckleUnity.Console.Warn(Args.message);
@@ -111,7 +110,7 @@ namespace Speckle.ConnectorUnity.Ops
 
         onDataSent?.Invoke(objectId);
       }
-      catch (SpeckleException e)
+      catch(SpeckleException e)
       {
         SpeckleUnity.Console.Warn(e.Message);
       }
@@ -127,4 +126,5 @@ namespace Speckle.ConnectorUnity.Ops
 
     public event UnityAction<string> onDataSent;
   }
+
 }

@@ -1,6 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity.Args;
-using Speckle.ConnectorUnity.Models;
 using Speckle.Core.Api;
 using Speckle.Core.Api.SubscriptionModels;
 using Speckle.Core.Credentials;
@@ -46,13 +45,13 @@ namespace Speckle.ConnectorUnity.Ops
         root = new GameObject().AddComponent<SpeckleObjectBehaviour>();
 
         // NOTE: this might now need to happen
-        switch (stream.type)
+        switch(stream.type)
         {
           case StreamWrapperType.Commit:
             var c = await client.CommitGet(stream.Id, stream.Commit.id);
 
             // TODO: check if this getting the commit updates the instance
-            if (_sendReceive)
+            if(_sendReceive)
               client.CommitReceived(new CommitReceivedInput()
               {
                 streamId = stream.Id,
@@ -76,7 +75,7 @@ namespace Speckle.ConnectorUnity.Ops
             break;
         }
 
-        if (!root.IsValid())
+        if(!root.IsValid())
         {
           Args.message = "The reference object pulled down from this stream is not valid";
           SpeckleUnity.Console.Warn($"{name}-" + Args.message);
@@ -85,7 +84,7 @@ namespace Speckle.ConnectorUnity.Ops
 
         Base @base = await SpeckleOps.Receive(client, stream.Id, root.id, HandleProgress, HandleError, HandleChildCount);
 
-        if (@base == null)
+        if(@base == null)
         {
           Args.message = "Data from Commit was not valid";
           SpeckleUnity.Console.Warn($"{name}-" + Args.message);
@@ -95,17 +94,17 @@ namespace Speckle.ConnectorUnity.Ops
         Args.referenceObj = root.id;
 
         // TODO: handle the process for update objects and not just force deleting
-        if (_deleteOld)
+        if(_deleteOld)
           root.Purge();
 
         // TODO: Handle separating the operation call from the conversion
-        await root.ConvertToScene(@base, converter, Token);
+        await root.ConvertToScene(@base, converter, token);
 
         Args.success = true;
         Args.message = $"Completed {nameof(Execute)}";
         OnNodeComplete?.Invoke(root);
       }
-      catch (SpeckleException e)
+      catch(SpeckleException e)
       {
         SpeckleUnity.Console.Warn(e.Message);
       }
@@ -122,7 +121,7 @@ namespace Speckle.ConnectorUnity.Ops
 
     protected override void SetSubscriptions()
     {
-      if (client == null || !client.IsValid())
+      if(client == null || !client.IsValid())
         return;
 
       client.source.SubscribeCommitCreated(Stream.id);
@@ -139,31 +138,32 @@ namespace Speckle.ConnectorUnity.Ops
 
     async UniTask UpdatePreview()
     {
-      if (!IsValid())
+      if(!IsValid())
         await UniTask.Yield();
 
-      _preview = await SpeckleUnity.GetTexture(stream.GetUrl(true, Account.serverInfo.url));
+      _preview = await SpeckleUnity.GetTexture(stream.GetUrl(true, baseAccount.serverInfo.url));
 
       OnPreviewSet?.Invoke();
 
       await UniTask.Yield();
     }
 
-		#region Events
+  #region Events
 
     public event UnityAction<SpeckleObjectBehaviour> OnNodeComplete;
 
     public event UnityAction OnPreviewSet;
 
-		#endregion
+  #endregion
 
-		#region Subscriptions
+  #region Subscriptions
 
     public event UnityAction<CommitInfo> OnCommitCreated;
 
     public event UnityAction<CommitInfo> OnCommitUpdated;
 
-		#endregion
+  #endregion
 
   }
+
 }

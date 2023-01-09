@@ -19,17 +19,23 @@ namespace Speckle.ConnectorUnity.Ops
     public float Progress { get; }
   }
 
-  public interface IClient :
+  public interface IClientInstance :
     IShouldValidate
   {
 
-    public Account Account { get; }
+    // public SpeckleAccount account { get; }
 
-    public Client Client { get; }
+    // public SpeckleClient client { get; }
 
-    public CancellationToken Token { get; }
+    public Account baseAccount { get; }
+
+    public Client baseClient { get; }
+
+    public CancellationToken token { get; }
 
     public UniTask Initialize(Account obj);
+
+    // public UniTask Initialize(SpeckleAccount obj);
 
     public void Cancel();
 
@@ -37,7 +43,7 @@ namespace Speckle.ConnectorUnity.Ops
 
   }
 
-  public interface IStream : IClient
+  public interface IStream : IClientInstance
   {
 
     public Stream Stream { get; }

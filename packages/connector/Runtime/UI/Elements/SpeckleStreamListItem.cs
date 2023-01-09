@@ -52,9 +52,6 @@ namespace Speckle.ConnectorUnity.Elements
     Label _streamDescription;
     VisualElement _streamInfoContainer;
     VisualElement _controlsContainer;
-    public Button openInNewButton;
-    public Button receiveButton;
-    public Button sendButton;
 
 
     public SpeckleStreamListItem()
@@ -90,6 +87,12 @@ namespace Speckle.ConnectorUnity.Elements
 
 
     }
+
+    public Button openInNewButton { get; private set; }
+
+    public Button receiveButton { get; private set; }
+
+    public Button sendButton { get; private set; }
 
 
     public bool showDescription
@@ -201,10 +204,6 @@ namespace Speckle.ConnectorUnity.Elements
       }
     }
 
-
-
-
-
     public void SetValueWithoutNotify(SpeckleStream newValue)
     {
       if(newValue == null)
@@ -234,7 +233,45 @@ namespace Speckle.ConnectorUnity.Elements
       Debug.Log("Receive Action");
     }
 
+    public bool HasControl(Button b)
+    {
+      if(b == null)
+      {
+        SpeckleUnity.Console.Warn($"Invalid button value passed for {nameof(HasControl)} action");
+        return false;
+      }
 
+      var hashToFind = b.GetHashCode();
+      foreach(var e in _controlsContainer.Children())
+      {
+        if(e is Button child && child.GetHashCode() == hashToFind)
+          return true;
+      }
+
+      return false;
+    }
+
+    public void AddControl(Button b)
+    {
+      if(b == null)
+      {
+        SpeckleUnity.Console.Warn($"Invalid button value passed for {nameof(AddControl)} action");
+        return;
+      }
+      _controlsContainer.Insert(0, b);
+    }
+
+    public void RemoveControl(Button b)
+    {
+      if(b == null)
+      {
+        SpeckleUnity.Console.Warn($"Invalid button value passed for {nameof(RemoveControl)} action");
+        return;
+      }
+
+      _controlsContainer.Remove(b);
+
+    }
   }
 
 }

@@ -1,13 +1,12 @@
-using System.Collections.Generic;
-using System.Linq;
 using Cysharp.Threading.Tasks;
 using Speckle.ConnectorUnity;
 using Speckle.ConnectorUnity.Elements;
 using Speckle.ConnectorUnity.Models;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-
 
 [CustomEditor(typeof(SpeckleStreamObject))]
 public class StreamScriptableEditor : SpeckleEditor<SpeckleStreamObject>
@@ -20,19 +19,18 @@ public class StreamScriptableEditor : SpeckleEditor<SpeckleStreamObject>
 
   protected override string fileName => "stream-scriptable-card";
 
-
   void OnDisable()
   {
     _branchDropField?.UnregisterValueChangedCallback(BranchChangeCallback);
     _commitsDropField?.UnregisterValueChangedCallback(CommitChangeCallback);
 
-    if (_searchButton != null)
+    if(_searchButton != null)
       _searchButton.clickable.clicked -= Search;
   }
 
   public override VisualElement CreateInspectorGUI()
   {
-    if (Tree == null)
+    if(Tree == null)
       return base.CreateInspectorGUI();
 
     Root = new VisualElement();
@@ -67,15 +65,15 @@ public class StreamScriptableEditor : SpeckleEditor<SpeckleStreamObject>
   {
     var hashSet = new HashSet<string>();
 
-    foreach (var o in values)
+    foreach(var o in values)
     {
-      if (o.Valid())
+      if(o.Valid())
       {
         hashSet.Add(o);
       }
     }
 
-    if (activeValue.Valid())
+    if(activeValue.Valid())
     {
       hashSet.Add(activeValue);
     }

@@ -23,7 +23,7 @@ namespace Speckle.ConnectorUnity.Models
 
     [SerializeField] SpeckleStream stream;
     [SerializeField] SpeckleAccount account;
-    [SerializeField] SpeckleUnityClient client;
+    [SerializeField] SpeckleClient client;
     [SerializeField] Texture preview;
     [SerializeField] bool show;
     [SerializeField] string originalUrlInput;
@@ -36,11 +36,11 @@ namespace Speckle.ConnectorUnity.Models
     public event UnityAction<Commit> OnCommitSet;
     public event UnityAction<Branch> OnBranchSet;
 
-    public Client Client => client?.source;
+    public Client baseClient => client?.source;
 
     public Stream Stream => stream?.source;
 
-    public CancellationToken Token
+    public CancellationToken token
     {
       get
       {
@@ -69,7 +69,7 @@ namespace Speckle.ConnectorUnity.Models
 
     public string OriginalUrlInput => originalUrlInput;
 
-    public Account Account => account?.source;
+    public Account baseAccount => account?.source;
 
     public async UniTask SetCommit(string commitId)
     {
@@ -90,7 +90,7 @@ namespace Speckle.ConnectorUnity.Models
     }
 
     /// <summary>
-    /// Checks if <see cref="Client"/> and <see cref="Stream"/> are both valid 
+    /// Checks if <see cref="baseClient"/> and <see cref="Stream"/> are both valid 
     /// </summary>
     /// <returns></returns>
     public bool IsValid()
@@ -164,7 +164,7 @@ namespace Speckle.ConnectorUnity.Models
         else
         {
           account = new SpeckleAccount(obj);
-          client = new SpeckleUnityClient(obj);
+          client = new SpeckleClient(obj);
           client.token = new CancellationToken();
           sourceToken = CancellationTokenSource.CreateLinkedTokenSource(client.token);
         }
@@ -266,13 +266,13 @@ namespace Speckle.ConnectorUnity.Models
 
       sourceToken = new CancellationTokenSource();
 
-      if(Account == null)
+      if(baseAccount == null)
       {
-        SpeckleUnity.Console.Warn($"Invalid {nameof(Core.Credentials.Account)}\n" + $"{(Account != null ? Account.ToString() : "invalid")}");
+        SpeckleUnity.Console.Warn($"Invalid {nameof(Core.Credentials.Account)}\n" + $"{(baseAccount != null ? baseAccount.ToString() : "invalid")}");
         return false;
       }
 
-      client = new SpeckleUnityClient(account.source);
+      client = new SpeckleClient(account.source);
 
       if(!client.IsValid())
       {
@@ -335,7 +335,7 @@ namespace Speckle.ConnectorUnity.Models
         await UniTask.Yield();
       }
 
-      preview = await SpeckleUnity.GetTexture(stream.GetUrl(true, Account.serverInfo.url));
+      preview = await SpeckleUnity.GetTexture(stream.GetUrl(true, baseAccount.serverInfo.url));
 
       OnPreviewSet?.Invoke(preview);
 

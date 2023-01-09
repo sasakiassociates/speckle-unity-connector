@@ -1,16 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using Speckle.ConnectorUnity;
-using Speckle.ConnectorUnity.Args;
 using Speckle.ConnectorUnity.Converter;
 using Speckle.ConnectorUnity.Models;
 using Speckle.ConnectorUnity.Ops;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
 using Speckle.Core.Models;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -49,7 +48,7 @@ internal static class SpT
   {
     const string stream = "4777dea055";
     const string id = "d611a3e8bf64984c50147e3f9238c925";
-    var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+    var client = new SpeckleClient(AccountManager.GetDefaultAccount());
     var obj = await client.ObjectGet(stream, id);
     return await SpeckleOps.Receive(client, stream, obj.id);
   }
@@ -61,7 +60,7 @@ public class Integrations
 {
 
   Account _account;
-  SpeckleUnityClient _client;
+  SpeckleClient _client;
   List<string> _possibleStreamsToDelete;
   List<string> _possibleCommitsToDelete;
 
@@ -69,7 +68,7 @@ public class Integrations
   public void Setup()
   {
     _account = AccountManager.GetDefaultAccount();
-    _client = new SpeckleUnityClient(_account);
+    _client = new SpeckleClient(_account);
     _possibleStreamsToDelete = new List<string>();
     _possibleCommitsToDelete = new List<string>();
   }
@@ -77,18 +76,18 @@ public class Integrations
   [OneTimeTearDown]
   public void Clean()
   {
-    if (!_client.IsValid())
+    if(!_client.IsValid())
       return;
 
-    if (_possibleStreamsToDelete.Any())
+    if(_possibleStreamsToDelete.Any())
       UniTask.Create(async () => { await UniTask.WhenAll(_possibleStreamsToDelete.Select(x => _client.StreamDelete(x))); });
 
-    if (_possibleCommitsToDelete.Any())
+    if(_possibleCommitsToDelete.Any())
       UniTask.Create(async () =>
       {
         await UniTask.WhenAll(
           _possibleCommitsToDelete.Select(x => _client.CommitDelete(new CommitDeleteInput
-            { streamId = SpT.BCHP.streamId, id = x })));
+            {streamId = SpT.BCHP.streamId, id = x})));
       });
   }
 
@@ -104,7 +103,7 @@ public class Integrations
     const string uName = "New Fun Name";
     const string uDescription = "Wow Update!";
 
-    Assert.IsTrue(await _client.StreamUpdate(new StreamUpdateInput { id = res, name = uName, description = uDescription }));
+    Assert.IsTrue(await _client.StreamUpdate(new StreamUpdateInput {id = res, name = uName, description = uDescription}));
 
     var stream = await _client.StreamGet(res, 0);
     Assert.IsTrue(stream.description.Equals(uDescription) && stream.name.Equals(uName));
@@ -144,12 +143,12 @@ public class Integrations
     Assert.IsTrue(commit.branchName.Equals(SpT.BCHP.branchName) && commit.id.Equals(res));
 
     const string uMsg = "Wow update!";
-    Assert.IsTrue(await _client.CommitUpdate(new CommitUpdateInput() { streamId = SpT.BCHP.streamId, id = res, message = uMsg }));
+    Assert.IsTrue(await _client.CommitUpdate(new CommitUpdateInput() {streamId = SpT.BCHP.streamId, id = res, message = uMsg}));
 
     commit = await _client.CommitGet(SpT.BCHP.streamId, res);
     Assert.IsTrue(commit.message.Equals(uMsg));
 
-    Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput() { id = res, streamId = SpT.BCHP.streamId }));
+    Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput() {id = res, streamId = SpT.BCHP.streamId}));
 
     _possibleCommitsToDelete.Remove(res);
   });
@@ -190,7 +189,7 @@ public class Integrations
 
     Assert.IsTrue(client.IsValid());
 
-    client.converter.SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Direct });
+    client.converter.SetConverterSettings(new ScriptableConverterSettings() {style = ConverterStyle.Direct});
     await client.DoWork();
 
     Assert.IsNotNull(client.Args);
@@ -198,7 +197,7 @@ public class Integrations
     Assert.IsTrue(!string.IsNullOrEmpty(client.Args.message));
     Assert.IsTrue(!string.IsNullOrEmpty(client.Args.referenceObj));
 
-    client.converter.SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Direct });
+    client.converter.SetConverterSettings(new ScriptableConverterSettings() {style = ConverterStyle.Direct});
     await client.DoWork();
 
     Assert.IsNotNull(client.Args);
@@ -225,7 +224,7 @@ public class Integrations
 
     Assert.IsTrue(client.IsValid());
 
-    client.converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue });
+    client.converter.SetConverterSettings(new ScriptableConverterSettings {style = ConverterStyle.Queue});
     await client.DoWork();
     Assert.IsNotNull(client.Args);
 
@@ -233,7 +232,7 @@ public class Integrations
     Assert.IsTrue(!string.IsNullOrEmpty(client.Args.message));
     Assert.IsTrue(!string.IsNullOrEmpty(client.Args.referenceObj));
 
-    client.converter.SetConverterSettings(new ScriptableConverterSettings { style = ConverterStyle.Queue });
+    client.converter.SetConverterSettings(new ScriptableConverterSettings {style = ConverterStyle.Queue});
     await client.DoWork();
 
     Assert.IsNotNull(client.Args);
@@ -275,7 +274,7 @@ public class Integrations
     Assert.IsTrue(!string.IsNullOrEmpty(client.Args.url));
 
     Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput
-      { streamId = client.Stream.id, id = client.Args.commitId }));
+      {streamId = client.Stream.id, id = client.Args.commitId}));
 
     // Send using speckle node
     var obj = new GameObject("Speckle Object").AddComponent<SpeckleObjectBehaviour>();
@@ -294,7 +293,7 @@ public class Integrations
     Assert.IsTrue(!string.IsNullOrEmpty(client.Args.commitId));
     Assert.IsTrue(!string.IsNullOrEmpty(client.Args.url));
 
-    Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput() { streamId = client.Stream.id, id = client.Args.commitId }));
+    Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput() {streamId = client.Stream.id, id = client.Args.commitId}));
   });
 
 }
@@ -306,14 +305,14 @@ public class Units
   public void Client_IsValid()
   {
     // valid test
-    var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+    var client = new SpeckleClient(AccountManager.GetDefaultAccount());
     Assert.IsNotNull(client);
     Assert.IsTrue(client.IsValid());
 
     client.Dispose();
 
     // invalid test
-    client = new SpeckleUnityClient(null);
+    client = new SpeckleClient(null);
     Assert.IsNotNull(client);
     Assert.IsFalse(client.IsValid());
   }
@@ -322,14 +321,14 @@ public class Units
   public void Client_Account_ByDefault()
   {
     // valid test
-    var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+    var client = new SpeckleClient(AccountManager.GetDefaultAccount());
     Assert.IsNotNull(client);
     Assert.IsTrue(client.Account.Equals(AccountManager.GetDefaultAccount()));
 
     client.Dispose();
 
     // invalid test
-    client = new SpeckleUnityClient(null);
+    client = new SpeckleClient(null);
     Assert.IsNotNull(client);
     Assert.IsNull(client.Account);
   }
@@ -339,7 +338,7 @@ public class Units
   {
     var account = SpeckleAccountManager.GetAccountByName("David Morgan");
     // valid test
-    var client = new SpeckleUnityClient(account);
+    var client = new SpeckleClient(account);
     Assert.IsNotNull(client);
     Assert.IsTrue(client.Account.id.Equals(account.id));
     Assert.IsTrue(client.Account.Equals(account));
@@ -348,7 +347,7 @@ public class Units
 
     account = SpeckleAccountManager.GetAccountByName("No Name here!");
     // invalid test
-    client = new SpeckleUnityClient(account);
+    client = new SpeckleClient(account);
     Assert.IsNotNull(client);
     Assert.IsNull(client.Account);
   }
@@ -356,7 +355,7 @@ public class Units
   [UnityTest, Category(SpT.C_CLIENT)]
   public IEnumerator Client_StreamGet() => UniTask.ToCoroutine(async () =>
   {
-    var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+    var client = new SpeckleClient(AccountManager.GetDefaultAccount());
     var stream = await client.StreamGet(SpT.BCHP.streamId);
     Assert.IsNotNull(stream);
     Assert.IsTrue(stream.id.Equals(SpT.BCHP.streamId));
@@ -375,7 +374,7 @@ public class Units
   [UnityTest, Category(SpT.C_CLIENT)]
   public IEnumerator Client_BranchGet() => UniTask.ToCoroutine(async () =>
   {
-    var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+    var client = new SpeckleClient(AccountManager.GetDefaultAccount());
     var res = await client.BranchGet(SpT.BCHP.streamId, SpT.BCHP.branchName);
 
     Assert.IsNotNull(res);
@@ -384,7 +383,7 @@ public class Units
   [UnityTest, Category(SpT.C_CLIENT)]
   public IEnumerator Client_BranchesGet() => UniTask.ToCoroutine(async () =>
   {
-    var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+    var client = new SpeckleClient(AccountManager.GetDefaultAccount());
     var res = await client.BranchesGet(SpT.BCHP.streamId);
 
     Assert.IsTrue(res.Valid());
@@ -393,7 +392,7 @@ public class Units
   [UnityTest, Category(SpT.C_CLIENT)]
   public IEnumerator Client_CommitGet() => UniTask.ToCoroutine(async () =>
   {
-    var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+    var client = new SpeckleClient(AccountManager.GetDefaultAccount());
     var res = await client.CommitGet(SpT.BCHP.streamId, SpT.BCHP.commitId);
 
     Assert.IsNotNull(res);
@@ -403,7 +402,7 @@ public class Units
   [UnityTest, Category(SpT.C_CLIENT)]
   public IEnumerator Client_ObjectGet() => UniTask.ToCoroutine(async () =>
   {
-    var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+    var client = new SpeckleClient(AccountManager.GetDefaultAccount());
     var res = await client.ObjectGet(SpT.BCHP.streamId, SpT.BCHP.objectId);
 
     Assert.IsNotNull(res);
@@ -413,7 +412,7 @@ public class Units
   [UnityTest, Category(SpT.C_STREAM)]
   public IEnumerator Stream_LoadObject() => UniTask.ToCoroutine(async () =>
   {
-    var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+    var client = new SpeckleClient(AccountManager.GetDefaultAccount());
     var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
 
     Assert.IsNotNull(wrapper);
@@ -426,7 +425,7 @@ public class Units
   [UnityTest, Category(SpT.C_STREAM)]
   public IEnumerator Stream_LoadCommit() => UniTask.ToCoroutine(async () =>
   {
-    var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+    var client = new SpeckleClient(AccountManager.GetDefaultAccount());
     var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
 
     Assert.IsNotNull(wrapper);
@@ -438,7 +437,7 @@ public class Units
   [UnityTest, Category(SpT.C_STREAM)]
   public IEnumerator Stream_LoadCommits() => UniTask.ToCoroutine(async () =>
   {
-    var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+    var client = new SpeckleClient(AccountManager.GetDefaultAccount());
     var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
 
     Assert.IsNotNull(wrapper);
@@ -450,7 +449,7 @@ public class Units
   [UnityTest, Category(SpT.C_STREAM)]
   public IEnumerator Stream_LoadBranch() => UniTask.ToCoroutine(async () =>
   {
-    var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+    var client = new SpeckleClient(AccountManager.GetDefaultAccount());
     var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
 
     Assert.IsNotNull(wrapper);
@@ -464,7 +463,7 @@ public class Units
   [UnityTest, Category(SpT.C_STREAM)]
   public IEnumerator Stream_LoadBranches() => UniTask.ToCoroutine(async () =>
   {
-    var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+    var client = new SpeckleClient(AccountManager.GetDefaultAccount());
     var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
 
     Assert.IsNotNull(wrapper);
@@ -481,7 +480,7 @@ public class Units
   [UnityTest, Category(SpT.C_STREAM)]
   public IEnumerator Stream_LoadActivity() => UniTask.ToCoroutine(async () =>
   {
-    var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+    var client = new SpeckleClient(AccountManager.GetDefaultAccount());
     var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
 
     Assert.IsNotNull(wrapper);
@@ -495,7 +494,7 @@ public class Units
   [UnityTest, Category(SpT.C_STREAM)]
   public IEnumerator Stream_LoadTypes() => UniTask.ToCoroutine(async () =>
   {
-    var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+    var client = new SpeckleClient(AccountManager.GetDefaultAccount());
     var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
 
     Assert.IsNotNull(wrapper);
@@ -511,7 +510,7 @@ public class Units
   [UnityTest, Category(SpT.C_CLIENT)]
   public IEnumerator Object_LoadFromStream() => UniTask.ToCoroutine(async () =>
   {
-    var client = new SpeckleUnityClient(AccountManager.GetDefaultAccount());
+    var client = new SpeckleClient(AccountManager.GetDefaultAccount());
 
     var res = await client.ObjectGet(SpT.BCHP.streamId, SpT.BCHP.objectId);
 

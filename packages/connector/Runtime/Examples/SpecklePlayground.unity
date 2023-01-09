@@ -263,14 +263,14 @@ MonoBehaviour:
     isDefault: 1
     avatar: {fileID: 0}
   selectedStream:
-    id: 
-    name: 
-    description: 
-    role: 
-    createdAt: 
-    updatedAt: 
+    id: 9a45304b95
+    name: Jiangxia
+    description: View study stream
+    role: stream:owner
+    createdAt: 2022-11-10T16:31:43.672Z
+    updatedAt: 2022-12-08T19:27:33.645Z
     favoritedDate: 
-    isPublic: 0
+    isPublic: 1
     commit:
       id: 
       message: 
