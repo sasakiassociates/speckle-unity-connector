@@ -1,4 +1,5 @@
-﻿using UnityEngine.UIElements;
+﻿using Speckle.ConnectorUnity.Elements;
+using UnityEngine.UIElements;
 
 namespace Speckle.ConnectorUnity.UI
 {
@@ -47,6 +48,8 @@ namespace Speckle.ConnectorUnity.UI
         public const string TOGGLE = NS + "toggle";
         public const string PROGRESSBAR = NS + "progressbar";
         public const string LIST = NS + "list";
+
+        public const string STREAM_PREVIEW = NS + "stream-preview";
 
         public const string REFRESH = NS + "refresh";
         public const string SELECT = NS + "select";
@@ -107,6 +110,15 @@ namespace Speckle.ConnectorUnity.UI
     public static class Prefabs
     {
 
+      public static TexturePreviewElement streamPreview
+      {
+        get
+        {
+          var item = new TexturePreviewElement() {name = Classes.Control.STREAM_PREVIEW};
+          item.AddToClassList(Classes.Control.STREAM_PREVIEW);
+          return item;
+        }
+      }
 
       public static Button iconButton
       {

@@ -35,6 +35,9 @@
 .speckle-control__progressbar {
 }
 
+.speckle-contro__stream-preview {
+    
+}
 
 /*.speckle-control__list .unity-scroll-view__content-container {*/
 /*    background-color: var(--speckle-colors-unity-dark-gray);*/

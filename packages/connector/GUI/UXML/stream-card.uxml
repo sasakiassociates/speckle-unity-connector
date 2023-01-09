@@ -1,25 +1,4 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns="UnityEngine.UIElements" ue="UnityEditor.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Packages/com.speckle.connector/GUI/USS/StylishBlueCube.uss?fileID=7433441132597879392&amp;guid=e9efa2f246848af45831b2eb4d3eefdb&amp;type=3#StylishBlueCube" />
-    <ui:BindableElement binding-path="stream" name="stream-element" style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;">
-        <ui:VisualElement name="stream-container" style="flex-direction: column; min-height: auto; min-width: auto; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; -unity-text-align: middle-left;">
-            <ui:VisualElement name="stream-prop-container" class="font__title speckle-stream" style="flex-direction: row;">
-                <ui:Toggle value="true" name="show-stream" class="speckle-toggle icon" style="justify-content: center; margin-left: 2px; margin-right: 5px; margin-top: 2px; margin-bottom: 2px; padding-left: 2px; padding-right: 2px; padding-top: 2px; padding-bottom: 2px;" />
-                <ui:Label name="stream-name" binding-path="name" text="Name" />
-                <ui:Label text="|" name="spacer" style="padding-left: 5px; padding-right: 5px; padding-top: 1px; padding-bottom: 1px;" />
-                <ui:Label name="stream-id" binding-path="id" text="Id" />
-            </ui:VisualElement>
-            <ui:VisualElement name="stream-info-container" class="speckle-stream__content" style="display: flex;">
-                <ui:BindableElement binding-path="branch" name="branch-container" style="flex-direction: row; margin-left: 1px; margin-right: 1px; margin-top: 1px; margin-bottom: 1px;">
-                    <ui:VisualElement name="icon" class="icon" style="background-image: url(&apos;project://database/Packages/com.speckle.connector/GUI/Assets/source-branch.png?fileID=2800000&amp;guid=7e22d7590487a12478f087afcd24a4b7&amp;type=3#source-branch&apos;);" />
-                    <ui:Label name="object-name" binding-path="name" text="BranchName" class="font__title" style="-unity-text-align: middle-left; flex-grow: 1;" />
-                </ui:BindableElement>
-                <ui:BindableElement binding-path="commit" name="commit-container" class="font__title" style="flex-direction: row; margin-left: 1px; margin-right: 1px; margin-top: 1px; margin-bottom: 1px;">
-                    <ui:VisualElement name="icon" class="icon" style="background-image: url(&apos;project://database/Packages/com.speckle.connector/GUI/Assets/source-commit.png?fileID=2800000&amp;guid=f7a0c9f60f5ec2a4bb78678afebfec55&amp;type=3#source-commit&apos;);" />
-                    <ui:Label name="object-name" binding-path="id" text="Commit Id" style="-unity-text-align: middle-left; flex-grow: 0;" />
-                    <ui:Label text="|" name="spacer" style="padding-left: 5px; padding-right: 5px; padding-top: 1px; padding-bottom: 1px;" />
-                    <ui:Label name="object-message" binding-path="message" text="Commit Message" style="-unity-text-align: middle-left; flex-grow: 1;" />
-                </ui:BindableElement>
-            </ui:VisualElement>
-        </ui:VisualElement>
-    </ui:BindableElement>
+    <Speckle.ConnectorUnity.Elements.StreamElement Show Description="false" Show Open In New="false" />
+    <Speckle.ConnectorUnity.Elements.SpeckleStreamListItem Show Open In New="false" Show Operations="false" Show Preview="true" />
 </ui:UXML>
