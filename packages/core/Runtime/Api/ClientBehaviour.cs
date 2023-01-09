@@ -9,25 +9,25 @@ using UnityEngine.Events;
 namespace Speckle.ConnectorUnity.Ops
 {
 
-  public abstract class ClientBehaviour : MonoBehaviour, IClient
+  public abstract class ClientBehaviour : MonoBehaviour, IClientInstance
   {
 
     [SerializeField, HideInInspector] protected SpeckleAccount account;
-    [SerializeField, HideInInspector] protected SpeckleUnityClient client;
+    [SerializeField, HideInInspector] protected SpeckleClient client;
 
     CancellationTokenSource _sourceToken;
 
 
     public event UnityAction OnInitialize;
 
-    public Account Account => account?.source;
+    public Account baseAccount => account?.source;
 
-    public Client Client => client?.source;
+    public Client baseClient => client?.source;
 
     /// <summary>
     /// A Token tied to this game object
     /// </summary>
-    public CancellationToken Token
+    public CancellationToken token
     {
       get
       {
@@ -70,7 +70,7 @@ namespace Speckle.ConnectorUnity.Ops
         {
           Debug.Log($"Account selected {obj}");
           account = new SpeckleAccount(obj);
-          client = new SpeckleUnityClient(obj);
+          client = new SpeckleClient(obj);
           client.token = new CancellationToken();
           _sourceToken = CancellationTokenSource.CreateLinkedTokenSource(client.token);
         }
@@ -111,7 +111,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 
     /// <summary>
-    /// Returns true if <see cref="Client"/> is valid
+    /// Returns true if <see cref="baseClient"/> is valid
     /// </summary>
     /// <returns></returns>
     public virtual bool IsValid() => client != null && client.IsValid();
