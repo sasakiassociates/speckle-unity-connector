@@ -48,7 +48,9 @@ namespace Speckle.ConnectorUnity
         return;
       }
 
+
       selectedStream = streams[index];
+      Debug.Log(selectedStream.ToString());
 
     }
 
@@ -146,8 +148,7 @@ namespace Speckle.ConnectorUnity
       where TArgs : OpsWorkArgs
       where TOperator : OpsBehaviour<TArgs>
     {
-
-      if(!IsValid() || selectedStream == null || !selectedStream.IsValid())
+      if(!account.Valid() || selectedStream == null || !selectedStream.IsValid())
       {
         SpeckleUnity.Console.Log("No Active stream ready to be sent to Receiver");
         return null;
@@ -155,7 +156,7 @@ namespace Speckle.ConnectorUnity
 
       var ops = new GameObject().AddComponent<TOperator>();
 
-      ops.Initialize(Account);
+      ops.Initialize(baseAccount);
       await ops.LoadStream(selectedStream.Id);
 
     #if UNITY_EDITOR

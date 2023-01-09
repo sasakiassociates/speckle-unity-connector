@@ -1,11 +1,16 @@
 @import url('project://database/Packages/com.speckle.connector/GUI/USS/speckle-styles.uss?fileID=7433441132597879392&guid=3cfa792e400f4ff48e18d458ee906e1a&type=3#speckle-styles');
-@import url("account-container-card.uss.uss");
+@import url("account-container-card.uss");
+@import url("speckle-controls.uss");
+
+.speckle-control__select {
+
+}
+
+.speckle-control__refresh {
+
+}
 
 .speckle-model__stream > .unity-label {
     padding: 0 2px 0 1px;
 }
 
-.speckle-control__refresh > .speckle-element__texture-icon {
-
-    background-image: var(--speckle-assets-refresh);
-}

@@ -16,6 +16,15 @@
     align-items: center;
 }
 
+.speckle-container__controls .speckle-control__button-icon {
+    justify-content: center;
+    align-items: center;
+}
+
+.speckle-container__controls .speckle-element__texture-icon {
+    width: 80%;
+    height: 80%;
+}
 
 .speckle-control__sender {
     background-image: var(--speckle-assets-sender);
@@ -24,16 +33,3 @@
 .speckle-control__receiver {
     background-image: var(--speckle-assets-receiver);
 }
-
-.speckle-control__openInNew {
-    justify-content: center;
-    align-items: center;
-}
-
-.speckle-control__openInNew > .speckle-element__texture-icon {
-    background-image: var(--speckle-assets-openInNew);
-    -unity-background-scale-mode: scale-to-fit;
-    width: 60%;
-    height: 60%;
-}
-

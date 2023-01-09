@@ -16,12 +16,10 @@ namespace Speckle.ConnectorUnity
   public class SpeckleConnectorEditor : SpeckleEditor<SpeckleConnector>
   {
 
-    [SerializeField] bool showOpenInNew = true;
-    [SerializeField] bool showOperations = true;
-    [SerializeField] bool showDescriptions = false;
 
     int _selectedIndex;
     Button _refresh;
+    Button _select;
     Toggle _submit;
     ConnectorState _state = ConnectorState.ShowingStreams;
 
@@ -34,6 +32,10 @@ namespace Speckle.ConnectorUnity
       ShowingStreams,
       ShowingAccounts
     }
+
+    const bool SHOW_OPEN_IN_NEW = true;
+    const bool SHOW_OPERATIONS = false;
+    const bool SHOW_DESCRIPTIONS = false;
 
     protected override string fileName => "connector-card";
 
@@ -61,6 +63,11 @@ namespace Speckle.ConnectorUnity
       _submit = accountControls.Q<Toggle>("submit");
       _submit.RegisterValueChangedCallback(ProcessSubmit);
 
+      _select = SpeckleUss.Prefabs.buttonWithIcon;
+      _select.name = "select";
+      _select.AddToClassList(SpeckleUss.Classes.Control.SELECT);
+      _select.clickable.clicked += ProcessCreateReceiver;
+
       ResetList();
 
       return Root;
@@ -72,6 +79,7 @@ namespace Speckle.ConnectorUnity
       string bindingPath;
       Action<VisualElement, int> bindItem;
       Func<VisualElement> makeItem;
+
       _selectedIndex = -1;
 
       void BindStreamItem(VisualElement e, int index)
@@ -90,29 +98,35 @@ namespace Speckle.ConnectorUnity
           return;
         }
 
-        if(element.sendButton != null) element.sendButton.clicked -= ProcessCreateSender;
-        if(element.receiveButton != null) element.receiveButton.clickable.clicked -= ProcessCreateReceiver;
         if(element.openInNewButton != null) element.openInNewButton.clickable.clicked -= ProcessOpenInNew;
 
         if(_selectedIndex == index)
         {
-          element.showUrlButton = showOpenInNew;
-          element.showOperations = showOperations;
-          element.showDescription = showDescriptions;
+          if(_select != null && !element.HasControl(_select))
+          {
+            element.AddControl(_select);
+          }
 
-          element.sendButton.clicked += ProcessCreateSender;
-          element.receiveButton.clickable.clicked += ProcessCreateReceiver;
+          element.showUrlButton = SHOW_OPEN_IN_NEW;
+          element.showDescription = SHOW_DESCRIPTIONS;
+          element.showOperations = SHOW_OPERATIONS;
+
           element.openInNewButton.clickable.clicked += ProcessOpenInNew;
 
         }
         else
         {
+          if(_select != null && element.HasControl(_select))
+          {
+            element.RemoveControl(_select);
+          }
+
           element.showUrlButton = false;
-          element.showOperations = false;
           element.showDescription = false;
+          element.showOperations = false;
+
+          element.showUrlButton = element.showOperations = element.showDescription = false;
         }
-
-
 
       }
 
@@ -127,19 +141,23 @@ namespace Speckle.ConnectorUnity
         element.SetValueWithoutNotify(Obj.accounts[index]);
       }
 
+      VisualElement MakeAccountItem() => new AccountElement();
+
+      VisualElement MakeStreamItem() => new SpeckleStreamListItem {showOperations = false, showUrlButton = false, showDescription = false};
+
       switch(_state)
       {
         case ConnectorState.ShowingAccounts:
           source = Obj.accounts;
           bindingPath = "accounts";
           bindItem = BindAccountItem;
-          makeItem = () => new AccountElement();
+          makeItem = MakeAccountItem;
           break;
         case ConnectorState.ShowingStreams:
           source = Obj.streams;
           bindingPath = "streams";
           bindItem = BindStreamItem;
-          makeItem = () => new SpeckleStreamListItem();
+          makeItem = MakeStreamItem;
           break;
         default:
           Debug.LogWarning("Unhandled state being sent " + _state);
@@ -245,7 +263,6 @@ namespace Speckle.ConnectorUnity
 
       if(_state == ConnectorState.ShowingStreams)
       {
-        Debug.Log("Stream Selected");
         Obj.SetSelectedStream(_selectedIndex);
       }
       _list.Rebuild();

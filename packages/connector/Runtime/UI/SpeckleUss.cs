@@ -49,6 +49,7 @@ namespace Speckle.ConnectorUnity.UI
         public const string LIST = NS + "list";
 
         public const string REFRESH = NS + "refresh";
+        public const string SELECT = NS + "select";
         public const string SEND = NS + "sender";
         public const string RECEIVE = NS + "receiver";
         public const string OPEN_NEW = NS + "openInNew";
