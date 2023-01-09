@@ -1,0 +1,47 @@
+﻿@import url("speckle-styles.uss");
+
+.speckle-control__openInNew {
+}
+
+.speckle-control__openInNew > .speckle-element__texture-icon {
+    background-image: var(--speckle-assets-openInNew);
+}
+
+.speckle-control__select {
+
+}
+
+.speckle-control__select > .speckle-element__texture-icon {
+    background-image: var(--speckle-assets-check-circle-outline);
+
+}
+
+.speckle-control__refresh {
+
+}
+
+.speckle-control__refresh > .speckle-element__texture-icon {
+    background-image: var(--speckle-assets-refresh);
+}
+
+.speckle-control__list {
+
+}
+
+.speckle-control__list > .unity-list-view {
+    background-color: var(--speckle-colors-unity-dark-gray);
+}
+
+.speckle-control__progressbar {
+}
+
+
+/*.speckle-control__list .unity-scroll-view__content-container {*/
+/*    background-color: var(--speckle-colors-unity-dark-gray);*/
+/*}*/
+
+/*.speckle-control__list .unity-scroll-view__content-viewport > .unity-scroll-view__content-container {*/
+/*    background-color: var(--speckle-colors-clear);*/
+/*}*/
+
+

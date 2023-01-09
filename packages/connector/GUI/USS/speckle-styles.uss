@@ -3,6 +3,8 @@
     --speckle-colors-default-blue: rgb(4, 126, 251);
     --speckle-colors-light-blue: rgb(123, 188, 255);
     --speckle-colors-dark-blue: rgb(49, 59, 207);
+    --speckle-colors-unity-dark-gray: rgb(65, 65, 65);
+    --speckle-colors-gray: rgba(152, 152, 152, 255);
     --speckle-colors-white: rgb(255, 255, 255);
     --speckle-colors-clear: rgba(0, 0, 0, 0);
 
@@ -39,6 +41,13 @@
     --speckle-assets-sender: url('project://database/Packages/com.speckle.connector/GUI/Assets/sender.png');
     --speckle-assets-logo: url('project://database/Packages/com.speckle.connector/GUI/Assets/logo-blue-2.png');
 
+    --speckle-assets-font: url('project://database/Packages/com.speckle.connector/GUI/Assets/SpaceGrotesk-VariableFont_wght.ttf');
+    --speckle-assets-font-SDF: url('project://database/Packages/com.speckle.connector/GUI/Assets/SpaceGrotesk-VariableFont_wght SDF.asset');
+
+
+    /*OVERRIDES*/
+    -unity-font: url("project://database/Packages/com.speckle.connector/GUI/Assets/SpaceGrotesk-VariableFont_wght.ttf");
+    -unity-font-definition: url('project://database/Packages/com.speckle.connector/GUI/Assets/SpaceGrotesk-VariableFont_wght SDF.asset');
 
 }
 
@@ -131,7 +140,6 @@
 
 
 /*TEXT ELEMENTS*/
-
 .speckle-element__text-header1 {
     font-size: var(--speckle-sizes-header1);
 }
@@ -161,12 +169,6 @@
 }
 
 
-.speckle-control__progressbar {
-}
-
-.speckle-control__list {
-
-}
 
 .speckle-control__button {
     -unity-background-image-tint-color: var(--speckle-colors-white);
@@ -190,6 +192,24 @@
     padding: var(--speckle-sizes-icon-padding);
     background-color: var(--speckle-colors-clear);
 }
+
+
+.speckle-control__button-icon:inactive > .speckle-element__texture-icon {
+    -unity-background-image-tint-color: var(--speckle-colors-white);
+}
+
+.speckle-control__button-icon:active > .speckle-element__texture-icon {
+    -unity-background-image-tint-color: var(--speckle-colors-default-blue);
+}
+
+.speckle-control__button-icon:disabled > .speckle-element__texture-icon {
+    -unity-background-image-tint-color: var(--speckle-colors-gray);
+}
+
+.speckle-control__button-icon:hover > .speckle-element__texture-icon {
+    -unity-background-image-tint-color: var(--speckle-colors-light-blue);
+}
+
 
 .speckle-control__toggle {
 }
@@ -224,22 +244,4 @@
 }
 
 
-/*NAMES*/
-#openInWeb {
-
-}
-
-#info {
-
-}
-
-
-#controls {
-
-}
-
-
-.speckle-control {
-
-}
 
