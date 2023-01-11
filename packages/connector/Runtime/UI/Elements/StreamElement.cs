@@ -231,6 +231,25 @@ namespace Speckle.ConnectorUnity.Elements
       streamId.text = _value.Id;
     }
 
+    public void SetPreviewTexture(Texture texture)
+    {
+      if(preview == null)
+      {
+        SpeckleUnity.Console.Log($"Setting {this} {nameof(displayPreview)} to true");
+
+        displayPreview = true;
+        if(preview == null)
+        {
+          SpeckleUnity.Console.Warn($"Preview object was not created properly when calling {nameof(SetPreviewTexture)}");
+          return;
+        }
+      }
+
+      preview.value = texture;
+
+    }
+
+
     void InitElement()
     {
 

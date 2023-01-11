@@ -3,7 +3,6 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-
 namespace Speckle.ConnectorUnity.Elements
 {
 
@@ -20,8 +19,9 @@ namespace Speckle.ConnectorUnity.Elements
 
     public TexturePreviewElement()
     {
-      AddToClassList(SpeckleUss.Classes.Elements.Texture.PREVIEW);
-      _preview = new Image();
+      AddToClassList(SpeckleUss.Classes.Control.STREAM_PREVIEW);
+      _preview = new Image() {name = SpeckleUss.Classes.Elements.Texture.IMAGE};
+      _preview.AddToClassList(SpeckleUss.Classes.Elements.Texture.IMAGE);
       Add(_preview);
     }
 
