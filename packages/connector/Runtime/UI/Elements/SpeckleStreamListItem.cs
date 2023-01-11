@@ -7,21 +7,23 @@ namespace Speckle.ConnectorUnity.Elements
   public class SpeckleStreamListItem : StreamElement
   {
 
-    
+
     public new class UxmlFactory : UxmlFactory<SpeckleStreamListItem, UxmlTraits>
     { }
 
-    
+
     /// <summary>
     /// Optional class name to attached to the element 
     /// </summary>
-    protected virtual string elementClass => SpeckleUss.Classes.Models.STREAM_LIST_ITEM;
+    protected override string elementClass => SpeckleUss.Classes.Models.STREAM_LIST_ITEM;
 
     /// <summary>
     /// Name of <seealso cref="StyleSheet"/> without the extension type
     /// </summary>
-    protected virtual string styleSheetName => "stream-list-item-card";
-    
+    protected override string styleSheetName => "stream-list-item-card";
+
+
+
     public bool HasControl(Button b)
     {
       if(b == null)

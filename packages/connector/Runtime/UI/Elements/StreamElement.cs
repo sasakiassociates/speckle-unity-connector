@@ -9,50 +9,30 @@ namespace Speckle.ConnectorUnity.Elements
 
   public class StreamElement : BindableElement, INotifyValueChanged<SpeckleStream>
   {
-    public new class UxmlFactory : UxmlFactory<StreamElement, UxmlTraits>
-    { }
-
-    public new class UxmlTraits : BindableElement.UxmlTraits
-    {
-      UxmlBoolAttributeDescription _showDescription = new UxmlBoolAttributeDescription {name = "Show Description", defaultValue = false};
-      UxmlBoolAttributeDescription _showOpenInNew = new UxmlBoolAttributeDescription {name = "Show Open In New", defaultValue = false};
-      UxmlBoolAttributeDescription _showOperations = new UxmlBoolAttributeDescription {name = "Show Operations", defaultValue = false};
-      UxmlBoolAttributeDescription _showPreview = new UxmlBoolAttributeDescription {name = "Show Preview", defaultValue = false};
-
-
-      public override IEnumerable<UxmlChildElementDescription> uxmlChildElementsDescription
-      {
-        get { yield break; }
-      }
-
-      public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
-      {
-        base.Init(ve, bag, cc);
-
-        var el = ve as StreamElement;
-
-        el.showDescription = _showDescription.GetValueFromBag(bag, cc);
-        el.showUrlButton = _showOpenInNew.GetValueFromBag(bag, cc);
-        el.showOperations = _showOperations.GetValueFromBag(bag, cc);
-        el.showPreview = _showPreview.GetValueFromBag(bag, cc);
-      }
-    }
-
-    protected static class Prop
-    {
-      public const string STREAM_NAME = "name";
-      public const string STREAM_ID = "id";
-    }
 
     SpeckleStream _value;
 
     protected Label streamName;
+
     protected Label streamId;
+
     protected Label streamDescription;
-    protected VisualElement streamInfoContainer;
+
+    protected VisualElement headingContainer;
+
+    protected VisualElement nameContainer;
+
     protected VisualElement controlsContainer;
-    protected VisualElement previewContainer;
+
+    protected VisualElement viewportContainer;
+
     protected TexturePreviewElement preview;
+
+
+    public StreamElement()
+    {
+      InitElement();
+    }
 
     /// <summary>
     /// Optional class name to attached to the element 
@@ -64,13 +44,11 @@ namespace Speckle.ConnectorUnity.Elements
     /// </summary>
     protected virtual string styleSheetName => "stream-card";
 
-    public StreamElement() => InitElement();
+    public Button openInNewButton { get; protected set; }
 
-    public Button openInNewButton { get; private set; }
+    public Button receiveButton { get; protected set; }
 
-    public Button receiveButton { get; private set; }
-
-    public Button sendButton { get; private set; }
+    public Button sendButton { get; protected set; }
 
 
     public bool showDescription
@@ -83,14 +61,14 @@ namespace Speckle.ConnectorUnity.Elements
 
           streamDescription = new Label("Stream Description") {bindingPath = "description"};
           streamDescription.AddToClassList(SpeckleUss.Classes.Elements.Text.BODY);
-          streamInfoContainer.Add(streamDescription);
+          nameContainer.Add(streamDescription);
           return;
 
         }
 
         if(streamDescription != null)
         {
-          streamInfoContainer.Remove(streamDescription);
+          nameContainer.Remove(streamDescription);
           streamDescription = null;
         }
       }
@@ -149,14 +127,14 @@ namespace Speckle.ConnectorUnity.Elements
           if(preview != null) return;
 
           preview = SpeckleUss.Prefabs.streamPreview;
-          previewContainer.Add(preview);
+          viewportContainer.Add(preview);
 
           return;
         }
 
         if(preview != null)
         {
-          previewContainer.Remove(preview);
+          viewportContainer.Remove(preview);
           preview = null;
         }
       }
@@ -221,6 +199,7 @@ namespace Speckle.ConnectorUnity.Elements
 
     void InitElement()
     {
+
       if(elementClass.Valid())
         AddToClassList(elementClass);
 
@@ -229,15 +208,15 @@ namespace Speckle.ConnectorUnity.Elements
         this.styleSheets.Add(UnityEditor.AssetDatabase.LoadAssetAtPath<StyleSheet>(GUIHelper.Folders.CONNECTOR_USS + styleSheetName + ".uss"));
     #endif
 
-
-      BuildElement();
+      ConstructHeading();
+      ConstructControls();
+      ConstructViewport();
     }
 
-    /// <summary>
-    /// Function to customize the element.
-    /// </summary>
-    protected virtual void BuildElement()
+    protected virtual void ConstructHeading()
     {
+      headingContainer = SpeckleUss.Prefabs.containerRow;
+
       var infoContainer = SpeckleUss.Prefabs.containerRow;
       infoContainer.name = SpeckleUss.Classes.CONTAINER + "__info";
 
@@ -250,24 +229,34 @@ namespace Speckle.ConnectorUnity.Elements
       streamId.AddToClassList(SpeckleUss.Classes.Elements.Text.SUBTITLE);
       infoContainer.Add(streamId);
 
-      streamInfoContainer = SpeckleUss.Prefabs.containerColumn;
-      streamInfoContainer.name = SpeckleUss.Classes.Containers.STREAM_INFO;
-      streamInfoContainer.AddToClassList(SpeckleUss.Classes.Containers.STREAM_INFO);
-      streamInfoContainer.Add(infoContainer);
+      nameContainer = SpeckleUss.Prefabs.containerColumn;
+      nameContainer.name = SpeckleUss.Classes.Containers.STREAM_INFO;
+      nameContainer.AddToClassList(SpeckleUss.Classes.Containers.STREAM_INFO);
+      nameContainer.Add(infoContainer);
 
-      Add(streamInfoContainer);
 
+      headingContainer.Add(nameContainer);
+      headingContainer.Add(controlsContainer);
+
+      Add(headingContainer);
+    }
+
+    protected virtual void ConstructControls()
+    {
       controlsContainer = SpeckleUss.Prefabs.containerRow;
       controlsContainer.name = SpeckleUss.Classes.Containers.CONTROLS;
       controlsContainer.AddToClassList(SpeckleUss.Classes.Containers.CONTROLS);
 
-      Add(controlsContainer);
-
-      previewContainer = SpeckleUss.Prefabs.containerRow;
-      previewContainer.name = SpeckleUss.Classes.CONTAINER + "__preview";
-
-      Add(previewContainer);
+      headingContainer?.Add(controlsContainer);
     }
+
+    protected virtual void ConstructViewport()
+    {
+      viewportContainer = SpeckleUss.Prefabs.containerRow;
+      viewportContainer.name = SpeckleUss.Classes.CONTAINER + "__preview";
+
+    }
+
 
     protected virtual void OpenInWebAction()
     {
@@ -284,8 +273,40 @@ namespace Speckle.ConnectorUnity.Elements
       Debug.Log("Receive Action");
     }
 
+    public new class UxmlFactory : UxmlFactory<StreamElement, UxmlTraits>
+    { }
+
+    public new class UxmlTraits : BindableElement.UxmlTraits
+    {
+      UxmlBoolAttributeDescription _showDescription = new UxmlBoolAttributeDescription {name = "Show Description", defaultValue = false};
+      UxmlBoolAttributeDescription _showOpenInNew = new UxmlBoolAttributeDescription {name = "Show Open In New", defaultValue = false};
+      UxmlBoolAttributeDescription _showOperations = new UxmlBoolAttributeDescription {name = "Show Operations", defaultValue = false};
+      UxmlBoolAttributeDescription _showPreview = new UxmlBoolAttributeDescription {name = "Show Preview", defaultValue = false};
 
 
+      public override IEnumerable<UxmlChildElementDescription> uxmlChildElementsDescription
+      {
+        get { yield break; }
+      }
+
+      public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
+      {
+        base.Init(ve, bag, cc);
+
+        var el = ve as StreamElement;
+
+        el.showDescription = _showDescription.GetValueFromBag(bag, cc);
+        el.showUrlButton = _showOpenInNew.GetValueFromBag(bag, cc);
+        el.showOperations = _showOperations.GetValueFromBag(bag, cc);
+        el.showPreview = _showPreview.GetValueFromBag(bag, cc);
+      }
+    }
+
+    protected static class Prop
+    {
+      public const string STREAM_NAME = "name";
+      public const string STREAM_ID = "id";
+    }
   }
 
 }
