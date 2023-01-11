@@ -36,8 +36,38 @@
 }
 
 .speckle-contro__stream-preview {
-    
+
 }
+
+.speckle-container__stream-info {
+    justify-content: space-between;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.speckle-container__controls {
+    justify-content: center;
+    align-items: center;
+}
+
+.speckle-container__controls .speckle-control__button-icon {
+    justify-content: center;
+    align-items: center;
+}
+
+.speckle-container__controls .speckle-element__texture-icon {
+    width: 80%;
+    height: 80%;
+}
+
+.speckle-control__sender {
+    background-image: var(--speckle-assets-sender);
+}
+
+.speckle-control__receiver {
+    background-image: var(--speckle-assets-receiver);
+}
+
 
 /*.speckle-control__list .unity-scroll-view__content-container {*/
 /*    background-color: var(--speckle-colors-unity-dark-gray);*/

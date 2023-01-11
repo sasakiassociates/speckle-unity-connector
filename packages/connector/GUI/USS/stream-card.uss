@@ -1,0 +1,11 @@
+@import url('project://database/Packages/com.speckle.connector/GUI/USS/speckle-controls.uss?fileID=7433441132597879392&guid=0af3db8ccf034e0b845a16834335c11c&type=3#speckle-controls');
+
+.speckle-control__stream-preview {
+    flex-grow: 1;
+    height: 300px;
+}
+
+.speckle-control__stream-preview > .speckle-element__texture-image {
+    flex-grow: 1;
+    background-color: rgba(245, 245, 245, 255);
+}

@@ -57,6 +57,7 @@ namespace Speckle.ConnectorUnity.UI
         public const string RECEIVE = NS + "receiver";
         public const string OPEN_NEW = NS + "openInNew";
         public const string SELECT_ACCOUNT = NS + "selectAccount";
+
       }
 
       public static class Elements
@@ -71,7 +72,6 @@ namespace Speckle.ConnectorUnity.UI
         {
           const string NS = SPACE + "texture" + EXT;
 
-          public const string PREVIEW = NS + "preview";
           public const string ICON = NS + "icon";
           public const string IMAGE = NS + "image";
           public const string AVATAR = NS + "avatar";

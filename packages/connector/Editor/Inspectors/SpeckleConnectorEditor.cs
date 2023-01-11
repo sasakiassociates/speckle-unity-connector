@@ -107,9 +107,9 @@ namespace Speckle.ConnectorUnity
             element.AddControl(_select);
           }
 
-          element.showUrlButton = SHOW_OPEN_IN_NEW;
-          element.showDescription = SHOW_DESCRIPTIONS;
-          element.showOperations = SHOW_OPERATIONS;
+          element.displayOpenInNew = SHOW_OPEN_IN_NEW;
+          element.displayDescription = SHOW_DESCRIPTIONS;
+          element.displayOperations = SHOW_OPERATIONS;
 
           element.openInNewButton.clickable.clicked += ProcessOpenInNew;
 
@@ -121,11 +121,11 @@ namespace Speckle.ConnectorUnity
             element.RemoveControl(_select);
           }
 
-          element.showUrlButton = false;
-          element.showDescription = false;
-          element.showOperations = false;
+          element.displayOpenInNew = false;
+          element.displayDescription = false;
+          element.displayOperations = false;
 
-          element.showUrlButton = element.showOperations = element.showDescription = false;
+          element.displayOpenInNew = element.displayOperations = element.displayDescription = false;
         }
 
       }
@@ -143,7 +143,7 @@ namespace Speckle.ConnectorUnity
 
       VisualElement MakeAccountItem() => new AccountElement();
 
-      VisualElement MakeStreamItem() => new SpeckleStreamListItem {showOperations = false, showUrlButton = false, showDescription = false};
+      VisualElement MakeStreamItem() => new SpeckleStreamListItem {displayOperations = false, displayOpenInNew = false, displayDescription = false};
 
       switch(_state)
       {

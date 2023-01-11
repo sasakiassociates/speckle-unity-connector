@@ -10,6 +10,41 @@ namespace Speckle.ConnectorUnity.Elements
   public class StreamElement : BindableElement, INotifyValueChanged<SpeckleStream>
   {
 
+    public new class UxmlFactory : UxmlFactory<StreamElement, UxmlTraits>
+    { }
+
+    public new class UxmlTraits : BindableElement.UxmlTraits
+    {
+      UxmlBoolAttributeDescription _mShowDescription = new UxmlBoolAttributeDescription {name = "show-description", defaultValue = false};
+      UxmlBoolAttributeDescription _mShowOpenInNew = new UxmlBoolAttributeDescription {name = "show-open-in-new", defaultValue = false};
+      UxmlBoolAttributeDescription _mShowOperations = new UxmlBoolAttributeDescription {name = "show-operations", defaultValue = false};
+      UxmlBoolAttributeDescription _mShowPreview = new UxmlBoolAttributeDescription {name = "show-preview", defaultValue = false};
+
+
+      public override IEnumerable<UxmlChildElementDescription> uxmlChildElementsDescription
+      {
+        get { yield break; }
+      }
+
+      public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
+      {
+        base.Init(ve, bag, cc);
+
+        var el = ve as StreamElement;
+
+        el.displayDescription = _mShowDescription.GetValueFromBag(bag, cc);
+        el.displayOpenInNew = _mShowOpenInNew.GetValueFromBag(bag, cc);
+        el.displayOperations = _mShowOperations.GetValueFromBag(bag, cc);
+        el.displayPreview = _mShowPreview.GetValueFromBag(bag, cc);
+      }
+    }
+
+    protected static class Prop
+    {
+      public const string STREAM_NAME = "name";
+      public const string STREAM_ID = "id";
+    }
+
     SpeckleStream _value;
 
     protected Label streamName;
@@ -50,8 +85,7 @@ namespace Speckle.ConnectorUnity.Elements
 
     public Button sendButton { get; protected set; }
 
-
-    public bool showDescription
+    public bool displayDescription
     {
       set
       {
@@ -74,7 +108,7 @@ namespace Speckle.ConnectorUnity.Elements
       }
     }
 
-    public bool showOperations
+    public bool displayOperations
     {
       set
       {
@@ -118,7 +152,7 @@ namespace Speckle.ConnectorUnity.Elements
       }
     }
 
-    public bool showPreview
+    public bool displayPreview
     {
       set
       {
@@ -140,7 +174,7 @@ namespace Speckle.ConnectorUnity.Elements
       }
     }
 
-    public bool showUrlButton
+    public bool displayOpenInNew
     {
       set
       {
@@ -216,6 +250,7 @@ namespace Speckle.ConnectorUnity.Elements
     protected virtual void ConstructHeading()
     {
       headingContainer = SpeckleUss.Prefabs.containerRow;
+      headingContainer.name = SpeckleUss.Classes.CONTAINER + "__heading";
 
       var infoContainer = SpeckleUss.Prefabs.containerRow;
       infoContainer.name = SpeckleUss.Classes.CONTAINER + "__info";
@@ -255,6 +290,7 @@ namespace Speckle.ConnectorUnity.Elements
       viewportContainer = SpeckleUss.Prefabs.containerRow;
       viewportContainer.name = SpeckleUss.Classes.CONTAINER + "__preview";
 
+      Add(viewportContainer);
     }
 
 
@@ -273,40 +309,7 @@ namespace Speckle.ConnectorUnity.Elements
       Debug.Log("Receive Action");
     }
 
-    public new class UxmlFactory : UxmlFactory<StreamElement, UxmlTraits>
-    { }
 
-    public new class UxmlTraits : BindableElement.UxmlTraits
-    {
-      UxmlBoolAttributeDescription _showDescription = new UxmlBoolAttributeDescription {name = "Show Description", defaultValue = false};
-      UxmlBoolAttributeDescription _showOpenInNew = new UxmlBoolAttributeDescription {name = "Show Open In New", defaultValue = false};
-      UxmlBoolAttributeDescription _showOperations = new UxmlBoolAttributeDescription {name = "Show Operations", defaultValue = false};
-      UxmlBoolAttributeDescription _showPreview = new UxmlBoolAttributeDescription {name = "Show Preview", defaultValue = false};
-
-
-      public override IEnumerable<UxmlChildElementDescription> uxmlChildElementsDescription
-      {
-        get { yield break; }
-      }
-
-      public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
-      {
-        base.Init(ve, bag, cc);
-
-        var el = ve as StreamElement;
-
-        el.showDescription = _showDescription.GetValueFromBag(bag, cc);
-        el.showUrlButton = _showOpenInNew.GetValueFromBag(bag, cc);
-        el.showOperations = _showOperations.GetValueFromBag(bag, cc);
-        el.showPreview = _showPreview.GetValueFromBag(bag, cc);
-      }
-    }
-
-    protected static class Prop
-    {
-      public const string STREAM_NAME = "name";
-      public const string STREAM_ID = "id";
-    }
   }
 
 }

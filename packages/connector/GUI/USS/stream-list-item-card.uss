@@ -1,35 +1,7 @@
-@import url('project://database/Packages/com.speckle.connector/GUI/USS/speckle-styles.uss?fileID=7433441132597879392&guid=3cfa792e400f4ff48e18d458ee906e1a&type=3#speckle-styles');
+@import url('project://database/Packages/com.speckle.connector/GUI/USS/speckle-controls.uss?fileID=7433441132597879392&guid=0af3db8ccf034e0b845a16834335c11c&type=3#speckle-controls');
 
 .speckle-model__stream-list-item {
     width: auto;
     height: 40px;
 }
 
-.speckle-container__stream-info {
-    justify-content: space-between;
-    flex-grow: 1;
-    flex-shrink: 1;
-}
-
-.speckle-container__controls {
-    justify-content: center;
-    align-items: center;
-}
-
-.speckle-container__controls .speckle-control__button-icon {
-    justify-content: center;
-    align-items: center;
-}
-
-.speckle-container__controls .speckle-element__texture-icon {
-    width: 80%;
-    height: 80%;
-}
-
-.speckle-control__sender {
-    background-image: var(--speckle-assets-sender);
-}
-
-.speckle-control__receiver {
-    background-image: var(--speckle-assets-receiver);
-}

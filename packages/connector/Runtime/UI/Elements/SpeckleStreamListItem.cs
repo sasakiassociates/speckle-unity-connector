@@ -7,10 +7,8 @@ namespace Speckle.ConnectorUnity.Elements
   public class SpeckleStreamListItem : StreamElement
   {
 
-
     public new class UxmlFactory : UxmlFactory<SpeckleStreamListItem, UxmlTraits>
     { }
-
 
     /// <summary>
     /// Optional class name to attached to the element 
@@ -21,8 +19,6 @@ namespace Speckle.ConnectorUnity.Elements
     /// Name of <seealso cref="StyleSheet"/> without the extension type
     /// </summary>
     protected override string styleSheetName => "stream-list-item-card";
-
-
 
     public bool HasControl(Button b)
     {
@@ -62,6 +58,7 @@ namespace Speckle.ConnectorUnity.Elements
 
       controlsContainer.Remove(b);
     }
+
   }
 
 }

@@ -1,4 +1,5 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns="UnityEngine.UIElements" ue="UnityEditor.UIElements" editor-extension-mode="False">
-    <Speckle.ConnectorUnity.Elements.StreamElement Show Description="false" Show Open In New="false" />
-    <Speckle.ConnectorUnity.Elements.SpeckleStreamListItem Show Open In New="false" Show Operations="false" Show Preview="true" />
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns="UnityEngine.UIElements"
+         ue="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Packages/com.speckle.connector/GUI/USS/stream-card.uss?fileID=7433441132597879392&amp;guid=782c2eca98d2490f8b756f83206f0a45&amp;type=3#stream-card"/>
+    <Speckle.ConnectorUnity.Elements.StreamElement/>
 </ui:UXML>
