@@ -16,16 +16,14 @@ namespace Speckle.ConnectorUnity
   public class SpeckleConnectorEditor : SpeckleEditor<SpeckleConnector>
   {
 
-
     int _selectedIndex;
     Button _refresh;
     Button _select;
     Toggle _submit;
-    ConnectorState _state = ConnectorState.ShowingStreams;
-
     VisualElement _listContainer;
-
     ListView _list;
+
+    ConnectorState _state = ConnectorState.ShowingStreams;
 
     enum ConnectorState
     {
@@ -229,7 +227,6 @@ namespace Speckle.ConnectorUnity
     }
 
 
-
     void ProcessOpenInNew()
     {
       Debug.Log("Open in New");
@@ -253,7 +250,7 @@ namespace Speckle.ConnectorUnity
       }
 
       _list.ClearSelection();
-      _selectedIndex = -1;
+      _selectedIndex = 0;
     }
 
 

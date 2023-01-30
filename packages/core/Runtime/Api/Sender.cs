@@ -106,7 +106,7 @@ namespace Speckle.ConnectorUnity.Ops
         Args.success = true;
         Args.commitId = commitId;
         Args.message = $"Commit sent to {Branch}! ({objectId})";
-        Args.url = SpeckleUnity.GetUrl(false, client.Account.serverInfo.url, stream.Id, StreamWrapperType.Commit, commitId);
+        Args.url = Utils.GetUrl(false, client.Account.serverInfo.url, stream.Id, StreamWrapperType.Commit, commitId);
 
         onDataSent?.Invoke(objectId);
       }

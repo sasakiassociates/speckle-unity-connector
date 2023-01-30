@@ -45,9 +45,9 @@
     --speckle-assets-font-SDF: url('project://database/Packages/com.speckle.connector/GUI/Assets/SpaceGrotesk-VariableFont_wght SDF.asset');
 
 
-    /*OVERRIDES*/
-    -unity-font: url("project://database/Packages/com.speckle.connector/GUI/Assets/SpaceGrotesk-VariableFont_wght.ttf");
-    -unity-font-definition: url('project://database/Packages/com.speckle.connector/GUI/Assets/SpaceGrotesk-VariableFont_wght SDF.asset');
+    /*!*OVERRIDES*!*/
+    /*-unity-font: url("project://database/Packages/com.speckle.connector/GUI/Assets/SpaceGrotesk-VariableFont_wght.ttf");*/
+    /*-unity-font-definition: url('project://database/Packages/com.speckle.connector/GUI/Assets/SpaceGrotesk-VariableFont_wght SDF.asset');*/
 
 }
 

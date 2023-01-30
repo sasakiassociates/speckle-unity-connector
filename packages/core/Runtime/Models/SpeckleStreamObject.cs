@@ -38,6 +38,8 @@ namespace Speckle.ConnectorUnity.Models
 
     public Client baseClient => client?.source;
 
+    public SpeckleStream SourceStream => stream;
+
     public Stream Stream => stream?.source;
 
     public CancellationToken token
@@ -70,6 +72,8 @@ namespace Speckle.ConnectorUnity.Models
     public string OriginalUrlInput => originalUrlInput;
 
     public Account baseAccount => account?.source;
+
+    public Texture Preview => preview;
 
     public async UniTask SetCommit(string commitId)
     {
@@ -335,7 +339,7 @@ namespace Speckle.ConnectorUnity.Models
         await UniTask.Yield();
       }
 
-      preview = await SpeckleUnity.GetTexture(stream.GetUrl(true, baseAccount.serverInfo.url));
+      preview = await Utils.GetTexture(stream.GetUrl(true, baseAccount.serverInfo.url));
 
       OnPreviewSet?.Invoke(preview);
 

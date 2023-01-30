@@ -141,7 +141,7 @@ namespace Speckle.ConnectorUnity.Ops
       if(!IsValid())
         await UniTask.Yield();
 
-      _preview = await SpeckleUnity.GetTexture(stream.GetUrl(true, baseAccount.serverInfo.url));
+      _preview = await Utils.GetTexture(stream.GetUrl(true, baseAccount.serverInfo.url));
 
       OnPreviewSet?.Invoke();
 

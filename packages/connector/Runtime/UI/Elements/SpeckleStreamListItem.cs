@@ -7,7 +7,7 @@ namespace Speckle.ConnectorUnity.Elements
   public class SpeckleStreamListItem : StreamElement
   {
 
-    public new class UxmlFactory : UxmlFactory<SpeckleStreamListItem, UxmlTraits>
+    public new class UxmlFactory : UxmlFactory<SpeckleStreamListItem, StreamElementTrait>
     { }
 
     /// <summary>

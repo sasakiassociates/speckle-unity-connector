@@ -16,6 +16,8 @@ public class StreamScriptableEditor : SpeckleEditor<SpeckleStreamObject>
   Button _searchButton;
   DropdownField _branchDropField;
   DropdownField _commitsDropField;
+  SearchUrlElement _searchUrl;
+  StreamElement _streamElement;
 
   protected override string fileName => "stream-scriptable-card";
 
@@ -24,29 +26,24 @@ public class StreamScriptableEditor : SpeckleEditor<SpeckleStreamObject>
     _branchDropField?.UnregisterValueChangedCallback(BranchChangeCallback);
     _commitsDropField?.UnregisterValueChangedCallback(CommitChangeCallback);
 
-    if(_searchButton != null)
-      _searchButton.clickable.clicked -= Search;
   }
 
   public override VisualElement CreateInspectorGUI()
   {
-    if(Tree == null)
-      return base.CreateInspectorGUI();
+    if(Tree == null) return base.CreateInspectorGUI();
 
     Root = new VisualElement();
     Tree.CloneTree(Root);
 
-    _searchButton = Root.Q<Button>("search-button");
-    _searchButton.clickable.clicked += Search;
+    _searchUrl = Root.Q<SearchUrlElement>();
+    _searchUrl.onSearch += Search;
+    _searchUrl.Q<TextField>().bindingPath = "originalUrlInput";
 
-    _streamContainer = Root.Q<VisualElement>("stream-info-container");
+    _streamElement = Root.Q<StreamElement>();
+    _streamElement.SetValueWithoutNotify(Obj.SourceStream);
+    _streamElement.SetPreviewTexture(Obj.Preview);
 
-    var _showToggle = Root.Q<Toggle>("show-stream");
-
-    _showToggle.RegisterValueChangedCallback(e => { _streamContainer.visible = e.newValue; });
-
-    var streamPreview = Root.Q<TexturePreviewElement>("stream-preview");
-    Obj.OnPreviewSet += e => streamPreview.value = e;
+    Obj.OnPreviewSet += e => _streamElement.SetPreviewTexture(e);
 
     return Root;
   }
@@ -83,10 +80,17 @@ public class StreamScriptableEditor : SpeckleEditor<SpeckleStreamObject>
     field.SetValueWithoutNotify(hashSet.LastOrDefault());
   }
 
-  void Search()
+  void Search(string url)
   {
-    Debug.Log("Starting Search");
-    Obj.Initialize(Obj.OriginalUrlInput).ContinueWith(() => { Debug.Log("Continue with call"); }).Forget();
+    Debug.Log($"Searching {url}");
+    UniTask.Create(async () =>
+    {
+      await Obj.Initialize(url);
+      _streamElement.SetValueWithoutNotify(Obj.SourceStream);
+    });
+
+    // Obj.Initialize(url).ContinueWith(() => { Debug.Log("Continue with call"); }).Forget();
+
   }
 
 }

@@ -35,8 +35,14 @@
 .speckle-control__progressbar {
 }
 
-.speckle-contro__stream-preview {
+.speckle-control__stream-preview {
+    flex-grow: 1;
+    height: 300px;
+}
 
+.speckle-control__stream-preview > .speckle-element__texture-image {
+    flex-grow: 1;
+    background-color: rgba(245, 245, 245, 255);
 }
 
 .speckle-container__stream-info {
@@ -66,6 +72,14 @@
 
 .speckle-control__receiver {
     background-image: var(--speckle-assets-receiver);
+}
+
+.speckle-control__searchUrl {
+
+}
+
+.speckle-control__searchUrl .unity-text-field {
+    flex-grow: 1;
 }
 
 

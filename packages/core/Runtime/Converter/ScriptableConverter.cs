@@ -1,210 +1,229 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using Speckle.Core.Kits;
 using Speckle.Core.Logging;
 using Speckle.Core.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Speckle.ConnectorUnity.Converter
 {
 
-	public abstract class ScriptableConverter : ScriptableObject, ISpeckleConverter
-	{
+  public abstract class ScriptableConverter : ScriptableObject, ISpeckleConverter
+  {
 
-		[SerializeField] string _description;
+    [SerializeField] string description;
 
-		[SerializeField] string _author;
+    [SerializeField] string author;
 
-		[SerializeField] string _websiteOrEmail;
+    [SerializeField] string websiteOrEmail;
 
-		[SerializeField] ReceiveMode _receiveMode;
+    [SerializeField] ReceiveMode receiveMode;
 
-		[SerializeField] List<ComponentConverter> _converters;
+    [SerializeField] List<ComponentConverter> storedConverters;
 
-		[SerializeField] ScriptableConverterSettings _settings;
+    [SerializeField] ScriptableConverterSettings settings;
 
-		public Dictionary<string, Object> LoadedAssets { get; private set; }
+    public Dictionary<string, UnityEngine.Object> LoadedAssets { get; private set; }
 
-		public HashSet<Exception> ConversionErrors { get; } = new();
+    public HashSet<Exception> ConversionErrors { get; } = new();
 
-		public List<ApplicationObject> ContextObjects { get; set; } = new();
+    public List<ApplicationObject> ContextObjects { get; set; } = new();
 
-		public ProgressReport Report { get; protected set; }
+    public ProgressReport Report { get; protected set; }
 
-		public IEnumerable<string> GetServicedApplications() => new[] { HostApplications.Unity.Name };
+    public IEnumerable<string> GetServicedApplications() => new[] {HostApplications.Unity.Name};
 
-		public List<ComponentConverter> converters { get; private set; }
+    public List<ComponentConverter> converters { get; private set; }
 
-		protected virtual void OnEnable()
-		{
-			Report = new ProgressReport();
-			// Don't override serialized scriptable object lists
-			converters = _converters.Valid() ? _converters : StandardConverters();
+    protected abstract List<ComponentConverter> StandardConverters();
 
-			foreach (var cc in converters)
-			{
-				cc.parent = this;
-			}
+    protected virtual void OnEnable()
+    {
+      Report = new ProgressReport();
+      // Don't override serialized scriptable object lists
+      converters = storedConverters.Valid() ? storedConverters : StandardConverters();
 
-			if (_settings == null)
-				SetConverterSettings(new ScriptableConverterSettings() { style = ConverterStyle.Queue });
-		}
+      foreach(var cc in converters)
+      {
+        cc.Parent = this;
+      }
 
-		public virtual async UniTask PostWork()
-		{
-			if (!_converters.Valid())
-				return;
+      if(settings == null)
+        SetConverterSettings(new ScriptableConverterSettings() {style = ConverterStyle.Queue});
+    }
 
-			foreach (var c in _converters)
-			{
-				if (c != null && c.HasWorkToDo)
-					await c.PostWorkAsync();
-			}
-		}
+    public virtual void SetContextObjects(List<ApplicationObject> objects) => ContextObjects = objects;
 
-		public abstract List<ComponentConverter> StandardConverters();
+    public virtual void SetPreviousContextObjects(List<ApplicationObject> objects) => ContextObjects = objects;
 
-		public virtual void SetContextObjects(List<ApplicationObject> objects) => ContextObjects = objects;
+    public virtual void SetContextDocument(object doc)
+    {
+      if(doc is not Dictionary<string, UnityEngine.Object> loadedAssets)
+        throw new ArgumentException($"Expected {nameof(doc)} to be of type {typeof(Dictionary<string, UnityEngine.Object>)}", nameof(doc));
 
-		public virtual void SetPreviousContextObjects(List<ApplicationObject> objects) => ContextObjects = objects;
+      LoadedAssets = loadedAssets;
+    }
 
-		public virtual void SetContextDocument(object doc)
-		{
-			if (doc is not Dictionary<string, Object> loadedAssets)
-				throw new ArgumentException($"Expected {nameof(doc)} to be of type {typeof(Dictionary<string, Object>)}", nameof(doc));
+    public virtual void SetConverterSettings(object settings)
+    {
+      if(settings is ScriptableConverterSettings converterSettings)
+        this.settings = converterSettings;
+    }
 
-			LoadedAssets = loadedAssets;
-		}
+    public virtual Base ConvertToSpeckle(object @object) =>
+      TryGetConverter(@object, true, out var comp, out var converter) ? converter.ToSpeckle(comp) : null;
 
-		public virtual void SetConverterSettings(object settings)
-		{
-			if (settings is ScriptableConverterSettings converterSettings)
-				_settings = converterSettings;
-		}
+    public virtual object ConvertToNative(Base @base) =>
+      TryGetConverter(@base, true, out var converter) ? converter.ToNative(@base) : null;
 
-		public virtual Base ConvertToSpeckle(object @object) =>
-			@object != null && TryGetConverter(@object, true, out var comp, out var converter) ? converter.ToSpeckle(comp) : null;
+    public virtual List<Base> ConvertToSpeckle(List<object> objects) => objects.Valid() ? objects.Select(ConvertToSpeckle).ToList() : new List<Base>();
 
-		public virtual object ConvertToNative(Base @base) =>
-			@base != null && TryGetConverter(@base, true, out var converter) ? converter.ToNative(@base) : null;
+    public virtual List<object> ConvertToNative(List<Base> objects) => objects.Valid() ? objects.Select(ConvertToNative).ToList() : new List<object>();
 
-		public virtual List<Base> ConvertToSpeckle(List<object> objects) => objects.Valid() ? objects.Select(ConvertToSpeckle).ToList() : new List<Base>();
+    public virtual bool CanConvertToSpeckle(object @object) => TryGetConverter(@object, false, out _, out _);
 
-		public virtual List<object> ConvertToNative(List<Base> objects) => objects.Valid() ? objects.Select(ConvertToNative).ToList() : new List<object>();
+    public virtual bool CanConvertToNative(Base @base) => TryGetConverter(@base, false, out _);
 
-		public virtual bool CanConvertToSpeckle(object @object) => TryGetConverter(@object, false, out _, out _);
+    public async UniTask PostWork()
+    {
+      if(!storedConverters.Valid())
+        return;
 
-		public virtual bool CanConvertToNative(Base @base) => TryGetConverter(@base, false, out _);
+      foreach(var c in storedConverters)
+      {
+        if(c != null && c.HasWorkToDo)
+          await c.PostWorkAsync();
+      }
+    }
 
-		protected virtual bool TryGetConverter(Base obj, bool init, out ComponentConverter converter)
-		{
-			converter = null;
 
-			if (!_converters.Valid() || obj.IsWrapper())
-				return false;
+    bool TryGetConverter(Base obj, bool init, out ComponentConverter converter)
+    {
+      converter = null;
 
-			foreach (var c in _converters)
-			{
-				if (c == null)
-					continue;
+      if(!storedConverters.Valid())
+      {
+        SpeckleUnity.Console.Log($"No valid Converters found in {name}");
+        return false;
+      }
 
-				if (c.speckle_type.Equals(obj.speckle_type))
-				{
-					converter = c;
+      if(obj == null)
+      {
+        SpeckleUnity.Console.Log($"Object is null, please check the source of the object you are trying to pass into {name}");
+        return false;
+      }
 
-					if (init)
-						c.settings = _settings;
+      foreach(var c in storedConverters)
+      {
+        if(c == null)
+          continue;
 
-					break;
-				}
-			}
+        if(c.speckle_type.Equals(obj.speckle_type))
+        {
+          converter = c;
 
-			return converter != null;
-		}
+          if(init)
+            c.Settings = settings;
 
-		bool TryGetConverter(object @object, bool init, out Component comp, out IComponentConverter converter)
-		{
-			comp = null;
-			converter = default;
+          break;
+        }
+      }
 
-			if (!_converters.Any())
-				return false;
+      return converter != null;
+    }
 
-			switch (@object)
-			{
-				case GameObject o:
-					foreach (var c in _converters)
-					{
-						if (c == null || o.GetComponent(c.unity_type))
-							continue;
+    bool TryGetConverter(object obj, bool init, out Component comp, out IComponentConverter converter)
+    {
+      comp = null;
+      converter = default(IComponentConverter);
 
-						converter = c;
+      if(!storedConverters.Valid())
+      {
+        SpeckleUnity.Console.Log($"No valid Converters found in {name}");
+        return false;
+      }
 
-						if (init)
-							c.settings = _settings;
+      if(obj == null)
+      {
+        SpeckleUnity.Console.Log($"Object is null, please check the source of the object you are trying to pass into {name}");
+        return false;
+      }
 
-						break;
-					}
+      switch(obj)
+      {
+        case GameObject o:
+          foreach(var c in storedConverters)
+          {
+            if(c == null || o.GetComponent(c.unity_type))
+              continue;
 
-					break;
+            converter = c;
 
-				case Component o:
-					comp = o;
-					foreach (var c in _converters)
-					{
-						if (c == null || c.unity_type != comp.GetType())
-							continue;
+            if(init)
+              c.Settings = settings;
 
-						converter = c;
-						break;
-					}
+            break;
+          }
 
-					break;
-				default:
-					Debug.LogException(new SpeckleException($"Native unity object {@object.GetType()} is not supported"));
-					break;
-			}
+          break;
 
-			return converter != default && comp != null;
-		}
+        case Component o:
+          comp = o;
+          foreach(var c in storedConverters)
+          {
+            if(c == null || c.unity_type != comp.GetType())
+              continue;
 
-		#region converter properties
+            converter = c;
+            break;
+          }
 
-		public string Name
-		{
-			get => name;
-			set => name = value;
-		}
+          break;
+        default:
+          Debug.LogException(new SpeckleException($"Native unity object {obj.GetType()} is not supported"));
+          break;
+      }
 
-		public string Description
-		{
-			get => _description;
-		}
+      return converter != default(object) && comp != null;
+    }
 
-		public string Author
-		{
-			get => _author;
-		}
+  #region converter properties
 
-		public string WebsiteOrEmail
-		{
-			get => _websiteOrEmail;
-		}
+    public string Name
+    {
+      get => name;
+      set => name = value;
+    }
 
-		public ReceiveMode ReceiveMode
-		{
-			get => _receiveMode;
-			set
-			{
-				Debug.Log($"Changing Receive Mode from {_receiveMode} to {value}");
-				_receiveMode = value;
-			}
-		}
+    public string Description
+    {
+      get => description;
+    }
 
-		#endregion converter properties
+    public string Author
+    {
+      get => author;
+    }
 
-	}
+    public string WebsiteOrEmail
+    {
+      get => websiteOrEmail;
+    }
+
+    public ReceiveMode ReceiveMode
+    {
+      get => receiveMode;
+      set
+      {
+        Debug.Log($"Changing Receive Mode from {receiveMode} to {value}");
+        receiveMode = value;
+      }
+    }
+
+  #endregion converter properties
+
+  }
+
 }

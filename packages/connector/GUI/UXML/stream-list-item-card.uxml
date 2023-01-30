@@ -2,4 +2,5 @@
     <Style src="project://database/Packages/com.speckle.connector/GUI/USS/stream-list-item-card.uss?fileID=7433441132597879392&amp;guid=e59f40f80dcc4f27a3c9a0b7d449c73b&amp;type=3#stream-list-item-card"/>
     <Speckle.ConnectorUnity.Elements.SpeckleStreamListItem ShowOperations="true" ShowOpenInNew="false"
                                                            ShowDescription="true"/>
+    <Speckle.ConnectorUnity.Elements.StreamDataElement/>
 </ui:UXML>

@@ -1,143 +1,144 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using Speckle.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Cysharp.Threading.Tasks;
-using Speckle.Core.Models;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace Speckle.ConnectorUnity.Models
 {
 
-	[AddComponentMenu(SpeckleUnity.NAMESPACE + "/Base")]
-	public class BaseBehaviour : MonoBehaviour, IBase, ISerializationCallbackReceiver
-	{
+  [AddComponentMenu(SpeckleUnity.NAMESPACE + "/Base")]
+  public class BaseBehaviour : MonoBehaviour, IBase
+  {
 
-		[SerializeField, ReadOnly] string _speckle_type;
-		[SerializeField, ReadOnly] string _applicationId;
-		[SerializeField, ReadOnly] string _id;
-		[SerializeField, ReadOnly] long _totalChildCount;
+    [SerializeField, ReadOnly] string _speckle_type;
+    [SerializeField, ReadOnly] string _applicationId;
+    [SerializeField, ReadOnly] string _id;
+    [SerializeField, ReadOnly] long _totalChildCount;
 
-		[SerializeField] SpeckleProperties _props;
-		
-		[SerializeField, HideInInspector] bool _hasChanged;
+    [SerializeField] SpeckleProperties _props;
 
-		public event UnityAction OnPropsChanged;
+    [SerializeField, HideInInspector] bool _hasChanged;
 
-		public string id => _id;
+    public event UnityAction OnPropsChanged;
 
-		public string speckle_type => _speckle_type;
+    public string id => _id;
 
-		public string applicationId => _applicationId;
+    public string speckle_type => _speckle_type;
 
-		public long totalChildCount => _totalChildCount;
+    public string applicationId => _applicationId;
 
-		public SpeckleProperties props
-		{
-			get => _props;
-			protected set
-			{
-				if (value == null) return;
+    public long totalChildCount => _totalChildCount;
 
-				_props = value;
-				_props.OnCollectionChange += _ =>
-				{
-					_hasChanged = true;
-					OnPropsChanged?.Invoke();
-				};
-			}
-		}
+    public SpeckleProperties props
+    {
+      get => _props;
+      protected set
+      {
+        if(value == null) return;
 
-		public virtual HashSet<string> excluded
-		{
-			get
-			{
-				return new HashSet<string>(
-					typeof(Base).GetProperties(
-						BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase
-					).Select(x => x.Name));
-			}
-		}
+        _props = value;
+        _props.OnCollectionChange += _ =>
+        {
+          _hasChanged = true;
+          OnPropsChanged?.Invoke();
+        };
+      }
+    }
 
-		public object this[string key]
-		{
-			get
-			{
-				if (props.Data.ContainsKey(key))
-					return props.Data[key];
+    public virtual HashSet<string> excluded
+    {
+      get
+      {
+        return new HashSet<string>(
+          typeof(Base).GetProperties(
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase
+          ).Select(x => x.Name));
+      }
+    }
 
-				var prop = GetType().GetProperty(key);
+    public object this[string key]
+    {
+      get
+      {
+        if(props.Data.ContainsKey(key))
+          return props.Data[key];
 
-				return prop == null ? null : prop.GetValue(this);
-			}
-			set
-			{
-				if (!this.IsPropNameValid(key, out string reason)) SpeckleUnity.Console.Warn("Invalid prop name: " + reason);
+        var prop = GetType().GetProperty(key);
 
-				if (props.Data.ContainsKey(key))
-				{
-					props.Data[key] = value;
-					return;
-				}
+        return prop == null ? null : prop.GetValue(this);
+      }
+      set
+      {
+        if(!this.IsPropNameValid(key, out string reason)) SpeckleUnity.Console.Warn("Invalid prop name: " + reason);
 
-				var prop = this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).FirstOrDefault(p => p.Name == key);
+        if(props.Data.ContainsKey(key))
+        {
+          props.Data[key] = value;
+          return;
+        }
 
-				if (prop == null)
-				{
-					props.Data[key] = value;
-					return;
-				}
+        var prop = this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).FirstOrDefault(p => p.Name == key);
 
-				try
-				{
-					prop.SetValue(this, value);
-				}
-				catch (Exception ex)
-				{
-					SpeckleUnity.Console.Error(ex.Message);
-				}
-			}
-		}
+        if(prop == null)
+        {
+          props.Data[key] = value;
+          return;
+        }
 
-		public UniTask Store(Base @base)
-		{
-			HandleBaseProps(@base);
-			HandleTypeProps(@base);
-			return UniTask.CompletedTask;
-		}
+        try
+        {
+          prop.SetValue(this, value);
+        }
+        catch(Exception ex)
+        {
+          SpeckleUnity.Console.Error(ex.Message);
+        }
+      }
+    }
 
-		public void OnBeforeSerialize()
-		{
-			if (!_hasChanged) return;
+    public UniTask Store(Base @base)
+    {
+      HandleBaseProps(@base);
+      HandleTypeProps(@base);
+      return UniTask.CompletedTask;
+    }
 
-			props.Serialize();
-			_hasChanged = false;
-		}
+    public void OnBeforeSerialize()
+    {
+      if(!_hasChanged) return;
 
-		public void OnAfterDeserialize()
-		{ }
+      props.Serialize();
+      _hasChanged = false;
+    }
 
-		/// <summary>
-		/// Method for populating the standard <see cref="Base"/> Props
-		/// </summary>
-		/// <param name="base"></param>
-		protected virtual void HandleBaseProps(Base @base)
-		{
-			_id = @base.id;
-			_speckle_type = @base.speckle_type;
-			_applicationId = @base.applicationId;
-			_totalChildCount = @base.totalChildrenCount;
-		}
+    public void OnAfterDeserialize()
+    { }
 
-		/// <summary>
-		/// Method for modifying how
-		/// </summary>
-		protected virtual void HandleTypeProps(Base @base)
-		{
-			props = new SpeckleProperties();
-			props.Serialize(@base);
-		}
+    /// <summary>
+    /// Method for populating the standard <see cref="Base"/> Props
+    /// </summary>
+    /// <param name="base"></param>
+    protected virtual void HandleBaseProps(Base @base)
+    {
+      _id = @base.id;
+      _speckle_type = @base.speckle_type;
+      _applicationId = @base.applicationId;
+      _totalChildCount = @base.totalChildrenCount;
+    }
 
-	}
+    /// <summary>
+    /// Method for modifying how
+    /// </summary>
+    protected virtual void HandleTypeProps(Base @base)
+    {
+      props = new SpeckleProperties();
+      props.Serialize(@base);
+    }
+
+  }
+
 }

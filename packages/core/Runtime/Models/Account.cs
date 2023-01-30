@@ -1,12 +1,12 @@
 ﻿using Cysharp.Threading.Tasks;
-using System;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
-using System.IO;
+using System;
 using UnityEngine;
 
 namespace Speckle.ConnectorUnity.Ops
 {
+
   [Serializable]
   public sealed class SpeckleAccount : GenericAdapter<Account>
   {
@@ -37,7 +37,7 @@ namespace Speckle.ConnectorUnity.Ops
 
     public SpeckleAccount(Account value) : base(value)
     {
-      if (value == null) return;
+      if(value == null) return;
 
       id = value.id;
       token = value.token;
@@ -61,14 +61,14 @@ namespace Speckle.ConnectorUnity.Ops
       // NOTE: copied from desktop UI 
       //if the user manually uploaded their avatar it'll be a base64 string of the image
       //otherwise if linked the account eg via google, it'll be a link
-      if (userAvatar != null && userAvatar.StartsWith("data:"))
+      if(userAvatar != null && userAvatar.StartsWith("data:"))
       {
         try
         {
           avatar = new Texture2D(28, 28);
           // avatar.LoadRawTextureData(Convert.FromBase64String(userAvatar.Split(',')[1]));
           var colors = new Color32[28 * 28];
-          for (int i = 0; i < colors.Length; i++)
+          for(int i = 0; i < colors.Length; i++)
           {
             colors[i] = Color.white;
           }
@@ -84,9 +84,9 @@ namespace Speckle.ConnectorUnity.Ops
         }
       }
 
-      if (userAvatar == null && Id != null)
+      if(userAvatar == null && Id != null)
       {
-        avatar = await SpeckleUnity.GetTexture($"https://robohash.org/{Id}.png?size=28x28");
+        avatar = await Utils.GetTexture($"https://robohash.org/{Id}.png?size=28x28");
         avatar.Apply();
       }
     }
@@ -123,4 +123,5 @@ namespace Speckle.ConnectorUnity.Ops
       };
 
   }
+
 }

@@ -1,4 +1,5 @@
 ﻿using Speckle.ConnectorUnity.Elements;
+using System;
 using UnityEngine.UIElements;
 
 namespace Speckle.ConnectorUnity.UI
@@ -33,8 +34,11 @@ namespace Speckle.ConnectorUnity.UI
 
         public const string STREAM = NS + "stream";
         public const string STREAM_LIST_ITEM = STREAM + EXT + "list" + EXT + "item";
+        public const string STREAM_DATA = NS + "stream-data";
+
         public const string ACCOUNT = NS + "account";
         public const string OBJECT = NS + "object";
+
       }
 
       public static class Control
@@ -57,6 +61,13 @@ namespace Speckle.ConnectorUnity.UI
         public const string RECEIVE = NS + "receiver";
         public const string OPEN_NEW = NS + "openInNew";
         public const string SELECT_ACCOUNT = NS + "selectAccount";
+
+        public const string SEARCH_URL = NS + "searchUrl";
+        public const string DROPDOWN = NS + "dropdown";
+
+
+
+
 
       }
 
@@ -104,6 +115,8 @@ namespace Speckle.ConnectorUnity.UI
       public const string REFRESH = "refresh";
       public const string SEND = "sender";
       public const string RECEIVE = "receiver";
+      public const string SEARCH = "search";
+
     }
 
 
@@ -120,6 +133,7 @@ namespace Speckle.ConnectorUnity.UI
         }
       }
 
+      [Obsolete("No longer using the right setup, use " + nameof(buttonWithIcon))]
       public static Button iconButton
       {
         get

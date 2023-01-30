@@ -3,60 +3,59 @@ using UnityEngine.UIElements;
 
 namespace Speckle.ConnectorUnity.Elements
 {
-	public class BranchElement : BindableElement, INotifyValueChanged<SpeckleBranch>
-	{
-		public new class UxmlTraits : BindableElement.UxmlTraits
-		{ }
 
-		public new class UxmlFactory : UxmlFactory<BranchElement, UxmlTraits>
-		{ }
+  public class BranchElement : BindableElement, INotifyValueChanged<SpeckleBranch>
+  {
+    public new class UxmlTraits : BindableElement.UxmlTraits
+    { }
 
-		public const string ussClassName = "branch-element";
+    public new class UxmlFactory : UxmlFactory<BranchElement, UxmlTraits>
+    { }
 
-		Label m_Title;
-		SpeckleBranch m_Value;
+    public const string ussClassName = "branch-element";
 
-		public BranchElement()
-		{
-			AddToClassList(ussClassName);
-			m_Title = new Label();
-			Add(m_Title);
-		}
+    Label m_Title;
+    SpeckleBranch m_Value;
 
-		void OnObjectFieldValueChanged(ChangeEvent<SpeckleBranch> evt)
-		{
-			value = evt.newValue;
-		}
+    public BranchElement()
+    {
+      AddToClassList(ussClassName);
+      m_Title = new Label();
+      Add(m_Title);
+    }
 
-		public void SetValueWithoutNotify(SpeckleBranch newValue)
-		{
-			if (newValue == null)
-			{
-				// Update the preview Image and update the ObjectField.
-				m_Value = newValue;
-				m_Title.name = m_Value.name;
-			}
-		}
+    void OnObjectFieldValueChanged(ChangeEvent<SpeckleBranch> evt)
+    {
+      value = evt.newValue;
+    }
 
-		public SpeckleBranch value
-		{
-			get => m_Value;
-			// The setter is called when the user changes the value of the ObjectField, which calls
-			// OnObjectFieldValueChanged(), which calls this.
-			set
-			{
-				if (value == this.value)
-					return;
+    public void SetValueWithoutNotify(SpeckleBranch newValue)
+    {
+      if(newValue == null)
+      {
+        // Update the preview Image and update the ObjectField.
+        m_Value = newValue;
+        m_Title.name = m_Value.name;
+      }
+    }
 
-				var previous = this.value;
-				SetValueWithoutNotify(value);
+    public SpeckleBranch value
+    {
+      get => m_Value;
+      // The setter is called when the user changes the value of the ObjectField, which calls
+      // OnObjectFieldValueChanged(), which calls this.
+      set
+      {
+        if(value == this.value) return;
 
-				using (var evt = ChangeEvent<SpeckleBranch>.GetPooled(previous, value))
-				{
-					evt.target = this;
-					SendEvent(evt);
-				}
-			}
-		}
-	}
+        var previous = this.value;
+        SetValueWithoutNotify(value);
+
+        using var evt = ChangeEvent<SpeckleBranch>.GetPooled(previous, value);
+        evt.target = this;
+        SendEvent(evt);
+      }
+    }
+  }
+
 }

@@ -134,7 +134,7 @@ public class Integrations
       totalChildrenCount = (int)@base.GetTotalChildrenCount() // will throw an error if no kiddos are found
     });
 
-    Assert.IsTrue(SpeckleUnity.Valid(res));
+    Assert.IsTrue(res.Valid());
     _possibleCommitsToDelete.Add(res);
 
     var commit = await _client.CommitGet(SpT.BCHP.streamId, res);
@@ -530,15 +530,15 @@ public class Units
     var @base = await SpT.GetMesh();
 
     Assert.IsNotNull(@base);
-    Assert.IsTrue(SpeckleUnity.Valid(@base.id));
-    Assert.IsTrue(SpeckleUnity.Valid(@base.speckle_type));
+    Assert.IsTrue(@base.id.Valid());
+    Assert.IsTrue(@base.speckle_type.Valid());
 
     var bb = new GameObject().AddComponent<BaseBehaviour>();
     await bb.Store(@base);
 
-    Assert.IsTrue(SpeckleUnity.Valid(bb.id) == SpeckleUnity.Valid(@base.id) && bb.id == @base.id);
-    Assert.IsTrue(SpeckleUnity.Valid(bb.speckle_type) == SpeckleUnity.Valid(@base.speckle_type) && bb.speckle_type == @base.speckle_type);
-    Assert.IsTrue(SpeckleUnity.Valid(bb.applicationId) == SpeckleUnity.Valid(@base.applicationId) && bb.applicationId == @base.applicationId);
+    Assert.IsTrue(bb.id.Valid() == @base.id.Valid() && bb.id == @base.id);
+    Assert.IsTrue(bb.speckle_type.Valid() == @base.speckle_type.Valid() && bb.speckle_type == @base.speckle_type);
+    Assert.IsTrue(bb.applicationId.Valid() == @base.applicationId.Valid() && bb.applicationId == @base.applicationId);
     Assert.IsTrue(bb.totalChildCount == @base.totalChildrenCount);
   });
 
