@@ -1,30 +1,51 @@
 ﻿using Speckle.Core.Models;
-using System;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Speckle.ConnectorUnity.Converter
 {
 
-  public interface IComponentConverterProcess
-  {
-    public event UnityAction<int> onQueueSizeChanged;
-
-  }
-
+  /// <summary>
+  ///   
+  /// </summary>
   public interface IComponentConverter
   {
 
-    public string speckle_type { get; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public string SpeckleType { get; }
 
-    public Type unity_type { get; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public string UnityType { get; }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
     public bool CanConvertToNative(Base type);
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
     public bool CanConvertToSpeckle(Component type);
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="base"></param>
+    /// <returns></returns>
     public GameObject ToNative(Base @base);
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="component"></param>
+    /// <returns></returns>
     public Base ToSpeckle(Component component);
 
   }

@@ -1,9 +1,6 @@
 using Cysharp.Threading.Tasks;
-using Speckle.ConnectorUnity;
 using Speckle.ConnectorUnity.Elements;
 using Speckle.ConnectorUnity.Models;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -14,19 +11,12 @@ public class StreamScriptableEditor : SpeckleEditor<SpeckleStreamObject>
   VisualElement _streamContainer;
 
   Button _searchButton;
-  DropdownField _branchDropField;
-  DropdownField _commitsDropField;
+
   SearchUrlElement _searchUrl;
-  StreamElement _streamElement;
+  StreamDataElement _streamElement;
 
   protected override string fileName => "stream-scriptable-card";
 
-  void OnDisable()
-  {
-    _branchDropField?.UnregisterValueChangedCallback(BranchChangeCallback);
-    _commitsDropField?.UnregisterValueChangedCallback(CommitChangeCallback);
-
-  }
 
   public override VisualElement CreateInspectorGUI()
   {
@@ -39,8 +29,10 @@ public class StreamScriptableEditor : SpeckleEditor<SpeckleStreamObject>
     _searchUrl.onSearch += Search;
     _searchUrl.Q<TextField>().bindingPath = "originalUrlInput";
 
-    _streamElement = Root.Q<StreamElement>();
-    _streamElement.SetValueWithoutNotify(Obj.SourceStream);
+    _streamElement = Root.Q<StreamDataElement>();
+    _streamElement.OnBranchInputChange += HandleBranchInputChange;
+    _streamElement.OnCommitInputChange += HandleCommitInputChange;
+    _streamElement.SetValueWithoutNotify(Obj.Source);
     _streamElement.SetPreviewTexture(Obj.Preview);
 
     Obj.OnPreviewSet += e => _streamElement.SetPreviewTexture(e);
@@ -48,36 +40,16 @@ public class StreamScriptableEditor : SpeckleEditor<SpeckleStreamObject>
     return Root;
   }
 
-  void BranchChangeCallback(ChangeEvent<string> e)
+  void HandleBranchInputChange(string branchName)
   {
-    Obj.SetBranch(e.newValue).Forget();
+    Debug.Log($"Handling new branch change to {branchName}");
+    Obj.SetBranch(branchName).Forget();
   }
 
-  void CommitChangeCallback(ChangeEvent<string> e)
+  void HandleCommitInputChange(string commitId)
   {
-    Obj.SetCommit(e.newValue).Forget();
-  }
-
-  static void CompileDropDown(DropdownField field, List<string> values, string activeValue)
-  {
-    var hashSet = new HashSet<string>();
-
-    foreach(var o in values)
-    {
-      if(o.Valid())
-      {
-        hashSet.Add(o);
-      }
-    }
-
-    if(activeValue.Valid())
-    {
-      hashSet.Add(activeValue);
-    }
-
-    field.Clear();
-    field.choices = hashSet.ToList();
-    field.SetValueWithoutNotify(hashSet.LastOrDefault());
+    Debug.Log($"Handling new commit change to {commitId}");
+    Obj.SetCommit(commitId).Forget();
   }
 
   void Search(string url)
@@ -86,10 +58,8 @@ public class StreamScriptableEditor : SpeckleEditor<SpeckleStreamObject>
     UniTask.Create(async () =>
     {
       await Obj.Initialize(url);
-      _streamElement.SetValueWithoutNotify(Obj.SourceStream);
+      _streamElement.SetValueWithoutNotify(Obj.Source);
     });
-
-    // Obj.Initialize(url).ContinueWith(() => { Debug.Log("Continue with call"); }).Forget();
 
   }
 

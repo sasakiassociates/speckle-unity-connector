@@ -13,8 +13,11 @@ using UnityEngine.Events;
 namespace Speckle.ConnectorUnity.Ops
 {
 
-  public abstract class OpsBehaviour<TArgs> : ClientBehaviour, IOps, IOpsEvent, IOpsWork<TArgs>
-    where TArgs : OpsWorkArgs
+  public abstract class OpsBehaviour<TArgs> :
+    ClientBehaviour,
+    IOps,
+    IOpsEvent,
+    IOpsWork<TArgs> where TArgs : OpsWorkArgs
   {
 
     [SerializeField] protected SpeckleObjectBehaviour root;
@@ -24,15 +27,17 @@ namespace Speckle.ConnectorUnity.Ops
     [SerializeField, HideInInspector] float progressAmount;
     [SerializeField, HideInInspector] int childCountTotal;
 
-    public event UnityAction OnStreamSet;
+    public event Action OnStreamSet;
 
-    public Stream Stream => stream?.source;
+    public Stream Stream => stream?.Source;
 
     public Branch Branch => stream?.Branch;
 
     public List<Branch> Branches => stream?.Branches ?? new List<Branch>();
 
     public List<Commit> Commits => stream?.Commits ?? new List<Commit>();
+
+    [field: SerializeField] public ISpeckleConverter Converter { get; protected set; }
 
     public Commit Commit => stream?.Commit;
 
@@ -51,8 +56,6 @@ namespace Speckle.ConnectorUnity.Ops
     }
 
     public TArgs Args { get; protected set; }
-
-    [field: SerializeField] public ISpeckleConverter converter { get; protected set; }
 
     public async UniTask LoadStream(string streamId)
     {
@@ -168,11 +171,11 @@ namespace Speckle.ConnectorUnity.Ops
         await LoadBranch(branchName);
     }
 
-    public async UniTask SetBranch(int branchIndex)
-    {
-      if(stream.BranchSet(branchIndex))
-        await LoadBranch(stream.Branches[branchIndex].name);
-    }
+    // public async UniTask SetBranch(int branchIndex)
+    // {
+    //   if(stream.BranchSet(branchIndex))
+    //     await LoadBranch(stream.Branches[branchIndex].name);
+    // }
 
     async UniTask LoadCommit(string commitId)
     {
@@ -206,13 +209,13 @@ namespace Speckle.ConnectorUnity.Ops
 
       if(!IsValid())
       {
-        Args.message = "Invalid Client";
-        SpeckleUnity.Console.Warn($"{name}-" + Args.message);
+        Args.Message = "Invalid Client";
+        SpeckleUnity.Console.Warn($"{name}-" + Args.Message);
       }
-      else if(converter == null)
+      else if(Converter == null)
       {
-        Args.message = "No active converter found";
-        SpeckleUnity.Console.Warn($"{name}-" + Args.message);
+        Args.Message = "No active converter found";
+        SpeckleUnity.Console.Warn($"{name}-" + Args.Message);
       }
       else
       {
@@ -225,10 +228,10 @@ namespace Speckle.ConnectorUnity.Ops
 
     public async UniTask DoWork(ISpeckleConverter newConverter)
     {
-      converter = newConverter ?? converter;
+      Converter = newConverter ?? Converter;
 
       // // TODO: during the build process this should compile and store these objects. 
-      if(converter == null)
+      if(Converter == null)
       {
         SpeckleUnity.Console.Error($"No Converter attached to {name}. Stopping work");
         return;

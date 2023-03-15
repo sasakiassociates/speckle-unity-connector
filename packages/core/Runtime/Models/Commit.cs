@@ -4,59 +4,72 @@ using Speckle.Core.Api;
 
 namespace Speckle.ConnectorUnity.Ops
 {
-	[Serializable]
-	public sealed class SpeckleCommit : GenericAdapter<Commit>
-	{
-		public string id;
-		public string message;
-		public string branchName;
-		public string authorName;
-		public string authorId;
-		public string authorAvatar;
-		public string createdAt;
-		public string sourceApplication;
-		public string referencedObject;
-		public int totalChildrenCount;
-		public List<string> parents;
 
-		protected override Commit Get()
-		{
-			return new Commit
-			{
-				authorId = this.authorId,
-				authorName = this.authorName,
-				authorAvatar = this.authorAvatar,
-				id = this.id,
-				message = this.message,
-				branchName = this.branchName,
-				referencedObject = this.referencedObject,
-				totalChildrenCount = this.totalChildrenCount,
-				createdAt = this.createdAt,
-				sourceApplication = this.sourceApplication,
-				parents = this.parents
-			};
-		}
+  [Serializable]
+  public sealed class SpeckleCommit : GenericAdapter<Commit>
+  {
+    public string id;
+    public string message;
+    public string branchName;
+    public string authorName;
+    public string authorId;
+    public string authorAvatar;
+    public string createdAt;
+    public string sourceApplication;
+    public string referencedObject;
+    public int totalChildrenCount;
+    public List<string> parents;
 
-		public override string ToString() => source.ToString();
+    protected override Commit Get()
+    {
+      return new Commit
+      {
+        authorId = this.authorId,
+        authorName = this.authorName,
+        authorAvatar = this.authorAvatar,
+        id = this.id,
+        message = this.message,
+        branchName = this.branchName,
+        referencedObject = this.referencedObject,
+        totalChildrenCount = this.totalChildrenCount,
+        createdAt = this.createdAt,
+        sourceApplication = this.sourceApplication,
+        parents = this.parents
+      };
+    }
 
-		public SpeckleCommit(Commit value) : base(value)
-		{
-			if (value == null) return;
+    public override string ToString() => Source.ToString();
 
-			authorId = value.authorId;
-			authorName = value.authorName;
-			authorAvatar = value.authorAvatar;
+    public SpeckleCommit(Commit value) : base(value)
+    {
+      if(value == null) return;
 
-			id = value.id;
-			message = value.message;
-			branchName = value.branchName;
-			referencedObject = value.referencedObject;
-			totalChildrenCount = value.totalChildrenCount;
+      authorId = value.authorId;
+      authorName = value.authorName;
+      authorAvatar = value.authorAvatar;
 
-			createdAt = value.createdAt;
-			sourceApplication = value.sourceApplication;
+      id = value.id;
+      message = value.message;
+      branchName = value.branchName;
+      referencedObject = value.referencedObject;
+      totalChildrenCount = value.totalChildrenCount;
 
-			parents = value.parents;
-		}
-	}
+      createdAt = value.createdAt;
+      sourceApplication = value.sourceApplication;
+
+      parents = value.parents;
+    }
+  }
+
+  [Serializable]
+  public sealed class SpeckleCommits
+  {
+    public List<SpeckleCommit> Items { get; private set; }
+
+    public int TotalCount { get; private set; }
+    
+    public string Cursor { get; private set; }
+
+  }
+
 }

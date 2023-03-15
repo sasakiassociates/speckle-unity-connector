@@ -20,20 +20,20 @@ namespace Speckle.ConnectorUnity.Ops
   [AddComponentMenu(SpeckleUnity.NAMESPACE + "/Receiver")]
   public class Receiver : OpsBehaviour<ReceiveWorkArgs>
   {
-    [SerializeField] ReceiveMode _mode;
-    [SerializeField] bool _autoReceive;
-    [SerializeField] bool _sendReceive;
-    [SerializeField] bool _deleteOld = true;
-    [SerializeField] Texture _preview;
-    [SerializeField] bool _showPreview = true;
-    [SerializeField] bool _renderPreview = true;
+    [SerializeField] ReceiveMode mode;
+    [SerializeField] bool autoReceive;
+    [SerializeField] bool sendReceive;
+    [SerializeField] bool deleteOld = true;
+    [SerializeField] Texture preview;
+    [SerializeField] bool showPreview = true;
+    [SerializeField] bool renderPreview = true;
 
-    public Texture preview => _preview;
+    public Texture Preview => preview;
 
-    public bool showPreview
+    public bool ShowPreview
     {
-      get => _showPreview;
-      set => _showPreview = value;
+      get => showPreview;
+      set => showPreview = value;
     }
 
     protected override async UniTask Execute()
@@ -45,13 +45,13 @@ namespace Speckle.ConnectorUnity.Ops
         root = new GameObject().AddComponent<SpeckleObjectBehaviour>();
 
         // NOTE: this might now need to happen
-        switch(stream.type)
+        switch(stream.Type)
         {
           case StreamWrapperType.Commit:
             var c = await client.CommitGet(stream.Id, stream.Commit.id);
 
             // TODO: check if this getting the commit updates the instance
-            if(_sendReceive)
+            if(sendReceive)
               client.CommitReceived(new CommitReceivedInput()
               {
                 streamId = stream.Id,
@@ -60,10 +60,10 @@ namespace Speckle.ConnectorUnity.Ops
                 sourceApplication = SpeckleUnity.APP
               }).Forget();
 
-            root.source = await client.ObjectGet(stream.Id, c.referencedObject);
+            root.Source = await client.ObjectGet(stream.Id, c.referencedObject);
             break;
           case StreamWrapperType.Object:
-            root.source = await client.ObjectGet(stream.Id, stream.Object.id);
+            root.Source = await client.ObjectGet(stream.Id, stream.Object.id);
             break;
           case StreamWrapperType.Branch:
           case StreamWrapperType.Stream:
@@ -77,8 +77,8 @@ namespace Speckle.ConnectorUnity.Ops
 
         if(!root.IsValid())
         {
-          Args.message = "The reference object pulled down from this stream is not valid";
-          SpeckleUnity.Console.Warn($"{name}-" + Args.message);
+          Args.Message = "The reference object pulled down from this stream is not valid";
+          SpeckleUnity.Console.Warn($"{name}-" + Args.Message);
           return;
         }
 
@@ -86,22 +86,22 @@ namespace Speckle.ConnectorUnity.Ops
 
         if(@base == null)
         {
-          Args.message = "Data from Commit was not valid";
-          SpeckleUnity.Console.Warn($"{name}-" + Args.message);
+          Args.Message = "Data from Commit was not valid";
+          SpeckleUnity.Console.Warn($"{name}-" + Args.Message);
           return;
         }
 
-        Args.referenceObj = root.id;
+        Args.ReferenceObj = root.id;
 
         // TODO: handle the process for update objects and not just force deleting
-        if(_deleteOld)
+        if(deleteOld)
           root.Purge();
 
         // TODO: Handle separating the operation call from the conversion
-        await root.ConvertToScene(@base, converter, token);
+        await root.ConvertToScene(@base, Converter, Token);
 
-        Args.success = true;
-        Args.message = $"Completed {nameof(Execute)}";
+        Args.Success = true;
+        Args.Message = $"Completed {nameof(Execute)}";
         OnNodeComplete?.Invoke(root);
       }
       catch(SpeckleException e)
@@ -124,10 +124,10 @@ namespace Speckle.ConnectorUnity.Ops
       if(client == null || !client.IsValid())
         return;
 
-      client.source.SubscribeCommitCreated(Stream.id);
-      client.source.OnCommitCreated += (_, c) => OnCommitCreated?.Invoke(c);
-      client.source.SubscribeCommitUpdated(Stream.id);
-      client.source.OnCommitUpdated += (_, c) => OnCommitUpdated?.Invoke(c);
+      client.Source.SubscribeCommitCreated(Stream.id);
+      client.Source.OnCommitCreated += (_, c) => OnCommitCreated?.Invoke(c);
+      client.Source.SubscribeCommitUpdated(Stream.id);
+      client.Source.OnCommitUpdated += (_, c) => OnCommitUpdated?.Invoke(c);
     }
 
     protected override UniTask PostLoadCommit()
@@ -141,7 +141,7 @@ namespace Speckle.ConnectorUnity.Ops
       if(!IsValid())
         await UniTask.Yield();
 
-      _preview = await Utils.GetTexture(stream.GetUrl(true, baseAccount.serverInfo.url));
+      preview = await Utils.GetTexture(stream.GetUrl(true, BaseAccount.serverInfo.url));
 
       OnPreviewSet?.Invoke();
 

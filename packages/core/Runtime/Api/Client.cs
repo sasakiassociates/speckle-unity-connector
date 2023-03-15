@@ -20,24 +20,24 @@ namespace Speckle.ConnectorUnity.Ops
 
     public Account Account
     {
-      get => account?.source;
+      get => account?.Source;
     }
 
     public CancellationToken token { get; set; }
 
-    public Client source { get; private set; }
+    public Client Source { get; private set; }
 
     public SpeckleClient(Account obj)
     {
       if(obj == null) return;
 
       account = new SpeckleAccount(obj);
-      source = new Client(Account);
+      Source = new Client(Account);
     }
 
     public void Dispose()
     {
-      source?.Dispose();
+      Source?.Dispose();
     }
 
     /// <summary>
@@ -73,7 +73,7 @@ namespace Speckle.ConnectorUnity.Ops
     /// Checks if this this linked with an account and speckle this 
     /// </summary>
     /// <returns></returns>
-    public bool IsValid() => Account != null && source != null;
+    public bool IsValid() => Account != null && Source != null;
 
   #region object operations
 
@@ -90,7 +90,7 @@ namespace Speckle.ConnectorUnity.Ops
       {
         if(IsValid())
         {
-          res = await source.ObjectGet(token, streamId, objectId);
+          res = await Source.ObjectGet(token, streamId, objectId);
         }
       }
       catch(SpeckleException e)
@@ -116,7 +116,7 @@ namespace Speckle.ConnectorUnity.Ops
       try
       {
         if(IsValid())
-          res = await source.BranchCreate(token, input);
+          res = await Source.BranchCreate(token, input);
       }
       catch(SpeckleException e)
       {
@@ -137,7 +137,7 @@ namespace Speckle.ConnectorUnity.Ops
       try
       {
         if(IsValid())
-          res = await source.BranchDelete(token, input);
+          res = await Source.BranchDelete(token, input);
       }
       catch(SpeckleException e)
       {
@@ -158,7 +158,7 @@ namespace Speckle.ConnectorUnity.Ops
     {
       var items = new List<Branch>();
       if(IsValid() && streamId.Valid())
-        items = await source.StreamGetBranches(token, streamId, branchLimit, commitLimit);
+        items = await Source.StreamGetBranches(token, streamId, branchLimit, commitLimit);
 
       return items;
     }
@@ -177,7 +177,7 @@ namespace Speckle.ConnectorUnity.Ops
       {
         if(IsValid())
         {
-          res = await source.BranchGet(token, streamId, branchName, commitLimit);
+          res = await Source.BranchGet(token, streamId, branchName, commitLimit);
         }
       }
       catch(SpeckleException e)
@@ -204,7 +204,7 @@ namespace Speckle.ConnectorUnity.Ops
       try
       {
         if(IsValid())
-          res = await source.CommitGet(token, streamId, commitId);
+          res = await Source.CommitGet(token, streamId, commitId);
       }
       catch(SpeckleException e)
       {
@@ -221,7 +221,7 @@ namespace Speckle.ConnectorUnity.Ops
       try
       {
         if(IsValid())
-          res = await source.CommitGet(token, streamId, commitId) != null;
+          res = await Source.CommitGet(token, streamId, commitId) != null;
       }
       catch(SpeckleException e)
       {
@@ -242,7 +242,7 @@ namespace Speckle.ConnectorUnity.Ops
       try
       {
         if(IsValid())
-          res = await source.CommitCreate(token, input);
+          res = await Source.CommitCreate(token, input);
       }
       catch(SpeckleException e)
       {
@@ -263,7 +263,7 @@ namespace Speckle.ConnectorUnity.Ops
       try
       {
         if(IsValid())
-          res = await source.CommitUpdate(token, input);
+          res = await Source.CommitUpdate(token, input);
       }
       catch(SpeckleException e)
       {
@@ -284,7 +284,7 @@ namespace Speckle.ConnectorUnity.Ops
       try
       {
         if(IsValid())
-          res = await source.CommitDelete(token, input);
+          res = await Source.CommitDelete(token, input);
       }
       catch(SpeckleException e)
       {
@@ -305,7 +305,7 @@ namespace Speckle.ConnectorUnity.Ops
       try
       {
         if(IsValid())
-          res = await source.CommitReceived(token, input);
+          res = await Source.CommitReceived(token, input);
       }
       catch(SpeckleException e)
       {
@@ -347,7 +347,7 @@ namespace Speckle.ConnectorUnity.Ops
       try
       {
         if(IsValid())
-          streamId = await source.StreamCreate(token, input);
+          streamId = await Source.StreamCreate(token, input);
       }
       catch(SpeckleException e)
       {
@@ -368,7 +368,7 @@ namespace Speckle.ConnectorUnity.Ops
       try
       {
         if(IsValid())
-          res = await source.StreamDelete(token, streamId);
+          res = await Source.StreamDelete(token, streamId);
       }
       catch(SpeckleException e)
       {
@@ -389,7 +389,7 @@ namespace Speckle.ConnectorUnity.Ops
       try
       {
         if(IsValid())
-          res = await source.StreamUpdate(token, input);
+          res = await Source.StreamUpdate(token, input);
       }
       catch(SpeckleException e)
       {
@@ -420,7 +420,7 @@ namespace Speckle.ConnectorUnity.Ops
       try
       {
         if(IsValid())
-          res = await source.StreamGetActivity(token, streamId, before, after, cursor, actionType, limit);
+          res = await Source.StreamGetActivity(token, streamId, before, after, cursor, actionType, limit);
       }
       catch(SpeckleException e)
       {
@@ -442,7 +442,7 @@ namespace Speckle.ConnectorUnity.Ops
       try
       {
         if(IsValid())
-          res = await source.StreamSearch(token, streamId, branchLimit);
+          res = await Source.StreamSearch(token, streamId, branchLimit);
       }
       catch(SpeckleException e)
       {
@@ -464,7 +464,7 @@ namespace Speckle.ConnectorUnity.Ops
       try
       {
         if(IsValid())
-          res = await source.StreamGet(token, streamId, branchLimit);
+          res = await Source.StreamGet(token, streamId, branchLimit);
       }
       catch(SpeckleException e)
       {
@@ -480,7 +480,7 @@ namespace Speckle.ConnectorUnity.Ops
       try
       {
         if(IsValid())
-          res = await source.StreamsGet(token, streamLimit);
+          res = await Source.StreamsGet(token, streamLimit);
       }
       catch(SpeckleException e)
       {

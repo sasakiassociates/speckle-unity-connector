@@ -1,9 +1,40 @@
 @import url('project://database/Packages/com.speckle.connector/GUI/USS/speckle-controls.uss?fileID=7433441132597879392&guid=0af3db8ccf034e0b845a16834335c11c&type=3#speckle-controls');
-
 .speckle-control__dropdown {
     flex-grow: 1;
 }
 
 .speckle-control__searchUrl .speckle-element__texture-icon {
     background-image: url('project://database/Packages/com.speckle.connector/GUI/Assets/card-search-outline.svg?fileID=7388822144124034973&guid=aaaab93edc8bf7a4aa69f15e79772211&type=3#card-search-outline');
+}
+
+.unity-base-text-field {
+    padding-left: 1px;
+    padding-right: 1px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.speckle-container__stream-info {
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.speckle-container__rows {
+    padding-left: 1px;
+    padding-right: 1px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
+#speckle-container__viewport {
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.speckle-control__dropdown {
+    flex-grow: 1;
 }

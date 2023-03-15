@@ -22,15 +22,15 @@ namespace Speckle.ConnectorUnity.Ops
 
     public Texture2D avatar;
 
-    string id;
-    string token;
-    string refreshToken;
+    string _id;
+    string _token;
+    string _refreshToken;
 
-    public string Id => id;
+    public string Id => _id;
 
-    public string Token => token;
+    public string Token => _token;
 
-    public string RefreshToken => refreshToken;
+    public string RefreshToken => _refreshToken;
 
     public bool IsDefault => isDefault;
 
@@ -39,9 +39,9 @@ namespace Speckle.ConnectorUnity.Ops
     {
       if(value == null) return;
 
-      id = value.id;
-      token = value.token;
-      refreshToken = value.refreshToken;
+      _id = value.id;
+      _token = value.token;
+      _refreshToken = value.refreshToken;
 
       isDefault = value.isDefault;
       serverUrl = value.serverInfo.url;
@@ -92,19 +92,19 @@ namespace Speckle.ConnectorUnity.Ops
     }
 
 
-    public override string ToString() => "Account (" + this.userInfo.email + " | " + this.serverInfo.url + ")";
+    public override string ToString() => "Account (" + this.UserInfo.email + " | " + this.ServerInfo.url + ")";
 
     protected override Account Get()
     {
       // NOTE: don't load the account directly from the serialized data. 
       // NOTE: use the manager to load in the account properly 
 
-      return userInfo.GetAccountByUserInfo();
+      return UserInfo.GetAccountByUserInfo();
 
       // TODO: handle other ways of looking for accounts
     }
 
-    public UserInfo userInfo =>
+    public UserInfo UserInfo =>
       new UserInfo()
       {
         email = userEmail,
@@ -114,7 +114,7 @@ namespace Speckle.ConnectorUnity.Ops
         company = userCompany
       };
 
-    public ServerInfo serverInfo =>
+    public ServerInfo ServerInfo =>
       new ServerInfo()
       {
         company = serverCompany,

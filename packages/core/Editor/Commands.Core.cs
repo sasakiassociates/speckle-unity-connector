@@ -55,12 +55,12 @@ namespace Speckle.ConnectorUnity
 
       if (string.IsNullOrEmpty(path))
       {
-        if (!AssetDatabase.IsValidFolder(Su.Folders.StreamsPath))
+        if (!AssetDatabase.IsValidFolder(Su.Folders.STREAMS_PATH))
         {
-          AssetDatabase.CreateFolder(Su.Folders.ParentName + "/" + Su.Folders.BaseName, Su.Folders.StreamsName);
+          AssetDatabase.CreateFolder(Su.Folders.PARENT_NAME + "/" + Su.Folders.BASE_NAME, Su.Folders.STREAMS_NAME);
         }
 
-        path = Su.Folders.StreamsPath;
+        path = Su.Folders.STREAMS_PATH;
       }
       else if (path.Contains("."))
       {
@@ -94,7 +94,7 @@ namespace Speckle.ConnectorUnity
 
     public static string SafeGetConverterManager()
     {
-      var guids = AssetDatabase.FindAssets($"t:{typeof(ConverterManager)}", new[] { Su.Folders.BasePath });
+      var guids = AssetDatabase.FindAssets($"t:{typeof(ConverterManager)}", new[] { Su.Folders.BASE_PATH });
       string path;
 
       if (guids != null && guids.Any())
@@ -103,7 +103,7 @@ namespace Speckle.ConnectorUnity
       }
       else
       {
-        path = Su.Folders.BasePath + nameof(ConverterManager) + ".asset";
+        path = Su.Folders.BASE_PATH + nameof(ConverterManager) + ".asset";
         var item = ScriptableObject.CreateInstance<ConverterManager>();
         AssetDatabase.CreateAsset(item, path);
         AssetDatabase.SaveAssets();
@@ -117,12 +117,12 @@ namespace Speckle.ConnectorUnity
 
     public static string SafeGetAssetFolder()
     {
-      if (!AssetDatabase.IsValidFolder(Su.Folders.BasePath))
+      if (!AssetDatabase.IsValidFolder(Su.Folders.BASE_PATH))
       {
-        AssetDatabase.CreateFolder(Su.Folders.ParentName, Su.Folders.BaseName);
+        AssetDatabase.CreateFolder(Su.Folders.PARENT_NAME, Su.Folders.BASE_NAME);
       }
 
-      return Su.Folders.BasePath;
+      return Su.Folders.BASE_PATH;
     }
 
  

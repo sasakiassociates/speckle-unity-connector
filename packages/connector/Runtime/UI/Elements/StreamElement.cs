@@ -186,7 +186,7 @@ namespace Speckle.ConnectorUnity.Elements
     }
 
 
-    public void SetValueWithoutNotify(SpeckleStream newValue)
+    public virtual void SetValueWithoutNotify(SpeckleStream newValue)
     {
       if(newValue == null)
       {

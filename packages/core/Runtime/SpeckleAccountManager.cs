@@ -38,14 +38,14 @@ namespace Speckle.ConnectorUnity
 
     public static Account GetAccountByEmail(string input) => CheckAccountsFor(account => account.userInfo.email.Equals(input));
 
-    static Account CheckAccountsFor(Func<Account, bool> Check)
+    static Account CheckAccountsFor(Func<Account, bool> check)
     {
       Account res = null;
       try
       {
         foreach (var account in AccountManager.GetAccounts())
         {
-          if (account != null && Check(account))
+          if (account != null && check(account))
           {
             res = account;
             SpeckleUnity.Console.Log($"Account Found {res.userInfo.name} | {res.serverInfo.name}");
@@ -62,7 +62,7 @@ namespace Speckle.ConnectorUnity
       return res;
     }
     
-    static async UniTask<Account> CheckAccountsForAsync(Func<Account, bool> Check)
+    static async UniTask<Account> CheckAccountsForAsync(Func<Account, bool> check)
     {
       Account res = null;
       try
@@ -70,7 +70,7 @@ namespace Speckle.ConnectorUnity
         await AccountManager.UpdateAccounts();
         foreach (var account in AccountManager.GetAccounts())
         {
-          if (account != null && Check(account))
+          if (account != null && check(account))
           {
             res = account;
             SpeckleUnity.Console.Log($"Account Found {res.userInfo.name} | {res.serverInfo.name}");

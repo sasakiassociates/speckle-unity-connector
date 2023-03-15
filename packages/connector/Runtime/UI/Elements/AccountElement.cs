@@ -88,8 +88,8 @@ namespace Speckle.ConnectorUnity.Elements
 
       _value = newValue;
 
-      serverInfo = _value.serverInfo;
-      userInfo = _value.userInfo;
+      serverInfo = _value.ServerInfo;
+      userInfo = _value.UserInfo;
     }
 
     void SafeSetValue(string label, string input)

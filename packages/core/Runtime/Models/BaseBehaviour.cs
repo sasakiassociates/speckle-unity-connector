@@ -14,42 +14,42 @@ namespace Speckle.ConnectorUnity.Models
   public class BaseBehaviour : MonoBehaviour, IBase
   {
 
-    [SerializeField, ReadOnly] string _speckle_type;
-    [SerializeField, ReadOnly] string _applicationId;
-    [SerializeField, ReadOnly] string _id;
-    [SerializeField, ReadOnly] long _totalChildCount;
+    [SerializeField, ReadOnly] string speckleType;
+    [SerializeField, ReadOnly] string applicationId;
+    [SerializeField, ReadOnly] string id;
+    [SerializeField, ReadOnly] long totalChildCount;
 
-    [SerializeField] SpeckleProperties _props;
+    [SerializeField] SpeckleProperties props;
 
-    [SerializeField, HideInInspector] bool _hasChanged;
+    [SerializeField, HideInInspector] bool hasChanged;
 
     public event UnityAction OnPropsChanged;
 
-    public string id => _id;
+    public string ID => id;
 
-    public string speckle_type => _speckle_type;
+    public string SpeckleType => speckleType;
 
-    public string applicationId => _applicationId;
+    public string ApplicationId => applicationId;
 
-    public long totalChildCount => _totalChildCount;
+    public long TotalChildCount => totalChildCount;
 
-    public SpeckleProperties props
+    public SpeckleProperties Props
     {
-      get => _props;
+      get => props;
       protected set
       {
         if(value == null) return;
 
-        _props = value;
-        _props.OnCollectionChange += _ =>
+        props = value;
+        props.OnCollectionChange += _ =>
         {
-          _hasChanged = true;
+          hasChanged = true;
           OnPropsChanged?.Invoke();
         };
       }
     }
 
-    public virtual HashSet<string> excluded
+    public virtual HashSet<string> Excluded
     {
       get
       {
@@ -64,8 +64,8 @@ namespace Speckle.ConnectorUnity.Models
     {
       get
       {
-        if(props.Data.ContainsKey(key))
-          return props.Data[key];
+        if(Props.Data.ContainsKey(key))
+          return Props.Data[key];
 
         var prop = GetType().GetProperty(key);
 
@@ -75,9 +75,9 @@ namespace Speckle.ConnectorUnity.Models
       {
         if(!this.IsPropNameValid(key, out string reason)) SpeckleUnity.Console.Warn("Invalid prop name: " + reason);
 
-        if(props.Data.ContainsKey(key))
+        if(Props.Data.ContainsKey(key))
         {
-          props.Data[key] = value;
+          Props.Data[key] = value;
           return;
         }
 
@@ -85,7 +85,7 @@ namespace Speckle.ConnectorUnity.Models
 
         if(prop == null)
         {
-          props.Data[key] = value;
+          Props.Data[key] = value;
           return;
         }
 
@@ -109,10 +109,10 @@ namespace Speckle.ConnectorUnity.Models
 
     public void OnBeforeSerialize()
     {
-      if(!_hasChanged) return;
+      if(!hasChanged) return;
 
-      props.Serialize();
-      _hasChanged = false;
+      Props.Serialize();
+      hasChanged = false;
     }
 
     public void OnAfterDeserialize()
@@ -124,10 +124,10 @@ namespace Speckle.ConnectorUnity.Models
     /// <param name="base"></param>
     protected virtual void HandleBaseProps(Base @base)
     {
-      _id = @base.id;
-      _speckle_type = @base.speckle_type;
-      _applicationId = @base.applicationId;
-      _totalChildCount = @base.totalChildrenCount;
+      id = @base.id;
+      speckleType = @base.speckle_type;
+      applicationId = @base.applicationId;
+      totalChildCount = @base.totalChildrenCount;
     }
 
     /// <summary>
@@ -135,8 +135,8 @@ namespace Speckle.ConnectorUnity.Models
     /// </summary>
     protected virtual void HandleTypeProps(Base @base)
     {
-      props = new SpeckleProperties();
-      props.Serialize(@base);
+      Props = new SpeckleProperties();
+      Props.Serialize(@base);
     }
 
   }

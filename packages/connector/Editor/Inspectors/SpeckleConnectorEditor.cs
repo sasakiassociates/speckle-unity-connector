@@ -218,7 +218,7 @@ namespace Speckle.ConnectorUnity
         // if an account is selected make sure to send that back before rebuilding the list
         if(_selectedIndex >= 0)
         {
-          Obj.Initialize(Obj.accounts[_selectedIndex].source).Forget();
+          Obj.Initialize(Obj.accounts[_selectedIndex].Source).Forget();
           return;
         }
       }

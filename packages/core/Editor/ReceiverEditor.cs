@@ -61,7 +61,7 @@ namespace Speckle.ConnectorUnity
 			Refresh(commits, obj.Commits.Format(), commitIndex);
 		}
 
-		Texture GetPreview() => obj.showPreview ? obj.preview : null;
+		Texture GetPreview() => obj.ShowPreview ? obj.Preview : null;
 
 		protected override void RefreshAll()
 		{

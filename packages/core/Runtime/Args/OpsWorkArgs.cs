@@ -2,23 +2,23 @@
 {
 	public abstract class OpsWorkArgs
 	{
-		public string message { get; set; }
+		public string Message { get; set; }
 
-		public bool success { get; set; }
+		public bool Success { get; set; }
 
 	}
 
 	public class SendWorkArgs : OpsWorkArgs
 	{
 
-		public string commitId { get; set; }
+		public string CommitId { get; set; }
 
-		public string url { get; set; }
+		public string URL { get; set; }
 
 	}
 
 	public class ReceiveWorkArgs : OpsWorkArgs
 	{
-		public string referenceObj { get; set; }
+		public string ReferenceObj { get; set; }
 	}
 }

@@ -33,15 +33,15 @@ namespace Speckle.ConnectorUnity.Ops
     /// </summary>
     [ReadOnly] public int totalChildrenCount;
 
-    [SerializeField] SpeckleObjectHierarchy _hierarchy;
+    [SerializeField] SpeckleObjectHierarchy hierarchy;
 
-    public SpeckleObjectHierarchy hierarchy
+    public SpeckleObjectHierarchy Hierarchy
     {
-      get => _hierarchy;
-      set => _hierarchy = value;
+      get => hierarchy;
+      set => hierarchy = value;
     }
 
-    public SpeckleObject source
+    public SpeckleObject Source
     {
       get =>
         new SpeckleObject
@@ -66,11 +66,11 @@ namespace Speckle.ConnectorUnity.Ops
 
     public bool IsValid() => id.Valid();
 
-    void OnEnable() => hierarchy ??= new SpeckleObjectHierarchy();
+    void OnEnable() => Hierarchy ??= new SpeckleObjectHierarchy();
 
     public void Purge()
     {
-      var objs = hierarchy.GetObjects();
+      var objs = Hierarchy.GetObjects();
 
       if(!objs.Valid()) return;
 

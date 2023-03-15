@@ -156,7 +156,7 @@ namespace Speckle.ConnectorUnity
 
       var ops = new GameObject().AddComponent<TOperator>();
 
-      ops.Initialize(baseAccount);
+      ops.Initialize(BaseAccount);
       await ops.LoadStream(selectedStream.Id);
 
     #if UNITY_EDITOR

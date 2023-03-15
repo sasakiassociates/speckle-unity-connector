@@ -20,7 +20,7 @@ namespace Speckle.ConnectorUnity.Ops
   [ExecuteAlways]
   public class Sender : OpsBehaviour<SendWorkArgs>
   {
-    [SerializeField] string _message;
+    [SerializeField] string message;
 
     Base _data;
 
@@ -60,7 +60,7 @@ namespace Speckle.ConnectorUnity.Ops
     /// <returns></returns>
     public async UniTask DoWork(string message, CancellationTokenSource tokenSource = null)
     {
-      _message = message.Valid() ? message : string.Empty;
+      this.message = message.Valid() ? message : string.Empty;
       await base.DoWork();
     }
 
@@ -75,17 +75,17 @@ namespace Speckle.ConnectorUnity.Ops
 
         if(root == null && _data == null)
         {
-          Args.message = $"No objects were found in {nameof(SpeckleNode)} to send. Stopping call";
-          SpeckleUnity.Console.Warn(Args.message);
+          Args.Message = $"No objects were found in {nameof(SpeckleNode)} to send. Stopping call";
+          SpeckleUnity.Console.Warn(Args.Message);
           return;
         }
 
-        _data ??= root.SceneToData(converter, token);
+        _data ??= root.SceneToData(Converter, Token);
 
         if(_data == null)
         {
-          Args.message = "There is no data in this commit to send. Stopping call";
-          SpeckleUnity.Console.Warn(Args.message);
+          Args.Message = "There is no data in this commit to send. Stopping call";
+          SpeckleUnity.Console.Warn(Args.Message);
           return;
         }
 
@@ -98,17 +98,17 @@ namespace Speckle.ConnectorUnity.Ops
             objectId = objectId,
             streamId = stream.Id,
             branchName = Branch.name,
-            message = _message.Valid() ? _message : $"Objects from Unity {count}",
+            message = message.Valid() ? message : $"Objects from Unity {count}",
             sourceApplication = SpeckleUnity.APP,
             totalChildrenCount = (int)count
           });
 
-        Args.success = true;
-        Args.commitId = commitId;
-        Args.message = $"Commit sent to {Branch}! ({objectId})";
-        Args.url = Utils.GetUrl(false, client.Account.serverInfo.url, stream.Id, StreamWrapperType.Commit, commitId);
+        Args.Success = true;
+        Args.CommitId = commitId;
+        Args.Message = $"Commit sent to {Branch}! ({objectId})";
+        Args.URL = Utils.GetUrl(false, client.Account.serverInfo.url, stream.Id, StreamWrapperType.Commit, commitId);
 
-        onDataSent?.Invoke(objectId);
+        OnDataSent?.Invoke(objectId);
       }
       catch(SpeckleException e)
       {
@@ -124,7 +124,7 @@ namespace Speckle.ConnectorUnity.Ops
       }
     }
 
-    public event UnityAction<string> onDataSent;
+    public event UnityAction<string> OnDataSent;
   }
 
 }

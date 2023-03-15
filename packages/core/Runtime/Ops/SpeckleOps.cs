@@ -31,9 +31,9 @@ namespace Speckle.ConnectorUnity.Ops
         return;
       }
 
-      parent.hierarchy = new SpeckleObjectHierarchy(parent.transform);
+      parent.Hierarchy = new SpeckleObjectHierarchy(parent.transform);
 
-      await ConvertToScene(parent.hierarchy, data, converter, token);
+      await ConvertToScene(parent.Hierarchy, data, converter, token);
     }
 
     /// <summary>
@@ -198,7 +198,7 @@ namespace Speckle.ConnectorUnity.Ops
     {
       var data = new Base();
 
-      foreach(var layer in speckleObj.hierarchy.layers)
+      foreach(var layer in speckleObj.Hierarchy.layers)
       {
         if(token.IsCancellationRequested)
           return data;
@@ -305,8 +305,7 @@ namespace Speckle.ConnectorUnity.Ops
 
       return objs.Any();
     }
-
-
+    
     public static TBase SearchForTypeSync<TBase>(this Base obj, bool recursive) where TBase : Base
     {
       if(obj is TBase simpleCast) return simpleCast;

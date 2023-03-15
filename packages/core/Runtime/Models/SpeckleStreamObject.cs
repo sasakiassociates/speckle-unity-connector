@@ -28,26 +28,26 @@ namespace Speckle.ConnectorUnity.Models
     [SerializeField] bool show;
     [SerializeField] string originalUrlInput;
 
-    CancellationTokenSource sourceToken;
+    CancellationTokenSource _sourceToken;
 
-    public event UnityAction OnInitialize;
-    public event UnityAction OnStreamSet;
-    public event UnityAction<Texture> OnPreviewSet;
-    public event UnityAction<Commit> OnCommitSet;
-    public event UnityAction<Branch> OnBranchSet;
+    public event Action OnInitialize;
+    public event Action OnStreamSet;
+    public event Action<Texture> OnPreviewSet;
+    // public event Action<SpeckleCommit> OnCommitSet;
+    // public event Action<SpeckleBranch> OnBranchSet;
 
-    public Client baseClient => client?.source;
+    public Client BaseClient => client?.Source;
 
-    public SpeckleStream SourceStream => stream;
 
-    public Stream Stream => stream?.source;
+    public SpeckleStream Source => stream;
+    public Stream Stream => stream?.Source;
 
-    public CancellationToken token
+    public CancellationToken Token
     {
       get
       {
-        sourceToken ??= new CancellationTokenSource();
-        return sourceToken.Token;
+        _sourceToken ??= new CancellationTokenSource();
+        return _sourceToken.Token;
       }
     }
 
@@ -71,7 +71,7 @@ namespace Speckle.ConnectorUnity.Models
 
     public string OriginalUrlInput => originalUrlInput;
 
-    public Account baseAccount => account?.source;
+    public Account BaseAccount => account?.Source;
 
     public Texture Preview => preview;
 
@@ -83,6 +83,7 @@ namespace Speckle.ConnectorUnity.Models
 
     public async UniTask SetBranch(string branchName)
     {
+      
       if(stream.BranchSet(branchName))
         await LoadBranch(branchName);
     }
@@ -94,7 +95,7 @@ namespace Speckle.ConnectorUnity.Models
     }
 
     /// <summary>
-    /// Checks if <see cref="baseClient"/> and <see cref="Stream"/> are both valid 
+    /// Checks if <see cref="BaseClient"/> and <see cref="Stream"/> are both valid 
     /// </summary>
     /// <returns></returns>
     public bool IsValid()
@@ -147,11 +148,6 @@ namespace Speckle.ConnectorUnity.Models
       {
         SpeckleUnity.Console.Warn(e.Message);
       }
-
-      finally
-      {
-        OnInitialize?.Invoke();
-      }
     }
 
     public UniTask Initialize(Account obj)
@@ -170,7 +166,7 @@ namespace Speckle.ConnectorUnity.Models
           account = new SpeckleAccount(obj);
           client = new SpeckleClient(obj);
           client.token = new CancellationToken();
-          sourceToken = CancellationTokenSource.CreateLinkedTokenSource(client.token);
+          _sourceToken = CancellationTokenSource.CreateLinkedTokenSource(client.token);
         }
       }
       catch(SpeckleException e)
@@ -191,8 +187,8 @@ namespace Speckle.ConnectorUnity.Models
     /// </summary>
     public void Cancel()
     {
-      sourceToken?.Cancel();
-      sourceToken?.Dispose();
+      _sourceToken?.Cancel();
+      _sourceToken?.Dispose();
       client?.Dispose();
     }
 
@@ -262,21 +258,26 @@ namespace Speckle.ConnectorUnity.Models
 
     async UniTask<bool> TryLoadStream(string streamId)
     {
-      if(sourceToken != null && sourceToken.Token.CanBeCanceled)
+      if(_sourceToken != null && _sourceToken.Token.CanBeCanceled)
       {
-        sourceToken.Cancel();
-        sourceToken.Dispose();
+        _sourceToken.Cancel();
+        _sourceToken.Dispose();
       }
 
-      sourceToken = new CancellationTokenSource();
+      _sourceToken = new CancellationTokenSource();
 
-      if(baseAccount == null)
+      if(stream != null)
       {
-        SpeckleUnity.Console.Warn($"Invalid {nameof(Core.Credentials.Account)}\n" + $"{(baseAccount != null ? baseAccount.ToString() : "invalid")}");
+        // stream.OnBranchSet -= OnBranchSet;
+        // stream.OnCommitSet -= OnCommitSet;
+      }
+      if(BaseAccount == null)
+      {
+        SpeckleUnity.Console.Warn($"Invalid {nameof(Core.Credentials.Account)}\n" + $"{(BaseAccount != null ? BaseAccount.ToString() : "invalid")}");
         return false;
       }
 
-      client = new SpeckleClient(account.source);
+      client = new SpeckleClient(account.Source);
 
       if(!client.IsValid())
       {
@@ -284,7 +285,7 @@ namespace Speckle.ConnectorUnity.Models
         return false;
       }
 
-      client.token = sourceToken.Token;
+      client.token = _sourceToken.Token;
 
       if(!streamId.Valid())
       {
@@ -292,7 +293,8 @@ namespace Speckle.ConnectorUnity.Models
         return false;
       }
 
-      stream = new SpeckleStream(await client.StreamGet(streamId));
+      var streamInstance = await client.StreamGet(streamId);
+      stream = new SpeckleStream(streamInstance);
 
       if(!stream.IsValid())
       {
@@ -300,11 +302,40 @@ namespace Speckle.ConnectorUnity.Models
         return false;
       }
 
+      // stream.OnBranchSet += OnBranchSet;
+      // stream.OnCommitSet += OnCommitSet;
+
       return true;
     }
 
+    bool TryCheckClient()
+    {
+      // if the client is there
+      if(client != null && client.IsValid()) return true;
+      
+      // check if client is null and account is valid 
+      if(account!= null && account.Valid())
+      {
+        SpeckleUnity.Console.Log("Creating new Client");
+        client = new SpeckleClient(account.Source);
+      }
+      
+      return client.IsValid();
+    }
+    
     async UniTask LoadObject(string objectId, bool updatePreview = true)
     {
+      if(!TryCheckClient())
+      {
+        SpeckleUnity.Console.Warn($"No valid client available for {nameof(LoadObject)}");
+        return;
+      }
+      // check if client is null and account is valid 
+      if(client == null && account!= null && account.Valid())
+      {
+        client = new SpeckleClient(account.Source);
+        
+      }
       await stream.LoadObject(client, objectId);
 
       if(updatePreview)
@@ -313,9 +344,13 @@ namespace Speckle.ConnectorUnity.Models
 
     async UniTask LoadCommit(string commitId, bool updatePreview = true)
     {
+      if(!TryCheckClient())
+      {
+        SpeckleUnity.Console.Warn($"No valid client available for {nameof(LoadCommit)}");
+        return;
+      }
+      
       await stream.LoadCommit(client, commitId);
-
-      OnCommitSet?.Invoke(Commit);
 
       if(updatePreview)
         await UpdatePreview();
@@ -323,9 +358,13 @@ namespace Speckle.ConnectorUnity.Models
 
     async UniTask LoadBranch(string branchName, bool updatePreview = true)
     {
+      if(!TryCheckClient())
+      {
+        SpeckleUnity.Console.Warn($"No valid client available for {nameof(LoadBranch)}");
+        return;
+      }
+      
       await stream.LoadBranch(client, branchName);
-
-      OnBranchSet?.Invoke(Branch);
 
       if(updatePreview)
         await UpdatePreview();
@@ -339,7 +378,7 @@ namespace Speckle.ConnectorUnity.Models
         await UniTask.Yield();
       }
 
-      preview = await Utils.GetTexture(stream.GetUrl(true, baseAccount.serverInfo.url));
+      preview = await Utils.GetTexture(stream.GetUrl(true, BaseAccount.serverInfo.url));
 
       OnPreviewSet?.Invoke(preview);
 

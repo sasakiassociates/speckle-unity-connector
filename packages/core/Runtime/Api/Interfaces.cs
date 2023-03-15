@@ -27,11 +27,11 @@ namespace Speckle.ConnectorUnity.Ops
 
     // public SpeckleClient client { get; }
 
-    public Account baseAccount { get; }
+    public Account BaseAccount { get; }
 
-    public Client baseClient { get; }
+    public Client BaseClient { get; }
 
-    public CancellationToken token { get; }
+    public CancellationToken Token { get; }
 
     public UniTask Initialize(Account obj);
 
@@ -39,7 +39,7 @@ namespace Speckle.ConnectorUnity.Ops
 
     public void Cancel();
 
-    public event UnityAction OnInitialize;
+    public event Action OnInitialize;
 
   }
 
@@ -50,7 +50,7 @@ namespace Speckle.ConnectorUnity.Ops
 
     public UniTask LoadStream(string streamId);
 
-    public event UnityAction OnStreamSet;
+    public event Action OnStreamSet;
 
   }
 

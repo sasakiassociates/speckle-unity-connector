@@ -40,12 +40,12 @@ namespace Speckle.ConnectorUnity.Ops
 			description = this.description,
 			commits = new Commits
 			{
-				items = commits.Valid() ? commits.Select(x => x.source).ToList() : new List<Commit>(),
+				items = commits.Valid() ? commits.Select(x => x.Source).ToList() : new List<Commit>(),
 				cursor = commitCursor,
 				totalCount = commitTotalCount,
 			}
 		};
 
-		public override string ToString() => source.ToString();
+		public override string ToString() => Source.ToString();
 	}
 }

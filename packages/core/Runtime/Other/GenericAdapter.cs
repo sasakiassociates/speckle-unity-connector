@@ -2,7 +2,8 @@
 {
   public interface ICanAdapt<TObj>
   {
-    public TObj source { get; set; }
+    public TObj Source { get; set; }
+    
 
   }
 
@@ -16,7 +17,7 @@
       _source = value;
     }
 
-    public virtual TObj source
+    public virtual TObj Source
     {
       get => _source ?? Get();
       protected set => _source = value;

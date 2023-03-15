@@ -8,13 +8,13 @@ namespace Speckle.ConnectorUnity.Models
 	public class SpeckleObjectHierarchy
 	{
 
-		[SerializeField] SpeckleLayer _defaultLayer;
+		[SerializeField] SpeckleLayer defaultLayer;
 
 		public Transform parent;
 
 		public List<SpeckleLayer> layers;
 
-		public SpeckleLayer DefaultLayer => _defaultLayer;
+		public SpeckleLayer DefaultLayer => defaultLayer;
 
 		public SpeckleObjectHierarchy() => layers = new List<SpeckleLayer>();
 
@@ -26,8 +26,8 @@ namespace Speckle.ConnectorUnity.Models
 
 		public void SetDefault(SpeckleLayer layer)
 		{
-			_defaultLayer = layer;
-			layers.Add(_defaultLayer);
+			defaultLayer = layer;
+			layers.Add(defaultLayer);
 		}
 
 		public void Add(SpeckleLayer layer)

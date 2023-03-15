@@ -80,6 +80,7 @@
 
 .speckle-control__searchUrl .unity-text-field {
     flex-grow: 1;
+    flex-shrink: 1;
 }
 
 

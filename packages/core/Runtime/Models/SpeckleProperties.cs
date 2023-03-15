@@ -25,13 +25,13 @@ namespace Speckle.ConnectorUnity.Models
 			_observableConcurrentDict.CollectionChanged += (_, args) => OnCollectionChange?.Invoke(args);
 		}
 
-		[SerializeField] [HideInInspector] string _jsonString = "";
+		[SerializeField] [HideInInspector] string jsonString = "";
 
 		public event UnityAction<NotifyCollectionChangedEventArgs> OnCollectionChange;
 
 		HashSet<string> _excludedProps;
 
-		public HashSet<string> excludedProps
+		public HashSet<string> ExcludedProps
 		{
 			get
 			{
@@ -56,21 +56,21 @@ namespace Speckle.ConnectorUnity.Models
 
 		public UniTask Serialize(Base @base, HashSet<string> props)
 		{
-			if (props != null) excludedProps = props;
+			if (props != null) ExcludedProps = props;
 			return Serialize(@base);
 		}
 
 		public UniTask Serialize(Base @base)
 		{
-			Data = @base.GetMembers().Where(x => !excludedProps.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
-			_jsonString = Operations.Serialize(@base);
+			Data = @base.GetMembers().Where(x => !ExcludedProps.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
+			jsonString = Operations.Serialize(@base);
 			return UniTask.CompletedTask;
 		}
 
 		public UniTask Serialize(IDictionary<string, object> objectProps)
 		{
 			Data = objectProps;
-			_jsonString = Operations.Serialize(new BasePropsWrapper(Data));
+			jsonString = Operations.Serialize(new BasePropsWrapper(Data));
 			return UniTask.CompletedTask;
 		}
 
@@ -85,7 +85,7 @@ namespace Speckle.ConnectorUnity.Models
 			foreach (var d in Data)
 				tData[d.Key] = d.Value;
 
-			_jsonString = Operations.Serialize(new BasePropsWrapper(Data));
+			jsonString = Operations.Serialize(new BasePropsWrapper(Data));
 			return UniTask.CompletedTask;
 		}
 
@@ -95,7 +95,7 @@ namespace Speckle.ConnectorUnity.Models
 
 			await UniTask.Create(() =>
 			{
-				_jsonString = Operations.Serialize(@base);
+				jsonString = Operations.Serialize(@base);
 				return UniTask.CompletedTask;
 			});
 
@@ -106,7 +106,7 @@ namespace Speckle.ConnectorUnity.Models
 
 			await UniTask.Create(() =>
 			{
-				Data = @base.GetMembers().Where(x => !excludedProps.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
+				Data = @base.GetMembers().Where(x => !ExcludedProps.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
 				return UniTask.CompletedTask;
 			});
 
@@ -116,7 +116,7 @@ namespace Speckle.ConnectorUnity.Models
 
 			await UniTask.Create(() =>
 			{
-				var speckleData = Operations.Deserialize(_jsonString);
+				var speckleData = Operations.Deserialize(jsonString);
 
 				SpeckleUnity.Console.Log(speckleData.speckle_type);
 				SpeckleUnity.Console.Log(speckleData.id);

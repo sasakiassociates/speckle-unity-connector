@@ -181,7 +181,7 @@ public class Integrations
 
     await client.Initialize(AccountManager.GetDefaultAccount(), SpT.SIMPLE.streamId);
 
-    Assert.IsNotNull(client.converter);
+    Assert.IsNotNull(client.Converter);
     Assert.IsNotNull(client.Stream.id == SpT.SIMPLE.streamId);
     Assert.IsTrue(client.Branches.Valid());
     Assert.IsNotNull(client.Branch);
@@ -189,21 +189,21 @@ public class Integrations
 
     Assert.IsTrue(client.IsValid());
 
-    client.converter.SetConverterSettings(new ScriptableConverterSettings() {style = ConverterStyle.Direct});
+    client.Converter.SetConverterSettings(new ConverterSettings() {style = ConverterSettings.ConversionStyle.Sync});
     await client.DoWork();
 
     Assert.IsNotNull(client.Args);
-    Assert.IsTrue(client.Args.success);
-    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.message));
-    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.referenceObj));
+    Assert.IsTrue(client.Args.Success);
+    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.Message));
+    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.ReferenceObj));
 
-    client.converter.SetConverterSettings(new ScriptableConverterSettings() {style = ConverterStyle.Direct});
+    client.Converter.SetConverterSettings(new ConverterSettings() {style = ConverterSettings.ConversionStyle.Sync});
     await client.DoWork();
 
     Assert.IsNotNull(client.Args);
-    Assert.IsTrue(client.Args.success);
-    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.message));
-    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.referenceObj));
+    Assert.IsTrue(client.Args.Success);
+    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.Message));
+    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.ReferenceObj));
   });
 
   [UnityTest, Category(SpT.C_OPS)]
@@ -216,7 +216,7 @@ public class Integrations
     await client.Initialize(AccountManager.GetDefaultAccount());
 
 
-    Assert.IsNotNull(client.converter);
+    Assert.IsNotNull(client.Converter);
     Assert.IsNotNull(client.Stream.id == SpT.SIMPLE.streamId);
     Assert.IsTrue(client.Branches.Valid());
     Assert.IsNotNull(client.Branch);
@@ -224,21 +224,21 @@ public class Integrations
 
     Assert.IsTrue(client.IsValid());
 
-    client.converter.SetConverterSettings(new ScriptableConverterSettings {style = ConverterStyle.Queue});
+    client.Converter.SetConverterSettings(new ConverterSettings {style = ConverterSettings.ConversionStyle.Queue});
     await client.DoWork();
     Assert.IsNotNull(client.Args);
 
-    Assert.IsTrue(client.Args.success);
-    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.message));
-    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.referenceObj));
+    Assert.IsTrue(client.Args.Success);
+    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.Message));
+    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.ReferenceObj));
 
-    client.converter.SetConverterSettings(new ScriptableConverterSettings {style = ConverterStyle.Queue});
+    client.Converter.SetConverterSettings(new ConverterSettings {style = ConverterSettings.ConversionStyle.Queue});
     await client.DoWork();
 
     Assert.IsNotNull(client.Args);
-    Assert.IsTrue(client.Args.success);
-    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.message));
-    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.referenceObj));
+    Assert.IsTrue(client.Args.Success);
+    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.Message));
+    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.ReferenceObj));
   });
 
   [UnityTest, Category(SpT.C_OPS)]
@@ -250,7 +250,7 @@ public class Integrations
 
     await client.Initialize(AccountManager.GetDefaultAccount(), SpT.SIMPLE.streamId);
 
-    Assert.IsNotNull(client.converter);
+    Assert.IsNotNull(client.Converter);
     Assert.IsNotNull(client.Stream.id == SpT.SIMPLE.streamId);
     Assert.IsTrue(client.Branches.Valid());
     Assert.IsNotNull(client.Branch);
@@ -268,13 +268,13 @@ public class Integrations
     await client.DoWork(@base);
 
     Assert.IsNotNull(client.Args);
-    Assert.IsTrue(client.Args.success);
-    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.message));
-    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.commitId));
-    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.url));
+    Assert.IsTrue(client.Args.Success);
+    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.Message));
+    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.CommitId));
+    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.URL));
 
     Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput
-      {streamId = client.Stream.id, id = client.Args.commitId}));
+      {streamId = client.Stream.id, id = client.Args.CommitId}));
 
     // Send using speckle node
     var obj = new GameObject("Speckle Object").AddComponent<SpeckleObjectBehaviour>();
@@ -283,17 +283,17 @@ public class Integrations
 
     baseProp.Store(@base);
     layer.Add(baseProp.gameObject);
-    obj.hierarchy.Add(layer);
+    obj.Hierarchy.Add(layer);
 
     await client.DoWork(obj);
 
     Assert.IsNotNull(client.Args);
-    Assert.IsTrue(client.Args.success);
-    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.message));
-    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.commitId));
-    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.url));
+    Assert.IsTrue(client.Args.Success);
+    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.Message));
+    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.CommitId));
+    Assert.IsTrue(!string.IsNullOrEmpty(client.Args.URL));
 
-    Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput() {streamId = client.Stream.id, id = client.Args.commitId}));
+    Assert.IsTrue(await _client.CommitDelete(new CommitDeleteInput() {streamId = client.Stream.id, id = client.Args.CommitId}));
   });
 
 }
@@ -484,11 +484,11 @@ public class Units
     var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
 
     Assert.IsNotNull(wrapper);
-    Assert.IsNull(wrapper.activity);
+    Assert.IsNull(wrapper.Activity);
 
     Assert.IsTrue(await wrapper.LoadActivity(client));
-    Assert.IsNotNull(wrapper.activity);
-    Assert.IsNotEmpty(wrapper.activity.items);
+    Assert.IsNotNull(wrapper.Activity);
+    Assert.IsNotEmpty(wrapper.Activity.items);
   });
 
   [UnityTest, Category(SpT.C_STREAM)]
@@ -498,13 +498,13 @@ public class Units
     var wrapper = new SpeckleStream(await client.StreamGet(SpT.BCHP.streamId));
 
     Assert.IsNotNull(wrapper);
-    Assert.IsTrue(wrapper.type == StreamWrapperType.Stream);
+    Assert.IsTrue(wrapper.Type == StreamWrapperType.Stream);
 
     Assert.IsTrue(await wrapper.LoadBranch(client, SpT.BCHP.branchName));
-    Assert.IsTrue(wrapper.type == StreamWrapperType.Branch);
+    Assert.IsTrue(wrapper.Type == StreamWrapperType.Branch);
 
     Assert.IsTrue(await wrapper.LoadCommit(client, SpT.BCHP.commitId));
-    Assert.IsTrue(wrapper.type == StreamWrapperType.Commit);
+    Assert.IsTrue(wrapper.Type == StreamWrapperType.Commit);
   });
 
   [UnityTest, Category(SpT.C_CLIENT)]
@@ -536,10 +536,10 @@ public class Units
     var bb = new GameObject().AddComponent<BaseBehaviour>();
     await bb.Store(@base);
 
-    Assert.IsTrue(bb.id.Valid() == @base.id.Valid() && bb.id == @base.id);
-    Assert.IsTrue(bb.speckle_type.Valid() == @base.speckle_type.Valid() && bb.speckle_type == @base.speckle_type);
-    Assert.IsTrue(bb.applicationId.Valid() == @base.applicationId.Valid() && bb.applicationId == @base.applicationId);
-    Assert.IsTrue(bb.totalChildCount == @base.totalChildrenCount);
+    Assert.IsTrue(bb.ID.Valid() == @base.id.Valid() && bb.ID == @base.id);
+    Assert.IsTrue(bb.SpeckleType.Valid() == @base.speckle_type.Valid() && bb.SpeckleType == @base.speckle_type);
+    Assert.IsTrue(bb.ApplicationId.Valid() == @base.applicationId.Valid() && bb.ApplicationId == @base.applicationId);
+    Assert.IsTrue(bb.TotalChildCount == @base.totalChildrenCount);
   });
 
 }

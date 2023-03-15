@@ -79,7 +79,7 @@ namespace Speckle.ConnectorUnity
 
 		protected virtual void SetBranchChange(int index)
 		{
-			obj.SetBranch(index).Forget();
+			// obj.SetBranch(index).Forget();
 		}
 
 		protected virtual void SetConverterChange(int index)

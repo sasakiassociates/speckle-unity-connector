@@ -2,6 +2,7 @@
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
 using Speckle.Core.Logging;
+using System;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Events;
@@ -17,17 +18,16 @@ namespace Speckle.ConnectorUnity.Ops
 
     CancellationTokenSource _sourceToken;
 
+    public event Action OnInitialize;
 
-    public event UnityAction OnInitialize;
+    public Account BaseAccount => account?.Source;
 
-    public Account baseAccount => account?.source;
-
-    public Client baseClient => client?.source;
+    public Client BaseClient => client?.Source;
 
     /// <summary>
     /// A Token tied to this game object
     /// </summary>
-    public CancellationToken token
+    public CancellationToken Token
     {
       get
       {
@@ -111,7 +111,7 @@ namespace Speckle.ConnectorUnity.Ops
 
 
     /// <summary>
-    /// Returns true if <see cref="baseClient"/> is valid
+    /// Returns true if <see cref="BaseClient"/> is valid
     /// </summary>
     /// <returns></returns>
     public virtual bool IsValid() => client != null && client.IsValid();

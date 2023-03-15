@@ -10,7 +10,7 @@ namespace Speckle.ConnectorUnity.Converter
   public class ConverterUnity : ScriptableConverter
   {
 
-    protected override List<ComponentConverter> StandardConverters() => new List<ComponentConverter>
+    protected override List<ComponentConverter> GetDefaultConverters() => new List<ComponentConverter>
     {
       CreateInstance<MeshComponentConverter>(),
       CreateInstance<PolylineComponentConverter>(),

@@ -114,7 +114,7 @@ namespace Speckle.ConnectorUnity
     /// <returns></returns>
     public static bool Valid(this Account obj) => obj != null && obj.id.Valid() && obj.token.Valid() && obj.serverInfo.url.Valid();
 
-    public static bool Valid(this SpeckleAccount obj) => obj?.source != null && Valid(obj.source);
+    public static bool Valid(this SpeckleAccount obj) => obj?.Source != null && Valid(obj.Source);
   }
 
 }

@@ -1,4 +1,0 @@
-﻿namespace Speckle.ConnectorUnity.Ops
-{
-	
-}

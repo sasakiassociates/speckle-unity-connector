@@ -10,20 +10,20 @@ namespace Speckle.ConnectorUnity.Models
 
 		public UniTask Store(Base @base);
 
-		public string id { get; }
+		public string ID { get; }
 
-		public string speckle_type { get; }
+		public string SpeckleType { get; }
 
-		public string applicationId { get; }
+		public string ApplicationId { get; }
 
-		public long totalChildCount { get; }
+		public long TotalChildCount { get; }
 
 	}
 	public interface IBaseDynamic
 	{
-		public HashSet<string> excluded { get; }
+		public HashSet<string> Excluded { get; }
 
-		SpeckleProperties props { get; }
+		SpeckleProperties Props { get; }
 
 		#region copy pasta from speckle core models
 

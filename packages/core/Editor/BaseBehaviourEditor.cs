@@ -59,12 +59,12 @@ namespace Speckle.ConnectorUnity
 				return card;
 			}
 
-			var keys = obj.props.Data.Keys.ToArray();
+			var keys = obj.Props.Data.Keys.ToArray();
 
 			void bindItem(VisualElement e, int i)
 			{
 				var propName = keys[i];
-				var prop = obj.props.Data[propName];
+				var prop = obj.Props.Data[propName];
 				e.Add(new Label(propName));
 				e.Add(new Label(prop.GetType().ToString()));
 

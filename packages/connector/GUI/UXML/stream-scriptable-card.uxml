@@ -1,5 +1,5 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Packages/com.speckle.connector/GUI/USS/stream-data-card.uss?fileID=7433441132597879392&amp;guid=e571c1193621423e97a9e4665eadc8f4&amp;type=3#stream-data-card"/>
-    <Speckle.ConnectorUnity.Elements.SearchUrlElement/>
-    <Speckle.ConnectorUnity.Elements.StreamElement show-preview="true" show-open-url="true" show-description="true"/>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Packages/com.speckle.connector/GUI/USS/stream-data-card.uss?fileID=7433441132597879392&amp;guid=e571c1193621423e97a9e4665eadc8f4&amp;type=3#stream-data-card" />
+    <Speckle.ConnectorUnity.Elements.SearchUrlElement />
+    <Speckle.ConnectorUnity.Elements.StreamDataElement show-preview="true" show-open-url="true" show-description="true" show-converters="false" />
 </ui:UXML>
